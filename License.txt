@@ -1,0 +1,43 @@
+This is the file License.txt, it applies to the OnlineDataProc for Lazarus and Delphi,
+distributed by Yang JiXian - jixian.yang at gmail.com.
+
+The License for Lazarus is the same modifying LGPL with static linking exception as the LCL.
+
+The License for Delphi is commercial.
+
+1. License for Lazarus
+The source code of the OnlineDataProc for Lazarus is distributed under the GNU
+Lesser General Public License (see the file LGPL.2.1.txt) with the
+following modification:
+
+As a special exception, the copyright holders of this library give you permission to link 
+this library with independent modules to produce an executable, regardless of the
+ license terms of these independent modules,and to copy and distribute the resulting 
+executable under terms of your choice, provided that you also meet, for each linked 
+independent module, the terms and conditions of the license of that module. An 
+independent module is a module which is not derived from or based on this library.
+If you modify this library, you may extend this exception to your version of the library, 
+but you are not obligated to do so. If you do not wish to do so, delete this exception 
+statement from your version.
+
+2. The License for Delphi
+PLEASE READ THIS LICENSE AGREEMENT CAREFULLY. BY INSTALLING OR USING THIS 
+SOFTWARE, YOU INDICATE ACCEPTANCE OF AND AGREE TO BECOME BOUND BY THE 
+TERMS AND CONDITIONS OF THIS LICENSE. IF YOU DO NOT AGREE TO THE TERMS OF 
+THIS LICENSE, DO NOT INSTALL OR USE THIS SOFTWARE.
+
+This is a legal agreement between you (either an individual or an entity), the end-user, 
+and Yang JiXian. This software may be used by a single developer who uses the software 
+personally on one or more computers.
+
+The software is owned by Yang JiXian and is protected by international copyright laws 
+and treaty provisions. You may not remove the copyright notice from any copy of the 
+software or any copy of the written materials, if any, accompanying the software. 
+
+The license grants using OnlineDataProc for a single person. The license grants you a 
+non-exclusive right to compile, reproduce, and distribute any new software programs 
+created using OnlineDataProc. You can distribute OnlineDataProc only in compiled 
+executable programs.
+
+All units, source code, and other files remain exclusive property.
+

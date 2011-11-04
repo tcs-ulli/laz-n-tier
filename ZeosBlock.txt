@@ -1,0 +1,94 @@
+conConnection: TZConnection;
+  sqlScript: TZSQLProcessor;
+  Button1: TButton;
+  Button2: TButton;
+  Memo1: TMemo;
+
+procedure TForm1.Button1Click(Sender: TObject);
+var i:integer; My_DateTime:TDateTime;
+begin
+Button1.Caption:='o';
+Button2.Caption:='o';
+sqlScript.Script.Clear;
+  memo1.Lines.Clear;
+//  memo1.Lines.LoadFromFile('e:\demos\adb.txt');
+//  memo1.Lines.Assign(sqlscript.Script);
+//  sqlScript.LoadFromFile('e:\demos\adb.txt');
+memo1.Hide;
+for i:=0 to 100000 do
+begin
+//sqlScript.Script.Add('insert into namen values('+IntToStr(i)+','+'''aaa'''+');');
+memo1.Lines.Add('insert into namen values('+IntToStr(i)+','+'''aaa'''+');');
+if (i mod 300)=0 then
+Caption:=IntToStr(i);
+end;
+
+memo1.Show;
+memo1.Update;
+
+My_DateTime:=now;
+sqlScript.Script.Assign(memo1.Lines);
+Button1.Caption:=FloatToStr((now-My_DateTime)*24*60*60);
+
+My_DateTime:=now;
+
+  conConnection.StartTransaction;
+  Try
+   sqlScript.Execute;
+  Except
+   conConnection.Rollback; 
+  End;
+//  conConnection.Commit;
+
+Button2.Caption:=FloatToStr((now-My_DateTime)*24*60*60);
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  conConnection.Commit;
+  Close;
+end;
+
+测试时在
+  conConnection.Commit;
+之前数据未写入库中，执行后写入了。
+
+CREATE TABLE NAMEN (
+  RECNO NUMERIC(9,0),
+  NAME  VARCHAR(28)
+);
+
+
+
+
+以下语句在IBExpert个人版中测试通过，加入三十万记录，不用多长时间的，稍候而已。
+不过用ZEOSLIB时我用上面的示例TZSQLProcessor装入以下语句通不过。你可以自己测试或用其它控件试试。
+
+试好了别忘了到这里公布一下。
+
+CREATE TABLE CCC (
+  ID   INTEGER,
+  CUSTID VARCHAR(10)
+);
+
+delete from ccc;
+
+EXECUTE BLOCK
+AS
+DECLARE I INT = 0;
+DECLARE N INT = 300000;
+DECLARE S VARCHAR(255);
+BEGIN
+--set transaction;
+WHILE (i < N) DO
+BEGIN
+insert into ccc values (:i, 'aaa');
+  i = i + 1;
+END
+--commit transaction;
+END
+
+
+
+
+

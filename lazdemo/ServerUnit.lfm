@@ -1,0 +1,25 @@
+object ServerForm: TServerForm
+  Left = 131
+  Height = 240
+  Top = 136
+  Width = 320
+  Caption = 'ServerForm'
+  LCLVersion = '0.9.31'
+  object ZeosDataServer1: TZeosDataServer
+    Active = True
+    LocalOnly = False
+    AuthRequired = False
+    ZeosDBConnection = ZConnection1
+    Port = '8080'
+    OnCustInternalCall = ZeosDataServer1CustInternalCall
+    OnUserLogonCall = ZeosDataServer1UserLogonCall
+    left = 72
+    top = 43
+  end
+  object ZConnection1: TZConnection
+    Protocol = 'sqlite-3'
+    Database = '.\dbdemos.db3'
+    left = 144
+    top = 43
+  end
+end
