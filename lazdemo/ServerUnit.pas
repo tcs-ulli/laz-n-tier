@@ -65,7 +65,6 @@ end;
 function TServerForm.ZeosDataServer1UserLogonCall(UserName, Password:
   TNetProcString): TLogonStyle;
 begin
-  //Caption := UserName;
   Result := LogedOnServer;
 end;
 

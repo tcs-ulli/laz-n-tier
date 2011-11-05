@@ -38,7 +38,7 @@
       </Item2>
       <Item3>
         <PackageName Value="FCL"/>
-        <MinVersion Major="1" Release="1" Valid="True"/>
+        <MinVersion Major="1" Valid="True" Release="1"/>
       </Item3>
       <Item4>
         <PackageName Value="LCL"/>
@@ -49,11 +49,11 @@
         <Filename Value="Serverpro.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Serverpro"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="22"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -65,9 +65,9 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="43"/>
-        <CursorPos X="17" Y="66"/>
-        <UsageCount Value="21"/>
+        <TopLine Value="5"/>
+        <CursorPos X="1" Y="68"/>
+        <UsageCount Value="22"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -98,12 +98,10 @@
       <Unit5>
         <Filename Value="..\DataProcUtils.pas"/>
         <UnitName Value="DataProcUtils"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="46"/>
         <CursorPos X="54" Y="60"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit5>
     </Units>
     <JumpHistory Count="15" HistoryIndex="14">
@@ -182,6 +180,7 @@
     <Linking>
       <Debugging>
         <GenerateDebugInfo Value="True"/>
+        <DebugInfoType Value="dsStabs"/>
       </Debugging>
       <Options>
         <Win32>

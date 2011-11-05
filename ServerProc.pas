@@ -163,7 +163,6 @@ type
       FUser, FSubFuncs: TNetProcString): boolean;
     function ServerCheckLogon(UserCode, UcPSW: TNetProcString): TLogonStyle;
     procedure ExecFuncChangPSW;
-    procedure Writelog(value: TNetProcString);
     function ServerSQLProc(CustInstrucV: Byte; SQLVS: SQLStyle;
       FUser, SQLValue: TNetProcString): Byte;
     function ServerStoredProc(CustInstrucV, SQLVS: Byte;
@@ -212,18 +211,21 @@ var
   DoSSpecialQuery: T_Do_S_Proc;
   DoSReturnValue: T_Do_S_ReturnProc;
 
+procedure Writelog(value: TNetProcString);
+
 implementation
 
 {$I SQLProcUtils.inc}
 {$I MemDBRADv.inc}
 
-procedure TServerConnBuffer.Writelog(value: TNetProcString);
+procedure Writelog(value: TNetProcString);
 var
   f: textFile;
   s: TNetProcString;
 begin
+  {$IFDEF EnableLOG}
   s := value;
-  s := ExtractFilePath(ParamStr(0)) + 'DBOnLine.log';
+  s := ExtractFilePath(ParamStr(0)) + 'DBNetProc.log';
   assignfile(f, s);
   if fileexists(s) then
     append(f)
@@ -234,6 +236,7 @@ begin
   finally
     Closefile(f);
   end;
+  {$ENDIF}
 end;
 
 procedure TOnlineDataSource.SetOnlineDataSet(Value: TServerSockQuery);
@@ -414,6 +417,7 @@ begin
       end;
   end;
   Result := True;
+  Writelog(SQL.Text);
 end;
 
 function TServerSockQuery.SuperOpen: boolean;
@@ -488,6 +492,7 @@ begin
       Self.SQL.Text := UpdateUPDFunc(Self.SQL.Text, DataOwner.TempORGID1,
         DataOwner.TempORGID2, DataOwner.TempOrgStyle);
   end;
+  Writelog(SQL.Text);
 end;
 
 function TServerSockQuery.SuperExecSQL: integer;
@@ -500,6 +505,7 @@ begin
     Exit;
   Self.SQL.Text := Trim(Self.SQL.Text);
   Result := RowsAffected;
+  Writelog(SQL.Text);
 end;
 
 procedure TServerSockQuery.InitializeStoredProc;

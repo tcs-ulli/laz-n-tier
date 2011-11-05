@@ -57,17 +57,18 @@ uses
 type
   TOnNetProcListChange = procedure() of object;
 
-  TNetProcList = class (TStringList)
+  TNetProcList = class(TStringList)
   private
     FOnNetProcListChange: TOnNetProcListChange;
   protected
   public
-    function Add(const S: string): Integer; override;
+    function Add(const S: string): integer; override;
     procedure Clear; override;
-    procedure Delete(Index: Integer); override;
-    procedure Exchange(Index1, Index2: Integer); override;
-    procedure Insert(Index: Integer; const S: string); override;
-    property OnNetProcListChange: TOnNetProcListChange read FOnNetProcListChange write FOnNetProcListChange;
+    procedure Delete(Index: integer); override;
+    procedure Exchange(Index1, Index2: integer); override;
+    procedure Insert(Index: integer; const S: string); override;
+    property OnNetProcListChange: TOnNetProcListChange
+      read FOnNetProcListChange write FOnNetProcListChange;
   end;
 
   TOnlineQuery = class(TMemDB)
@@ -199,7 +200,7 @@ type
 
 implementation
 
-function TNetProcList.Add(const S: string): Integer;
+function TNetProcList.Add(const S: string): integer;
 begin
   inherited Add(S);
   if Assigned(FOnNetProcListChange) then
@@ -213,21 +214,21 @@ begin
     FOnNetProcListChange;
 end;
 
-procedure TNetProcList.Delete(Index: Integer);
+procedure TNetProcList.Delete(Index: integer);
 begin
   inherited Delete(Index);
   if Assigned(FOnNetProcListChange) then
     FOnNetProcListChange;
 end;
 
-procedure TNetProcList.Exchange(Index1, Index2: Integer);
+procedure TNetProcList.Exchange(Index1, Index2: integer);
 begin
   inherited Exchange(Index1, Index2);
   if Assigned(FOnNetProcListChange) then
     FOnNetProcListChange;
 end;
 
-procedure TNetProcList.Insert(Index: Integer; const S: string);
+procedure TNetProcList.Insert(Index: integer; const S: string);
 begin
   inherited Insert(Index, S);
   if Assigned(FOnNetProcListChange) then
@@ -275,6 +276,7 @@ begin
   FInstrucNum := IstInternalOpen;
   FSubInstrucNum := 0;
   FSQL.OnNetProcListChange := SQLStringChange;
+//  DateSeparator := '-';
 end;
 
 destructor TOnlineQuery.Destroy;
@@ -316,9 +318,60 @@ begin
     Result := A1;
 end;
 
+function FieldToSQLString(Field: TField; TmpStr, Value: TNetProcString): TNetProcString;
+begin
+  case Field.DataType of
+    ftUnknown, ftString, ftFixedChar, ftWideString, ftMemo, ftVariant, ftBlob,
+    ftFmtMemo:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '''' + ' ' + ''''
+      else
+      begin
+        if Pos('''', TmpStr) > 0 then
+          TmpStr := StringReplace(TmpStr, #39, '['']', [rfReplaceAll]);
+        TmpStr := '''' + Value + '''';
+      end;
+    end;
+    ftTypedBinary:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := 'NULL'
+      else
+        TmpStr := Value;
+    end;
+    ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftBCD, ftBytes,
+    ftVarBytes, ftAutoInc, ftLargeint:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '0';
+    end;
+    ftBoolean:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '0';
+    end;
+    ftDate, ftTime, ftDateTime:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '''' + '2009-11-01 11:11:11' + ''''
+      else
+        TmpStr := '''' + Value + '''';
+    end;
+    else
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '''' + ' ' + ''''
+      else
+        TmpStr := Value;
+    end;
+  end;
+  Result := TmpStr;
+end;
+
 procedure TOnlineQuery.GenerateInsertData;
 var
-  _SQL, _Into, _Values, _Where, S, S1, TmpStr: TNetProcString;
+  _SQL, _Into, _Values, _Where, S, S1, TmpStr, FieldStr: TNetProcString;
   Sep, IsBlob: boolean;
   Field: TField;
 begin
@@ -346,63 +399,18 @@ begin
     Sep := True;
     _Into := _Into + S1;
     {$IFDEF OverDelphi2007}
-    TmpStr := Field.AsTNetProcString;
+    TmpStr := Field.AsAnsiString;
     {$ELSE}
     TmpStr := Field.AsString;
     {$ENDIF}
 
-    case Field.DataType of
-      ftUnknown, ftString, ftFixedChar, ftWideString, ftMemo, ftVariant, ftBlob,
-      ftFmtMemo:
-      begin
-        if Length(trim(TmpStr)) = 0 then
-          TmpStr := '''' + ' ' + ''''
-        else
-            {$IFDEF OverDelphi2007}
-          TmpStr := '''' + Field.AsTNetProcString + '''';
-            {$ELSE}
-        TmpStr := '''' + Field.AsString + '''';
-            {$ENDIF}
-      end;
-      ftTypedBinary:
-      begin
-        if Length(trim(TmpStr)) = 0 then
-          TmpStr := 'NULL'
-        else
-            {$IFDEF OverDelphi2007}
-          TmpStr := Field.AsTNetProcString;
-            {$ELSE}
-        TmpStr := Field.AsString;
-            {$ENDIF}
-      end;
-      ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftBCD, ftBytes,
-      ftVarBytes, ftAutoInc, ftLargeint:
-      begin
-        if Length(trim(TmpStr)) = 0 then
-          TmpStr := '0';
-      end;
-      ftBoolean:
-      begin
-        if Length(trim(TmpStr)) = 0 then
-          TmpStr := '0';
-      end;
-      ftDate, ftTime, ftDateTime:
-      begin
-        if Length(trim(TmpStr)) = 0 then
-          TmpStr := '''' + '2009-11-01 11:11:11' + '''';
-      end;
-      else
-      begin
-        if Length(trim(TmpStr)) = 0 then
-          TmpStr := '''' + ' ' + ''''
-        else
-          {$IFDEF OverDelphi2007}
-          TmpStr := '''' + Field.AsTNetProcString + '''';
-          {$ELSE}
-        TmpStr := '''' + Field.AsString + '''';
-          {$ENDIF}
-      end;
-    end;
+     {$IFDEF OverDelphi2007}
+    FieldStr := Field.AsAnsiString;
+    {$ELSE}
+    FieldStr := Field.AsString;
+    {$ENDIF}
+
+    TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
 
     if isBlob then
     begin
@@ -424,10 +432,10 @@ begin
 {$ENDIF}
 end;
 
-function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
-  boolean): TNetProcString;
+function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues: boolean):
+TNetProcString;
 var
-  S, S1, TmpStr: TNetProcString;
+  S, S1, TmpStr, FieldStr: TNetProcString;
   Sep: boolean;
   Field: TField;
 begin
@@ -449,47 +457,8 @@ begin
     else
     begin
       TmpStr := VarToStr(Field.OldValue);
-
-      case Field.DataType of
-        ftUnknown, ftString, ftFixedChar, ftWideString, ftMemo, ftVariant, ftBlob,
-        ftFmtMemo:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '''' + ' ' + ''''
-          else
-            TmpStr := '''' + VarToStr(Field.OldValue) + '''';
-        end;
-        ftTypedBinary:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := 'NULL'
-          else
-            TmpStr := '''' + VarToStr(Field.OldValue) + '''';
-        end;
-        ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftBCD, ftBytes,
-        ftVarBytes, ftAutoInc, ftLargeint:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '0';
-        end;
-        ftBoolean:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '0';
-        end;
-        ftDate, ftTime, ftDateTime:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '''' + '2009-11-01 11:11:11' + '''';
-        end;
-        else
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '''' + ' ' + ''''
-          else
-            TmpStr := '''' + VarToStr(Field.OldValue) + '''';
-        end;
-      end;
+      FieldStr := TmpStr;
+      TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
       Result := Result + '=' + TmpStr;
     end;
   end;
@@ -497,7 +466,7 @@ end;
 
 procedure TOnlineQuery.GenerateUpdateData;
 var
-  _From, _Values, S, S1, TmpStr: TNetProcString;
+  _From, _Values, S, S1, TmpStr, FieldStr: TNetProcString;
   Sep: boolean;
   Field: TField;
   IsChanged: boolean;
@@ -514,7 +483,7 @@ begin
       raise Exception.Create('Invalid EditField=' + S1);
 
     {$IFDEF OverDelphi2007}
-    if Field.AsTNetProcString <> VarToStr(Field.OldValue) then
+    if Field.AsAnsiString <> VarToStr(Field.OldValue) then
     {$ELSE}
       if Field.AsString <> VarToStr(Field.OldValue) then
     {$ENDIF}
@@ -530,70 +499,24 @@ begin
 
     if IsChanged then
     begin
-      {$IFDEF OverDelphi2007}
-      TmpStr := Field.AsTNetProcString;
-      {$ELSE}
+    {$IFDEF OverDelphi2007}
+      TmpStr := Field.AsAnsiString;
+    {$ELSE}
       TmpStr := Field.AsString;
-      {$ENDIF}
+    {$ENDIF}
 
-      case Field.DataType of
-        ftUnknown, ftString, ftFixedChar, ftWideString, ftMemo, ftVariant, ftBlob,
-        ftFmtMemo:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '''' + ' ' + ''''
-          else
-              {$IFDEF OverDelphi2007}
-            TmpStr := '''' + Field.AsTNetProcString + '''';
-              {$ELSE}
-          TmpStr := '''' + Field.AsString + '''';
-              {$ENDIF}
-        end;
-        ftTypedBinary:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := 'NULL'
-          else
-              {$IFDEF OverDelphi2007}
-            TmpStr := Field.AsTNetProcString;
-              {$ELSE}
-          TmpStr := Field.AsString;
-              {$ENDIF}
-        end;
-        ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftBCD, ftBytes,
-        ftVarBytes, ftAutoInc, ftLargeint:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '0';
-        end;
-        ftBoolean:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '0';
-        end;
-        ftDate, ftTime, ftDateTime:
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '''' + '2009-11-01 11:11:11' + '''';
-        end;
-        else
-        begin
-          if Length(trim(TmpStr)) = 0 then
-            TmpStr := '''' + ' ' + ''''
-          else
-            {$IFDEF OverDelphi2007}
-            TmpStr := '''' + Field.AsTNetProcString + '''';
-            {$ELSE}
-          TmpStr := '''' + Field.AsString + '''';
-            {$ENDIF}
-        end;
-      end;
+    {$IFDEF OverDelphi2007}
+      FieldStr := Field.AsAnsiString;
+    {$ELSE}
+      FieldStr := Field.AsString;
+    {$ENDIF}
+
+      TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
       Sep := True;
       _Values := _Values + S1 + '=' + TmpStr;
     end;
     _From := _From + S1;
   end;
-
 {$IFDEF FPC}
   FSQLDataStr.Text :=
     UTF8Decode('update ' + FTableName + ' set ' + _Values + ' ' +
@@ -760,7 +683,6 @@ end;
 
 procedure TOnlineQuery.SetPrimaryKey(const Value: TNetProcString);
 begin
-  Close;
   CheckInactive;
   FPrimaryKey := Value;
 end;

@@ -140,12 +140,11 @@ object ClientForm: TClientForm
     InstrucSubNum = 0
     CachedUpdate = False
     OnlineConn = OnlineConnection1
-    PrimaryKey = 'Species_No;Category;Common_Name'
     SQL.Strings = (
       'select * from biolife'
     )
     GetFields = True
     left = 97
-    top = 152
+    top = 160
   end
 end
