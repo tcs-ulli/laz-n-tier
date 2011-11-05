@@ -58,12 +58,12 @@ type
 
   TSSocketClient = class(TCustomSocket)
   public
-    LogonStyle: boolean;
+    LogonStyle: Boolean;
     ORGID1, ORGID2: AnsiString;
     ClientFunctions, ClientPermTables, ClientReadTables, ClientSubFuncs,
       USRID: AnsiString;
     OrgStyle: integer;
-    DisConnected: boolean;
+    DisConnected: Boolean;
     procedure Init;
   end;
 
@@ -81,6 +81,7 @@ type
   public
     FAOwner: TSSocketServer;
     TempThrd: TCliThread;
+    DisConnected: Boolean;
     constructor Create(aOwner: TSSocketServer);
     destructor Destroy; override;
     procedure Execute; override;
@@ -95,11 +96,11 @@ type
   public
     FID: integer;
     FJob: TJobs;
-    FHasLogon: boolean;
+    FHasLogon: Boolean;
     UserName, UserID: AnsiString;
     FAOwner: TSSocketServer;
     FReceiveData, ResponseData: AnsiString;
-    DisConnected: boolean;
+    DisConnected: Boolean;
     FTOnValue: AnsiString;
     FTOnReason: THookSocketReason;
     constructor Create(HSock: TSocket; aOwner: TSSocketServer);
@@ -122,11 +123,13 @@ type
     FHost: AnsiString;
     FPort: AnsiString;
     FThreadCount: integer;
-    FWithSSL, FSSLverifyCert: boolean;
+    FWithSSL, FSSLverifyCert: Boolean;
     FSSLCertCAFile, FSSLCertificateFile, FSSLPrivateKeyFile,
       FSSLKeyPassword, FSSLPFXfile: string;
+    FListenSrvThread: TSrvThread;
+    procedure SetPort(Value: AnsiString);
   public
-    FActive: boolean;
+    FActive: Boolean;
     ThrdList: TList;
     FOnResolvingBegin: TOnSockStatus;
     FOnResolvingEnd: TOnSockStatus;
@@ -159,9 +162,9 @@ type
     property SSLCertificateFile: string read FSSLCertificateFile write FSSLCertificateFile;
     property SSLPrivateKeyFile: string read FSSLPrivateKeyFile write FSSLPrivateKeyFile;
     property SSLKeyPassword: string read FSSLKeyPassword write FSSLKeyPassword;
-    property SSLverifyCert: boolean read FSSLverifyCert write FSSLverifyCert;
-    property WithSSL: boolean read FWithSSL write FWithSSL;
-    property Port: AnsiString read FPort write FPort;
+    property SSLverifyCert: Boolean read FSSLverifyCert write FSSLverifyCert;
+    property WithSSL: Boolean read FWithSSL write FWithSSL;
+    property Port: AnsiString read FPort write SetPort;
     property Host: AnsiString read FHost write FHost;
     property ConnectionCount: integer read FThreadCount;
     property MaxSendBandwidth: integer read FMaxSendBandwidth write FMaxSendBandwidth;
@@ -231,12 +234,13 @@ var
   ClientSock: TSocket;
   SID: integer;
 begin
+  DisConnected := False;
   with Sock do
   begin
     CreateSocket;
     SetLinger(True, 10);
     Bind('0.0.0.0', FAOwner.FPort);
-    listen;
+    Listen;
     if LastError <> 0 then
       Exit;
     SynChronize(DoClearUsers);
@@ -250,13 +254,12 @@ begin
         if LastError = 0 then
         begin
           TempThrd := TCliThread.Create(ClientSock, FAOwner);
-          TempThrd.DisConnected := False;
           Inc(SID);
           TempThrd.FID := SID;
           SynChronize(DoAddUser);
         end;
       end;
-    until False;
+    until (DisConnected = True);
   end;
 end;
 
@@ -299,6 +302,7 @@ begin
   Sock := TSSocketClient.Create;
   Sock.OnStatus := SockCallBack;
   Sock.Init;
+  DisConnected := False;
   try
     Sock.Socket := CSock;
     Sock.GetSins;
@@ -308,7 +312,6 @@ begin
     Synchronize(SetSrvSSLFiles);
     if FAOwner.WithSSL then
     begin
-
       try
         if (not Sock.SSLAcceptConnection) or
           (Sock.SSL.LastError <> 0) then
@@ -540,7 +543,6 @@ var
   i: integer;
 begin
   FCS.Enter;
-
   i := Find(TID);
   TCliThread(ThrdList[i]).FJob.Job := doSend;
   TCliThread(ThrdList[i]).FJob.Data := DataStr;
@@ -555,15 +557,27 @@ begin
   inherited Destroy;
 end;
 
+procedure TSSocketServer.SetPort(Value: AnsiString);
+begin
+  Close;
+  FPort := Value;
+end;
+
 procedure TSSocketServer.Listen;
 begin
-  TSrvThread.Create(Self);
+  FListenSrvThread := TSrvThread.Create(Self);
   FActive := True;
 end;
 
 procedure TSSocketServer.Close;
 begin
   DisConnectAll;
+  if FListenSrvThread <> nil then
+  begin
+    FListenSrvThread.DisConnected := True;
+    FListenSrvThread.Terminate;
+    FListenSrvThread := nil;
+  end;
   FActive := False;
 end;
 

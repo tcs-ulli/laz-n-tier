@@ -4,6 +4,7 @@ object ServerForm: TServerForm
   Top = 136
   Width = 320
   Caption = 'ServerForm'
+  OnShow = FormShow
   LCLVersion = '0.9.31'
   object ZeosDataServer1: TZeosDataServer
     Active = True
@@ -13,13 +14,13 @@ object ServerForm: TServerForm
     Port = '8080'
     OnCustInternalCall = ZeosDataServer1CustInternalCall
     OnUserLogonCall = ZeosDataServer1UserLogonCall
-    left = 72
+    left = 64
     top = 43
   end
   object ZConnection1: TZConnection
     Protocol = 'sqlite-3'
     Database = '.\dbdemos.db3'
-    left = 144
+    left = 160
     top = 43
   end
 end

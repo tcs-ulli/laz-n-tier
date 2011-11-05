@@ -44,12 +44,12 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="7">
       <Unit0>
         <Filename Value="Serverpro.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Serverpro"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="22"/>
@@ -65,8 +65,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="5"/>
-        <CursorPos X="1" Y="68"/>
+        <TopLine Value="41"/>
+        <CursorPos X="5" Y="69"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -103,8 +103,18 @@
         <CursorPos X="54" Y="60"/>
         <UsageCount Value="10"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="..\ZeosDataServer.pas"/>
+        <UnitName Value="ZeosDataServer"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="74"/>
+        <CursorPos X="15" Y="85"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit6>
     </Units>
-    <JumpHistory Count="15" HistoryIndex="14">
+    <JumpHistory Count="24" HistoryIndex="23">
       <Position1>
         <Filename Value="ServerUnit.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
@@ -165,6 +175,42 @@
         <Filename Value="ServerUnit.pas"/>
         <Caret Line="12" Column="35" TopLine="8"/>
       </Position15>
+      <Position16>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="74" Column="1" TopLine="40"/>
+      </Position16>
+      <Position17>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position17>
+      <Position18>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="9" Column="11" TopLine="1"/>
+      </Position18>
+      <Position19>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="73" Column="3" TopLine="49"/>
+      </Position19>
+      <Position20>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="13" Column="30" TopLine="44"/>
+      </Position20>
+      <Position21>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="9" Column="11" TopLine="1"/>
+      </Position21>
+      <Position22>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="67" Column="3" TopLine="43"/>
+      </Position22>
+      <Position23>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="8" Column="66" TopLine="1"/>
+      </Position23>
+      <Position24>
+        <Filename Value="ServerUnit.pas"/>
+        <Caret Line="69" Column="27" TopLine="41"/>
+      </Position24>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

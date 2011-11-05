@@ -16,6 +16,7 @@ type
   TServerForm = class(TForm)
     ZConnection1: TZConnection;
     ZeosDataServer1: TZeosDataServer;
+    procedure FormShow(Sender: TObject);
     function ZeosDataServer1CustInternalCall(CustInstruc, CustSubInstruc: byte;
       CliParam: PChar; DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
       DataStoredProc: TServerSockQuery;
@@ -60,6 +61,12 @@ begin
     else
 
   end;     }
+end;
+
+procedure TServerForm.FormShow(Sender: TObject);
+begin
+  //ZeosDataServer1.Port:='8081';
+  //ZeosDataServer1.ListenOnPort(8081);
 end;
 
 function TServerForm.ZeosDataServer1UserLogonCall(UserName, Password:

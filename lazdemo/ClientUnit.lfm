@@ -77,7 +77,7 @@ object ClientForm: TClientForm
     OnConnect = OnlineConnection1Connect
     UserName = '1'
     Password = '1'
-    left = 97
+    left = 104
     top = 88
   end
   object Datasource1: TDatasource
