@@ -560,7 +560,7 @@ begin
     IstChangePSW:
       ExecFuncChangPSW;
   else
-    ExecFuncError('Unknown Isttion');
+    ExecFuncError('Unknown Instruction');
   end;
 end;
 

@@ -133,8 +133,8 @@ type
     function LoadFromDataSet(Source: TDataSet; aRecordCount: integer;
       Mode: TLoadMode): integer;
     function SaveToDataSet(Dest: TDataSet; aRecordCount: integer): integer;
-  published
     property Capacity: integer read GetCapacity write SetCapacity default 0;
+  published
     property Active;
     property AutoCalcFields;
     property Filtered;

@@ -26,6 +26,7 @@ type
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Datasource1DataChange(Sender: TObject; Field: TField);
+    procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure OnlineConnection1Connect(Sender: TObject; FSSock: TCSocketClient;
       Value: string);
@@ -109,6 +110,11 @@ end;
 procedure TClientForm.Datasource1DataChange(Sender: TObject; Field: TField);
 begin
   ReDrawDBImages;
+end;
+
+procedure TClientForm.FormCreate(Sender: TObject);
+begin
+
 end;
 
 procedure TClientForm.FormShow(Sender: TObject);
