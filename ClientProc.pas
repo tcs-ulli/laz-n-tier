@@ -95,14 +95,28 @@ implementation
 
 {$I MemDBRADv.inc}
 
+function GetFileName(str: string): string;
+var
+  i: Integer;
+  x, y: string;
+begin
+  x := ExtractFileName(str);
+  y := ExtractFileExt(str);
+  i := Pos(y, x);
+  if i <> 0 then
+    Result := Copy(x, 0, i - 1)
+  else
+    Result := '';
+end;
+
 procedure Writelog(value: TNetProcString);
 var
   f: textFile;
   s: TNetProcString;
 begin
-  {$IFDEF EnableLOG}
+{$IFDEF EnableLOG}
   s := value;
-  s := ParamStr(0) + '.log';
+  s := GetFileName(ParamStr(0)) + '.log';
   assignfile(f, s);
   if fileexists(s) then
     append(f)
@@ -113,7 +127,7 @@ begin
   finally
     Closefile(f);
   end;
-  {$ENDIF}
+{$ENDIF}
 end;
 
 constructor TClientConnBuffer.Create(AOwner: TComponent);
@@ -358,17 +372,17 @@ begin
 {$ELSE}
               if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
                 then
-                {$IFDEF OverRad2k7}
+{$IFDEF OverRad2k7}
                 FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-                {$ELSE}
+{$ELSE}
                 FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-                {$ENDIF}
+{$ENDIF}
               else
-                {$IFDEF OverRad2k7}
+{$IFDEF OverRad2k7}
                 FDataSet.Fields[I].AsAnsiString := TempStr;
-                {$ELSE}
+{$ELSE}
                 FDataSet.Fields[I].AsString := TempStr;
-                {$ENDIF}
+{$ENDIF}
 {$ENDIF}
             end;
             FDataSet.Post;
@@ -452,17 +466,17 @@ begin
 {$ELSE}
             if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
               then
-              {$IFDEF OverRad2k7}
+{$IFDEF OverRad2k7}
               FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-              {$ELSE}
+{$ELSE}
               FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-              {$ENDIF}
+{$ENDIF}
             else
-              {$IFDEF OverRad2k7}
+{$IFDEF OverRad2k7}
               FDataSet.Fields[I].AsAnsiString := TempStr;
-              {$ELSE}
+{$ELSE}
               FDataSet.Fields[I].AsString := TempStr;
-              {$ENDIF}
+{$ENDIF}
 {$ENDIF}
           end;
           FDataSet.Post;
@@ -587,7 +601,7 @@ begin
   RecvBuffer := FSocket.ProcessData(SendBuffer);
   ProcessReadData;
   ReturnValue := ReadByte;
-  Result := ReadByte; //  Result := ReadByte;
+  Result := ReadByte;
   FDataSet.DisableControls;
   try
     Result := 0;
@@ -614,17 +628,17 @@ begin
         FDataSet.Fields[I].AsString := TempStr;
 {$ELSE}
         if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
-          {$IFDEF OverRad2k7}
+{$IFDEF OverRad2k7}
           FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-          {$ELSE}
+{$ELSE}
           FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-          {$ENDIF}
+{$ENDIF}
         else
-          {$IFDEF OverRad2k7}
+{$IFDEF OverRad2k7}
           FDataSet.Fields[I].AsAnsiString := TempStr;
-          {$ELSE}
+{$ELSE}
           FDataSet.Fields[I].AsString := TempStr;
-          {$ENDIF}
+{$ENDIF}
 {$ENDIF}
       end;
       FDataSet.Post;

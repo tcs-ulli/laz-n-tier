@@ -12,7 +12,7 @@ object ClientForm: TClientForm
   object DBGrid1: TDBGrid
     Left = 16
     Height = 280
-    Top = 16
+    Top = 24
     Width = 480
     Color = clWindow
     Columns = <>
@@ -83,7 +83,7 @@ object ClientForm: TClientForm
   end
   object Datasource1: TDatasource
     DataSet = OnlineQuery1
-    left = 263
+    left = 328
     top = 88
   end
   object OnlineQuery1: TOnlineQuery
@@ -147,6 +147,6 @@ object ClientForm: TClientForm
     )
     GetFields = True
     left = 104
-    top = 168
+    top = 176
   end
 end

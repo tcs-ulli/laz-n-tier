@@ -319,6 +319,7 @@ begin
 end;
 
 function FieldToSQLString(Field: TField; TmpStr, Value: TNetProcString): TNetProcString;
+var ValueStr: string;
 begin
   case Field.DataType of
     ftUnknown, ftString, ftFixedChar, ftWideString, ftMemo, ftVariant, ftBlob,
@@ -328,9 +329,10 @@ begin
         TmpStr := '''' + ' ' + ''''
       else
       begin
-        if Pos('''', TmpStr) > 0 then
-          TmpStr := StringReplace(TmpStr, #39, '['']', [rfReplaceAll]);
-        TmpStr := '''' + Value + '''';
+        ValueStr := Value;
+        if Pos('''', Value) > 0 then
+          ValueStr := StringReplace(Value, '''', '''''', [rfReplaceAll]);
+        TmpStr := '''' + ValueStr + '''';
       end;
     end;
     ftTypedBinary:
