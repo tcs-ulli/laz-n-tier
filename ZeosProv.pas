@@ -53,7 +53,7 @@ uses DataProcUtils, ServerProc, SysUtils, Classes, DB, ZAbstractTable, ZDataset,
 type
   TZeosConnection = class(TZConnection)
   end;
-  
+
   TZeosCustomQuery = class(TServerSockQuery)
   private
   public
@@ -138,7 +138,8 @@ type
     procedure Commit; override;
     procedure RollBack; override;
     procedure InitializeStoredProc; override;
-    procedure CreateDBParam(DataType: TFieldType; ParamName: string; ParamType: TParamType); override;
+    procedure CreateDBParam(DataType: TFieldType; ParamName: string;
+      ParamType: TParamType); override;
     procedure ClearParam;
   published
     property DBConnection: TZConnection read FConnection write SetConnection;
@@ -235,14 +236,10 @@ function TZeosSQLQuery.Open: boolean;
 begin
   Result := False;
   inherited Open;
-  try
-    TZQuery(NetData).Close;
-    TZQuery(NetData).SQL := Self.SQL;
-    TZQuery(NetData).Open;
-  except
-    if Assigned(FConnection) then
-      TZQuery(NetData).Connection.Disconnect;
-  end;
+
+  TZQuery(NetData).Close;
+  TZQuery(NetData).SQL := Self.SQL;
+  TZQuery(NetData).Open;
   Result := True;
 end;
 
@@ -250,15 +247,10 @@ function TZeosSQLQuery.SuperOpen: boolean;
 begin
   inherited SuperOpen;
   Result := False;
-  try
-    TZQuery(NetData).Close;
-    TZQuery(NetData).SQL := Self.SQL;
-    TZQuery(NetData).Open;
-    Result := True;
-  except
-    if Assigned(FConnection) then
-      TZQuery(NetData).Connection.Disconnect;
-  end;
+  TZQuery(NetData).Close;
+  TZQuery(NetData).SQL := Self.SQL;
+  TZQuery(NetData).Open;
+  Result := True;
 end;
 
 procedure TZeosSQLQuery.Close;
@@ -271,14 +263,9 @@ function TZeosSQLQuery.SuperExecSQL: integer;
 begin
   inherited SuperExecSQL;
   Result := 0;
-  try
-    TZQuery(NetData).SQL := Self.SQL;
-    TZQuery(NetData).ExecSQL;
-    RowsAffected := TZQuery(NetData).RowsAffected;
-  except
-    if Assigned(FConnection) then
-      TZQuery(NetData).Connection.Disconnect;
-  end;
+  TZQuery(NetData).SQL := Self.SQL;
+  TZQuery(NetData).ExecSQL;
+  RowsAffected := TZQuery(NetData).RowsAffected;
   Result := RowsAffected;
 end;
 
@@ -288,14 +275,9 @@ var
 begin
   inherited ExecSQL;
   Result := 0;
-  try
-    TZQuery(NetData).SQL := Self.SQL;
-    TZQuery(NetData).ExecSQL;
-    RowsAffected := TZQuery(NetData).RowsAffected;
-  except
-    if Assigned(FConnection) then
-      TZQuery(NetData).Connection.Disconnect;
-  end;
+  TZQuery(NetData).SQL := Self.SQL;
+  TZQuery(NetData).ExecSQL;
+  RowsAffected := TZQuery(NetData).RowsAffected;
   Result := RowsAffected;
 end;
 
@@ -303,12 +285,7 @@ function TZeosSQLQuery.ParamByName(ParamStr: TNetProcString): TParam;
 begin
   inherited ParamByName(ParamStr);
   Result := nil;
-  try
-    Result := TZQuery(NetData).ParamByName(ParamStr);
-  except
-    if Assigned(FConnection) then
-      TZQuery(NetData).Connection.Disconnect;
-  end;
+  Result := TZQuery(NetData).ParamByName(ParamStr);
 end;
 
 procedure TZeosSQLQuery.Reconnect;
@@ -433,7 +410,8 @@ begin
 end;
 
 function TZeosStoredProcQuery.ExecStoredProc: string;
-var i: integer;
+var
+  i: integer;
 begin
   TZStoredProc(NetData).StoredProcName := StoredProcName;
   TZStoredProc(NetData).ExecSQL;
@@ -522,7 +500,8 @@ begin
   TZStoredProc(NetData).Params.Clear;
 end;
 
-procedure TZeosStoredProcQuery.CreateDBParam(DataType: TFieldType; ParamName: string; ParamType: TParamType);
+procedure TZeosStoredProcQuery.CreateDBParam(DataType: TFieldType;
+  ParamName: string; ParamType: TParamType);
 begin
   TZStoredProc(NetData).Params.CreateParam(DataType, ParamName, ParamType);
 end;

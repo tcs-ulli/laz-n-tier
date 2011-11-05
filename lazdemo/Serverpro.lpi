@@ -66,7 +66,7 @@
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="41"/>
-        <CursorPos X="5" Y="69"/>
+        <CursorPos X="98" Y="52"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -114,7 +114,7 @@
         <Loaded Value="True"/>
       </Unit6>
     </Units>
-    <JumpHistory Count="24" HistoryIndex="23">
+    <JumpHistory Count="23" HistoryIndex="22">
       <Position1>
         <Filename Value="ServerUnit.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
@@ -193,24 +193,20 @@
       </Position19>
       <Position20>
         <Filename Value="ServerUnit.pas"/>
-        <Caret Line="13" Column="30" TopLine="44"/>
+        <Caret Line="9" Column="11" TopLine="1"/>
       </Position20>
       <Position21>
         <Filename Value="ServerUnit.pas"/>
-        <Caret Line="9" Column="11" TopLine="1"/>
+        <Caret Line="67" Column="3" TopLine="43"/>
       </Position21>
       <Position22>
         <Filename Value="ServerUnit.pas"/>
-        <Caret Line="67" Column="3" TopLine="43"/>
+        <Caret Line="8" Column="66" TopLine="1"/>
       </Position22>
       <Position23>
         <Filename Value="ServerUnit.pas"/>
-        <Caret Line="8" Column="66" TopLine="1"/>
-      </Position23>
-      <Position24>
-        <Filename Value="ServerUnit.pas"/>
         <Caret Line="69" Column="27" TopLine="41"/>
-      </Position24>
+      </Position23>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

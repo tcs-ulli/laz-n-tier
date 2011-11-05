@@ -853,6 +853,7 @@ begin
   SetInstruction(IstError);
   WriteStr(Msg);
   ProcessSendData;
+  WriteLog(Msg);
 end;
 
 procedure TServerConnBuffer.ExecFuncLogin();

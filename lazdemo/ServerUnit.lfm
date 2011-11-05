@@ -14,7 +14,7 @@ object ServerForm: TServerForm
     Port = '8080'
     OnCustInternalCall = ZeosDataServer1CustInternalCall
     OnUserLogonCall = ZeosDataServer1UserLogonCall
-    left = 64
+    left = 72
     top = 43
   end
   object ZConnection1: TZConnection

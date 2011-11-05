@@ -30,6 +30,9 @@ type
     procedure FormShow(Sender: TObject);
     procedure OnlineConnection1Connect(Sender: TObject; FSSock: TCSocketClient;
       Value: string);
+    procedure OnlineConnection1DataAvailable(Sender: TObject;
+      ClientThrd: TObject; FDSock: TCSocketClient; ReceiveData: string;
+      Error: word);
     procedure OnlineConnection1SocketClose(Sender: TObject;
       FSSock: TCSocketClient; Value: string);
   private
@@ -90,7 +93,7 @@ begin
   with OnlineQuery1 do
   begin
     Close;
-    SQL.Text := 'select * from vendors';
+    SQL.Text := 'select * from vendors000';
     Open;
   end;
 end;
@@ -128,6 +131,13 @@ procedure TClientForm.OnlineConnection1Connect(Sender: TObject;
   FSSock: TCSocketClient; Value: string);
 begin
   Caption := 'Connected';
+end;
+
+procedure TClientForm.OnlineConnection1DataAvailable(Sender: TObject;
+  ClientThrd: TObject; FDSock: TCSocketClient; ReceiveData: string; Error: word
+  );
+begin
+
 end;
 
 procedure TClientForm.OnlineConnection1SocketClose(Sender: TObject;

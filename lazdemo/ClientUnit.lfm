@@ -1,10 +1,10 @@
 object ClientForm: TClientForm
   Left = 233
-  Height = 313
+  Height = 314
   Top = 224
   Width = 812
   Caption = 'ClientForm'
-  ClientHeight = 313
+  ClientHeight = 314
   ClientWidth = 812
   OnCreate = FormCreate
   OnShow = FormShow
@@ -75,6 +75,7 @@ object ClientForm: TClientForm
     MaxRecvBandwidth = 0
     OnSocketClose = OnlineConnection1SocketClose
     OnConnect = OnlineConnection1Connect
+    OnDataAvailable = OnlineConnection1DataAvailable
     UserName = '1'
     Password = '1'
     left = 104
@@ -140,11 +141,12 @@ object ClientForm: TClientForm
     InstrucSubNum = 0
     CachedUpdate = False
     OnlineConn = OnlineConnection1
+    PrimaryKey = 'Species_No;Category;Common_Name'
     SQL.Strings = (
       'select * from biolife'
     )
     GetFields = True
-    left = 97
-    top = 160
+    left = 104
+    top = 168
   end
 end

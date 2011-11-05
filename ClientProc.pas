@@ -95,6 +95,27 @@ implementation
 
 {$I MemDBRADv.inc}
 
+procedure Writelog(value: TNetProcString);
+var
+  f: textFile;
+  s: TNetProcString;
+begin
+  {$IFDEF EnableLOG}
+  s := value;
+  s := ParamStr(0) + '.log';
+  assignfile(f, s);
+  if fileexists(s) then
+    append(f)
+  else
+    rewrite(f);
+  try
+    writeln(f, value);
+  finally
+    Closefile(f);
+  end;
+  {$ENDIF}
+end;
+
 constructor TClientConnBuffer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -111,7 +132,8 @@ end;
 procedure TClientConnBuffer.Log(const Msg: TNetProcString);
 begin
   if ClientLog <> nil then
-    ClientLog.add(msg)
+    ClientLog.add(msg);
+  Writelog(Msg);
 end;
 
 procedure TClientConnBuffer.ProcessData;
@@ -466,9 +488,14 @@ begin
 end;
 
 procedure TClientConnBuffer.ProcessError(const Msg: TNetProcString);
+var istErrorMsg: TNetProcString;
 begin
   if Instruction = IstError then
-    raise exception.create(ReadStr + #13 + Msg)
+  begin
+    istErrorMsg := ReadStr + #13 + Msg;
+    Log(istErrorMsg);
+    raise exception.create(istErrorMsg);
+  end
   else
     raise exception.create(Msg);
 end;
