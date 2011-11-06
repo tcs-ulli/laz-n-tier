@@ -20,7 +20,7 @@ object ServerForm: TServerForm
   object ZConnection1: TZConnection
     Protocol = 'sqlite-3'
     Database = '.\dbdemos.db3'
-    left = 160
+    left = 200
     top = 43
   end
 end

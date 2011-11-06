@@ -276,7 +276,7 @@ begin
   FInstrucNum := IstInternalOpen;
   FSubInstrucNum := 0;
   FSQL.OnNetProcListChange := SQLStringChange;
-//  DateSeparator := '-';
+  DateSeparator := '-';
 end;
 
 destructor TOnlineQuery.Destroy;

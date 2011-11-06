@@ -147,6 +147,6 @@ object ClientForm: TClientForm
     )
     GetFields = True
     left = 104
-    top = 176
+    top = 168
   end
 end

@@ -518,6 +518,7 @@ begin
   inherited Create(AOwner);
   MustAuthenticate := True;
   LogonStyle := False;
+  DateSeparator := '-';
 end;
 
 destructor TServerConnBuffer.Destroy;
