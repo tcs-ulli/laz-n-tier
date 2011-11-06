@@ -2,7 +2,7 @@ object ServerForm: TServerForm
   Left = 131
   Height = 240
   Top = 136
-  Width = 320
+  Width = 336
   Caption = 'ServerForm'
   OnShow = FormShow
   LCLVersion = '0.9.31'

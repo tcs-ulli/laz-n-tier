@@ -278,14 +278,6 @@ end;
 procedure TZeosDataServer.SetPort(Value: string);
 begin
   FPort := Value;
-  if Active and not (csDesigning in ComponentState) then
-  begin
-    SSocketServer.Close;
-    SSocketServer.Port := Value;
-    SSocketServer.Listen;
-  end
-  else
-    SSocketServer.Port := Value;
 end;
 
 function TZeosDataServer.DoCustInternalCall(CustInstrucx, custSubInstrucx: Byte; CliParam: PAnsiChar;

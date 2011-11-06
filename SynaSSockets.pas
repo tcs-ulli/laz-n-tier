@@ -129,7 +129,7 @@ type
     FListenSrvThread: TSrvThread;
     procedure SetPort(Value: AnsiString);
   public
-    FActive: Boolean;
+    Active: Boolean;
     ThrdList: TList;
     FOnResolvingBegin: TOnSockStatus;
     FOnResolvingEnd: TOnSockStatus;
@@ -156,6 +156,7 @@ type
     procedure SendToAll(DataStr: AnsiString);
     procedure SendToClientID(TID: integer; DataStr: AnsiString);
     function Find(FXID: integer): integer;
+    procedure RaiseListenError;
   published
     property SSLPFXfile: string read FSSLPFXfile write FSSLPFXfile;
     property SSLCertCAFile: string read FSSLCertCAFile write FSSLCertCAFile;
@@ -243,6 +244,7 @@ begin
     Listen;
     if LastError <> 0 then
       Exit;
+    FAOwner.Active := True;
     SynChronize(DoClearUsers);
     SID := 0;
     repeat
@@ -261,6 +263,7 @@ begin
       end;
     until (DisConnected = True);
   end;
+  FAOwner.Active := False;
 end;
 
 constructor TCliThread.Create(HSock: TSocket; aOwner: TSSocketServer);
@@ -566,7 +569,14 @@ end;
 procedure TSSocketServer.Listen;
 begin
   FListenSrvThread := TSrvThread.Create(Self);
-  FActive := True;
+  Sleep(106);
+  if not Active then
+    RaiseListenError;
+end;
+
+procedure TSSocketServer.RaiseListenError;
+begin
+  raise Exception.Create('Listen failed on port ' + FPort + ' ');
 end;
 
 procedure TSSocketServer.Close;
@@ -578,7 +588,7 @@ begin
     FListenSrvThread.Terminate;
     FListenSrvThread := nil;
   end;
-  FActive := False;
+  Active := False;
 end;
 
 end.

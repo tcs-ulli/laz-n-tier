@@ -45,7 +45,7 @@ unit ClientProc;
 
 interface
 
-uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB, Forms,
+uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB,
 {$IFNDEF FPC}WideStrUtils,
 {$ENDIF}{$IFDEF MSWINDOWS}Windows, {$ELSE}DynLibs, {$ENDIF}MD5;
 
@@ -513,12 +513,12 @@ begin
   begin
     istErrorMsg := ReadStr + #13 + Msg;
     Log(istErrorMsg);
-    //raise exception.create(istErrorMsg);
-    Application.MessageBox(PChar(istErrorMsg), 'Error', MB_ICONERROR);
+    raise exception.create(istErrorMsg);
+    //Application.MessageBox(PChar(istErrorMsg), 'Error', MB_ICONERROR);
   end
   else
-    //raise exception.create(Msg);
-    Application.MessageBox(PChar(Msg), 'Error', MB_ICONERROR);
+    raise exception.create(Msg);
+    //Application.MessageBox(PChar(Msg), 'Error', MB_ICONERROR);
 end;
 
 function TClientConnBuffer.DoSQLScript(DataSet: TDataset; CPInstruc: Byte;
