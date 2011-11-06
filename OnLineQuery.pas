@@ -47,7 +47,7 @@ unit OnLineQuery;
 interface
 
 uses
-  MemDataBase, Variants, NetConnection,
+  MemDataBase, Variants, NetConnection, DateUtils,
 {$IFDEF FPC}
   //  LCLIntf, LCLType, LMessages,
 {$ELSE}Windows, {$ENDIF}
@@ -291,7 +291,6 @@ begin
   FInstrucNum := IstInternalOpen;
   FSubInstrucNum := 0;
   FSQL.OnNetProcListChange := SQLStringChange;
-  DateSeparator := '-';
 end;
 
 destructor TOnlineQuery.Destroy;
@@ -357,7 +356,7 @@ begin
       else
         TmpStr := Value;
     end;
-    ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftBCD, ftBytes,
+    ftSmallint, ftInteger, ftWord, ftBCD, ftBytes,
     ftVarBytes, ftAutoInc, ftLargeint:
     begin
       if Length(trim(TmpStr)) = 0 then
@@ -368,12 +367,19 @@ begin
       if Length(trim(TmpStr)) = 0 then
         TmpStr := '0';
     end;
+    ftFloat, ftCurrency:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '0.00'
+      else
+        TmpStr :=  SetAnsiDoubleStr(Value);
+    end;
     ftDate, ftTime, ftDateTime:
     begin
       if Length(trim(TmpStr)) = 0 then
         TmpStr := '''' + '2009-11-01 11:11:11' + ''''
       else
-        TmpStr := '''' + Value + '''';
+        TmpStr := '''' + FormatDateTime('yyyy-MM-dd HH:mm:ss', StrToDateTime(Value)) + '''';
     end;
     else
     begin

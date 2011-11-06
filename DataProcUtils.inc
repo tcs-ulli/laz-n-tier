@@ -1,3 +1,36 @@
+function SetAnsiDoubleStr(Value: TNetProcString): TNetProcString;
+var TempStr: TNetProcString; i, j, k, valuelen: integer;
+begin
+  valuelen := Length(Value);
+  SetLength(TempStr, valuelen);
+  j := 0;
+  k := 0;
+  for i := 1 to valuelen do
+    if (Value[i] >= '0') and (Value[i] <= '9') then
+    begin
+      j := j + 1;
+      TempStr[j] := Value[i];
+    end
+    else
+      k := i;
+  if k <> 0 then
+    TempStr := Copy(TempStr, 1, k - 1) + '.' + Copy(TempStr, k, j);
+  SetLength(TempStr, j + 1);
+  Result := TempStr;
+end;
+
+function FloatToDotStr(Value: Double): TNetProcString;
+begin
+  SetLength(Result, SizeOf(Double));
+  move(Value, Result[1], SizeOf(Double));
+end;
+
+function DotStrToFloat(Value: TNetProcString): Double;
+begin
+  Result := $FFFFFFFF;
+  Result := PDouble(@Value[1])^;
+end;
+
 function GetBufDotStr(s: TNetProcString; Dot: AnsiChar; xLen: integer): StrArray;
 var str: StrArray; i, j: integer;
 begin

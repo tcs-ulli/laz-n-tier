@@ -87,7 +87,7 @@ object ClientForm: TClientForm
     top = 88
   end
   object OnlineQuery1: TOnlineQuery
-    Active = False
+    Active = True
     FieldDefs = <    
       item
         Name = 'Species_No'
@@ -141,6 +141,7 @@ object ClientForm: TClientForm
     InstrucSubNum = 0
     CachedUpdate = False
     OnlineConnection = OnlineConnection1
+    PrimaryKey = 'Species_No;Category;Common_Name'
     SQL.Strings = (
       'select * from biolife'
     )

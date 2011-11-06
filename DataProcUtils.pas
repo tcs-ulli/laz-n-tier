@@ -69,6 +69,7 @@ type
   StrArray = array of TNetProcString;
   AnsiInt = LongWord;
   PAnsiInt = ^AnsiInt;
+  PDouble = ^Double;
 
   TOnlineDataBuffer = class(TComponent)
   protected
@@ -101,6 +102,9 @@ function RetrieveStr(var txt: TNetProcString; const Separador: TNetProcString): 
 function GetBufDotStr(s: TNetProcString; Dot: AnsiChar; xLen: integer): StrArray;
 procedure PutIntegerToArray(s: PNetProcString; index, num: integer);
 function PutArrayToInteger(s: TNetProcString; index: integer): integer;
+function FloatToDotStr(Value: Double): TNetProcString;
+function DotStrToFloat(Value: TNetProcString): Double;
+function SetAnsiDoubleStr(Value: TNetProcString): TNetProcString;
 
 implementation
 

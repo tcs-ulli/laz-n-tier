@@ -367,23 +367,31 @@ begin
             for I := 0 to _FieldCount - 1 do
             begin
               TempStr := ReadStr;
-{$IFDEF FPC}
-              FDataSet.Fields[I].AsString := TempStr;
-{$ELSE}
-              if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
-                then
-{$IFDEF OverRad2k7}
-                FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-{$ELSE}
-                FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-{$ENDIF}
+              if FDataSet.Fields[I].DataType in [ftDate, ftTime, ftDateTime] then
+                FDataSet.Fields[I].AsDateTime := DotStrToFloat(TempStr)
               else
-{$IFDEF OverRad2k7}
-                FDataSet.Fields[I].AsAnsiString := TempStr;
+                if FDataSet.Fields[I].DataType in [ftFloat, ftCurrency] then
+                  FDataSet.Fields[I].AsFloat := DotStrToFloat(TempStr)
+                else
+                begin
+{$IFDEF FPC}
+                  FDataSet.Fields[I].AsString := TempStr;
 {$ELSE}
-                FDataSet.Fields[I].AsString := TempStr;
+                  if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
+                    then
+{$IFDEF OverRad2k7}
+                    FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
+{$ELSE}
+                    FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
+{$ENDIF}
+                  else
+{$IFDEF OverRad2k7}
+                    FDataSet.Fields[I].AsAnsiString := TempStr;
+{$ELSE}
+                    FDataSet.Fields[I].AsString := TempStr;
 {$ENDIF}
 {$ENDIF}
+                end;
             end;
             FDataSet.Post;
             Inc(Result);
@@ -464,23 +472,31 @@ begin
           for I := 0 to _FieldCount - 1 do
           begin
             TempStr := ReadStr;
-{$IFDEF FPC}
-            FDataSet.Fields[I].AsString := TempStr;
-{$ELSE}
-            if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
-              then
-{$IFDEF OverRad2k7}
-              FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-{$ELSE}
-              FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-{$ENDIF}
+            if FDataSet.Fields[I].DataType in [ftDate, ftTime, ftDateTime] then
+              FDataSet.Fields[I].AsDateTime := DotStrToFloat(TempStr)
             else
-{$IFDEF OverRad2k7}
-              FDataSet.Fields[I].AsAnsiString := TempStr;
+              if FDataSet.Fields[I].DataType in [ftFloat, ftCurrency] then
+                FDataSet.Fields[I].AsFloat := DotStrToFloat(TempStr)
+              else
+              begin
+{$IFDEF FPC}
+                FDataSet.Fields[I].AsString := TempStr;
 {$ELSE}
-              FDataSet.Fields[I].AsString := TempStr;
+                if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
+                  then
+{$IFDEF OverRad2k7}
+                  FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
+{$ELSE}
+                  FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
+{$ENDIF}
+                else
+{$IFDEF OverRad2k7}
+                  FDataSet.Fields[I].AsAnsiString := TempStr;
+{$ELSE}
+                  FDataSet.Fields[I].AsString := TempStr;
 {$ENDIF}
 {$ENDIF}
+              end;
           end;
           FDataSet.Post;
           Inc(Result);
@@ -514,11 +530,9 @@ begin
     istErrorMsg := ReadStr + #13 + Msg;
     Log(istErrorMsg);
     raise exception.create(istErrorMsg);
-    //Application.MessageBox(PChar(istErrorMsg), 'Error', MB_ICONERROR);
   end
   else
     raise exception.create(Msg);
-    //Application.MessageBox(PChar(Msg), 'Error', MB_ICONERROR);
 end;
 
 function TClientConnBuffer.DoSQLScript(DataSet: TDataset; CPInstruc: Byte;

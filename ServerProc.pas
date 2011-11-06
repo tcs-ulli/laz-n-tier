@@ -38,6 +38,7 @@
   |============================================================================== }
 
 unit ServerProc;
+
 {$IFDEF FPC}
 {$MODE Delphi}
 {$ENDIF}
@@ -114,9 +115,9 @@ type
     property OnlineDataSet: TServerSockQuery read FOnlineDataSet write SetOnlineDataSet;
   end;
 
-  TOnCustInternalCall = function(CustInstruc, CustSubInstruc: Byte;
-    CliParam: PAnsiChar; DataQuery: TServerSockQuery;
-    DataSQLProc: TServerSockQuery; DataStoredProc: TServerSockQuery;
+  TOnCustInternalCall = function(CustInstruc, CustSubInstruc: byte;
+    CliParam: PAnsiChar; DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
+    DataStoredProc: TServerSockQuery;
     User, SubFunctions: TNetProcString): TNetProcString of object;
 
   TOnUserLogonCall = function(UserName, Password: TNetProcString): TLogonStyle of object;
@@ -135,7 +136,7 @@ type
     NetSQLProc: TServerSockQuery;
     SessionName, DatabaseName: TNetProcString;
     TempClientFunctions, TempClientReadTables, TempClientPermTables,
-      TempORGID1, TempORGID2, TempSubFuncs: TNetProcString;
+    TempORGID1, TempORGID2, TempSubFuncs: TNetProcString;
     TempOrgStyle: integer;
     LogonStyle: boolean;
     FUSR: TNetProcString;
@@ -153,7 +154,7 @@ type
       FUser, FSubFuncs: TNetProcString): boolean;
     function DoSpecialSQL(FDataQuery: TServerSockQuery;
       FUser, FSubFuncs: TNetProcString): boolean;
-    function DoInternalSpecialSQL(CustSubInstrucs: Byte; FUser: string;
+    function DoInternalSpecialSQL(CustSubInstrucs: byte; FUser: string;
       ASQLStyle: SQLStyle; SQLText: TNetProcString): boolean;
     function DoDynamicCustProc(FDataQuery: TServerSockQuery;
       NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
@@ -163,37 +164,38 @@ type
       FUser, FSubFuncs: TNetProcString): boolean;
     function ServerCheckLogon(UserCode, UcPSW: TNetProcString): TLogonStyle;
     procedure ExecFuncChangPSW;
-    function ServerSQLProc(CustInstrucV: Byte; SQLVS: SQLStyle;
-      FUser, SQLValue: TNetProcString): Byte;
-    function ServerStoredProc(CustInstrucV, SQLVS: Byte;
-      FUser, SQLValue: TNetProcString; ParamNum, InNum, RetNum: integer)
-      : Byte;
-    function ServerScriptProc(CustInstrucV, SQLVS: Byte;
-      FUser, SQLValue: TNetProcString): Byte;
-    function ServerCustBefore(CustInstrucV, SQLVS: Byte;
+    function ServerSQLProc(CustInstrucV: byte; SQLVS: SQLStyle;
+      FUser, SQLValue: TNetProcString): byte;
+    function ServerStoredProc(CustInstrucV, SQLVS: byte;
+      FUser, SQLValue: TNetProcString; ParamNum, InNum, RetNum: integer): byte;
+    function ServerScriptProc(CustInstrucV, SQLVS: byte;
+      FUser, SQLValue: TNetProcString): byte;
+    function ServerCustBefore(CustInstrucV, SQLVS: byte;
       FUser, ScriptValue, SQLValueE, SQLValueOBefore: TNetProcString)
       : TNetProcString;
-    function ServerCustProc(CustInstrucV, SQLVS: Byte;
-      FUser, ScriptValue, SQLValueE, SQLValueOBefore,
-      SQLValueOAfter: TNetProcString): TNetProcString;
-    function ServerCustAfter(CustInstrucV, SQLVS: Byte;
-      FUser, ScriptValue, SQLValueE, SQLValueOBefore,
-      SQLValueOAfter: TNetProcString): TNetProcString;
-    function GetCustInstruc: Byte;
+    function ServerCustProc(CustInstrucV, SQLVS: byte;
+      FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
+      TNetProcString): TNetProcString;
+    function ServerCustAfter(CustInstrucV, SQLVS: byte;
+      FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
+      TNetProcString): TNetProcString;
+    function GetCustInstruc: byte;
     function GetCustParam: TNetProcString;
   published
-    property OnCustInternalCall: TOnCustInternalCall read FOnCustInternalCall write
-      FOnCustInternalCall;
-    property OnUserLogonCall: TOnUserLogonCall read FOnUserLogonCall write FOnUserLogonCall;
+    property OnCustInternalCall: TOnCustInternalCall
+      read FOnCustInternalCall write FOnCustInternalCall;
+    property OnUserLogonCall: TOnUserLogonCall
+      read FOnUserLogonCall write FOnUserLogonCall;
   end;
 
-  T_GetXValue = function(CustInstruc: Byte): Byte; cdecl;
-  T_Do_S_Proc = function(CustInstruc: Byte; FUser, FSubFuncs,
-    CliParam: PAnsiChar): PAnsiChar; cdecl; // stdcall;
-  T_Do_S_AfterProc = function(CustInstruc: Byte; FUser, FSubFuncs, CliParam,
-    StrBefore: PAnsiChar): PAnsiChar; cdecl;
-  T_Do_S_ReturnProc = function(CustInstruc: Byte; FUser, FSubFuncs, CliParam,
-    StrBefore, StrProc, StrAfter: PAnsiChar): PAnsiChar; cdecl;
+  T_GetXValue = function(CustInstruc: byte): byte; cdecl;
+  T_Do_S_Proc = function(CustInstruc: byte;
+    FUser, FSubFuncs, CliParam: PAnsiChar): PAnsiChar; cdecl; // stdcall;
+  T_Do_S_AfterProc = function(CustInstruc: byte;
+    FUser, FSubFuncs, CliParam, StrBefore: PAnsiChar): PAnsiChar; cdecl;
+  T_Do_S_ReturnProc = function(CustInstruc: byte;
+    FUser, FSubFuncs, CliParam, StrBefore, StrProc, StrAfter: PAnsiChar): PAnsiChar;
+    cdecl;
 
 var
   ServerLog: TStrings = nil;
@@ -211,20 +213,20 @@ var
   DoSSpecialQuery: T_Do_S_Proc;
   DoSReturnValue: T_Do_S_ReturnProc;
 
-procedure Writelog(value: TNetProcString);
+procedure Writelog(Value: TNetProcString);
 
 implementation
 
 {$I SQLProcUtils.inc}
 {$I MemDBRADv.inc}
 
-procedure Writelog(value: TNetProcString);
+procedure Writelog(Value: TNetProcString);
 var
   f: textFile;
   s: TNetProcString;
 begin
   {$IFDEF EnableLOG}
-  s := value;
+  s := Value;
   s := ExtractFilePath(ParamStr(0)) + 'DBNetProc.log';
   assignfile(f, s);
   if fileexists(s) then
@@ -232,7 +234,7 @@ begin
   else
     rewrite(f);
   try
-    writeln(f, value);
+    writeln(f, Value);
   finally
     Closefile(f);
   end;
@@ -338,12 +340,14 @@ procedure TCustomServerSockQuery.InitializeStoredProc;
 begin
 
 end;
+
 {$WARNINGS OFF}
 
 constructor TServerSockQuery.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
+
 {$WARNINGS ON}
 
 destructor TServerSockQuery.Destroy;
@@ -392,28 +396,28 @@ begin
       if Pos('WHERE', Uppercase(Self.SQL[0])) > 0 then
       begin
         if ORGIDStyle = 3 then
-          Self.SQL[0] := Self.SQL[0] + ' and ORGID1 = ' + QuotedStr
-            (DataOwner.TempORGID1) + ' and ORGID2 = ' + QuotedStr
-            (DataOwner.TempORGID2);
+          Self.SQL[0] := Self.SQL[0] + ' and ORGID1 = ' +
+            QuotedStr(DataOwner.TempORGID1) + ' and ORGID2 = ' +
+            QuotedStr(DataOwner.TempORGID2);
         if ORGIDStyle = 2 then
-          Self.SQL[0] := Self.SQL[0] + ' and ORGID2 = ' + QuotedStr
-            (DataOwner.TempORGID2);
+          Self.SQL[0] := Self.SQL[0] + ' and ORGID2 = ' +
+            QuotedStr(DataOwner.TempORGID2);
         if ORGIDStyle = 1 then
-          Self.SQL[0] := Self.SQL[0] + ' and ORGID1 = ' + QuotedStr
-            (DataOwner.TempORGID1);
+          Self.SQL[0] := Self.SQL[0] + ' and ORGID1 = ' +
+            QuotedStr(DataOwner.TempORGID1);
       end
       else
       begin
         if ORGIDStyle = 3 then
-          Self.SQL[0] := Self.SQL[0] + ' where ORGID1 = ' + QuotedStr
-            (DataOwner.TempORGID1) + ' and ORGID2 = ' + QuotedStr
-            (DataOwner.TempORGID2);
+          Self.SQL[0] := Self.SQL[0] + ' where ORGID1 = ' +
+            QuotedStr(DataOwner.TempORGID1) + ' and ORGID2 = ' +
+            QuotedStr(DataOwner.TempORGID2);
         if ORGIDStyle = 2 then
-          Self.SQL[0] := Self.SQL[0] + ' where ORGID2 = ' + QuotedStr
-            (DataOwner.TempORGID2);
+          Self.SQL[0] := Self.SQL[0] + ' where ORGID2 = ' +
+            QuotedStr(DataOwner.TempORGID2);
         if ORGIDStyle = 1 then
-          Self.SQL[0] := Self.SQL[0] + ' where ORGID1 = ' + QuotedStr
-            (DataOwner.TempORGID1);
+          Self.SQL[0] := Self.SQL[0] + ' where ORGID1 = ' +
+            QuotedStr(DataOwner.TempORGID1);
       end;
   end;
   Result := True;
@@ -519,6 +523,12 @@ begin
   MustAuthenticate := True;
   LogonStyle := False;
   DateSeparator := '-';
+  ShortDateFormat := 'yyMMdd';
+  LongDateFormat := 'yyyy-MM-dd';
+  DecimalSeparator := '.';
+  ThousandSeparator := ',';
+  ShortTimeFormat := 'H:mm';
+  LongTimeFormat := 'H:mm:ss';
 end;
 
 destructor TServerConnBuffer.Destroy;
@@ -542,10 +552,10 @@ begin
     IstLogin:
       ExecFuncLogin;
     IstTime:
-      begin
-        WriteStr(FormatDateTime('yyyyMMdd hh:mm:ss', Now));
-        ProcessSendData;
-      end;
+    begin
+      WriteStr(FormatDateTime('yyyyMMdd hh:mm:ss', Now));
+      ProcessSendData;
+    end;
     IstSQL:
       ExecFuncSQL;
     IstSQLCacheExec:
@@ -566,8 +576,8 @@ begin
       DoStoredProc(NetStoredProc, FUSR, TempSubFuncs);
     IstChangePSW:
       ExecFuncChangPSW;
-  else
-    ExecFuncError('Unknown Instruction');
+    else
+      ExecFuncError('Unknown Instruction');
   end;
 end;
 
@@ -605,8 +615,8 @@ begin
   try
     NetQuery.Close;
     NetQuery.SQL.Clear;
-    NetQuery.SQL.Text := 'Select * from OPERASINFO where USR=' + QuotedStr
-      (UserCode);
+    NetQuery.SQL.Text := 'Select * from OPERASINFO where USR=' +
+      QuotedStr(UserCode);
 
     if NetQuery.SuperOpen then
       Log('Authenticate opened')
@@ -624,27 +634,27 @@ begin
 {$IFDEF OverRad2k7}
       FUSR := Trim(NetQuery.NetData.FieldByName('USR').AsAnsiString);
       FPSW := StrMD5(FUSR + Trim(NetQuery.NetData.FieldByName('PSW')
-            .AsAnsiString) + FormatDateTime('yyyymmdd', Now));
+        .AsAnsiString) + FormatDateTime('yyyymmdd', Now));
       TempClientFunctions := Trim(NetQuery.NetData.FieldByName('FUNCS')
-          .AsAnsiString);
+        .AsAnsiString);
       TempClientPermTables := Trim(NetQuery.NetData.FieldByName('PermTB')
-          .AsAnsiString);
+        .AsAnsiString);
       TempClientReadTables := Trim(NetQuery.NetData.FieldByName('ReadTB')
-          .AsAnsiString);
+        .AsAnsiString);
       TempORGID1 := Trim(NetQuery.NetData.FieldByName('ORGID1').AsAnsiString);
       TempORGID2 := Trim(NetQuery.NetData.FieldByName('ORGID2').AsAnsiString);
       TempSubFuncs := Trim(NetQuery.NetData.FieldByName('SubFuncs')
-          .AsAnsiString);
+        .AsAnsiString);
 {$ELSE}
       FUSR := Trim(NetQuery.NetData.FieldByName('USR').AsString);
-      FPSW := StrMD5(FUSR + Trim(NetQuery.NetData.FieldByName('PSW').AsString)
-          + FormatDateTime('yyyymmdd', Now));
+      FPSW := StrMD5(FUSR + Trim(NetQuery.NetData.FieldByName('PSW').AsString) +
+        FormatDateTime('yyyymmdd', Now));
       TempClientFunctions := Trim(NetQuery.NetData.FieldByName('FUNCS')
-          .AsString);
+        .AsString);
       TempClientPermTables := Trim(NetQuery.NetData.FieldByName('PermTB')
-          .AsString);
+        .AsString);
       TempClientReadTables := Trim(NetQuery.NetData.FieldByName('ReadTB')
-          .AsString);
+        .AsString);
       TempORGID1 := Trim(NetQuery.NetData.FieldByName('ORGID1').AsString);
       TempORGID2 := Trim(NetQuery.NetData.FieldByName('ORGID2').AsString);
       TempSubFuncs := Trim(NetQuery.NetData.FieldByName('SubFuncs').AsString);
@@ -711,24 +721,23 @@ begin
       with NetQuery.ParamByName(RetrieveStr(S1, ';')) do
       begin
         DataType := TFieldType(StrToInt(S1));
-        value := ReadStr;
+        Value := ReadStr;
       end;
     end;
 
     if SQLIsttion = IstSQLExec then
     begin
       NetSQLRun.ExecSQL;
-      WriteByte(Byte(SQLIsttion));
+      WriteByte(byte(SQLIsttion));
       WriteInt(NetQuery.RowsAffected);
       NetSQLRun.SQL.Clear;
       ProcessSendData;
       Exit;
     end;
 
-    if (SQLIsttion = IstSQLWithFields) or
-      (SQLIsttion = IstSQLOpen) then
+    if (SQLIsttion = IstSQLWithFields) or (SQLIsttion = IstSQLOpen) then
     begin
-      WriteByte(Byte(SQLIsttion));
+      WriteByte(byte(SQLIsttion));
 
       RecCont := 0;
 
@@ -745,32 +754,39 @@ begin
 {$ELSE}
             TempField := NetQuery.NetData.Fields[I].FieldName + ';';
 {$ENDIF}
-            WriteStr(TempField + IntToStr
-                (integer(NetQuery.NetData.Fields[I].DataType)) + ';' + IntToStr
-                (NetQuery.NetData.Fields[I].Size) + ';' + IntToStr
-                (integer(NetQuery.NetData.Fields[I].Required)));
+            WriteStr(TempField + IntToStr(
+              integer(NetQuery.NetData.Fields[I].DataType)) + ';' +
+              IntToStr(NetQuery.NetData.Fields[I].Size) + ';' +
+              IntToStr(integer(NetQuery.NetData.Fields[I].Required)));
           end;
         end;
 
         RecCont := 0;
-        if (SQLIsttion = IstSQLOpen) or
-          (SQLIsttion = IstSQLWithFields) then
+        if (SQLIsttion = IstSQLOpen) or (SQLIsttion = IstSQLWithFields) then
         begin
           while not NetQuery.NetData.EOF do
           begin
             WriteByte(0);
             for I := 0 to NetQuery.NetData.FieldCount - 1 do
             begin
+              if NetQuery.NetData.Fields[I].DataType in [ftDate, ftTime, ftDateTime] then
+                TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsDateTime)
+              else
+              if NetQuery.NetData.Fields[I].DataType in [ftFloat, ftCurrency] then
+                TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsFloat)
+              else
+              begin
 {$IFDEF OverRad2k7}
-              TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
+                TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
 {$ELSE}
-              TempStr := NetQuery.NetData.Fields[I].AsString;
+                TempStr := NetQuery.NetData.Fields[I].AsString;
 {$ENDIF}
 {$IFNDEF FPC}
-              if NetQuery.NetData.Fields[I].DataType in [ftString,
-                ftFixedChar] then
-                TempStr := UTF8Encode(TempStr);
+                if NetQuery.NetData.Fields[I].DataType in
+                  [ftString, ftFixedChar] then
+                  TempStr := UTF8Encode(TempStr);
 {$ENDIF}
+              end;
               WriteStr(TempStr);
             end;
             Inc(RecCont);
@@ -860,7 +876,7 @@ end;
 procedure TServerConnBuffer.ExecFuncLogin();
 var
   UsrName, UsrPsw: TNetProcString;
-  RetByte: Byte;
+  RetByte: byte;
   HasLoggedOn: TLogonStyle;
 begin
   UsrName := ReadStr;
@@ -899,7 +915,7 @@ end;
 function TServerConnBuffer.DoStoredProc(FDataQuery: TServerSockQuery;
   FUser, FSubFuncs: TNetProcString): boolean;
 var
-  CustIsts, SQLx: Byte;
+  CustIsts, SQLx: byte;
   ReslSQLV, ClientParam: TNetProcString;
   StoredParamNum, xInNum, xOutNum: integer;
 begin
@@ -918,8 +934,8 @@ begin
       ReslSQLV := DoSSToredProc(CustIsts, PAnsiChar(FSubFuncs),
         PAnsiChar(FUser), PAnsiChar(ClientParam));
 
-      Log('CustMessage: ' + IntToStr(integer(CustIsts)) + '*' + IntToStr
-          (SQLx) + '*' + ReslSQLV);
+      Log('CustMessage: ' + IntToStr(integer(CustIsts)) + '*' +
+        IntToStr(SQLx) + '*' + ReslSQLV);
       SetInstruction(IstStoredProc);
       WriteByte(SQLx);
       ServerStoredProc(CustIsts, SQLx, FUser, ReslSQLV, StoredParamNum,
@@ -936,9 +952,8 @@ begin
   end;
 end;
 
-function TServerConnBuffer.ServerCustBefore(CustInstrucV, SQLVS: Byte;
-  FUser, ScriptValue, SQLValueE, SQLValueOBefore: TNetProcString)
-  : TNetProcString;
+function TServerConnBuffer.ServerCustBefore(CustInstrucV, SQLVS: byte;
+  FUser, ScriptValue, SQLValueE, SQLValueOBefore: TNetProcString): TNetProcString;
 var
   TempStr, RetStr: TNetProcString;
   I: integer;
@@ -967,8 +982,8 @@ begin
             TempStr := NetQuery.NetData.Fields[I].AsString;
 {$ENDIF}
 {$IFNDEF FPC}
-            if NetQuery.NetData.Fields[I].DataType in [ftString,
-              ftFixedChar] then
+            if NetQuery.NetData.Fields[I].DataType in
+              [ftString, ftFixedChar] then
               TempStr := UTF8Encode(TempStr);
 {$ENDIF}
             if (I = 0) and (NetQuery.NetData.RecNo = 1) then
@@ -992,9 +1007,9 @@ begin
   Result := RetStr;
 end;
 
-function TServerConnBuffer.ServerCustProc(CustInstrucV, SQLVS: Byte;
-  FUser, ScriptValue, SQLValueE, SQLValueOBefore,
-  SQLValueOAfter: TNetProcString): TNetProcString;
+function TServerConnBuffer.ServerCustProc(CustInstrucV, SQLVS: byte;
+  FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
+  TNetProcString): TNetProcString;
 var
   RetStr: TNetProcString;
   ScriptCount, RunCount: integer;
@@ -1062,9 +1077,9 @@ begin
   Log(RetStr + ' ^ ' + IntToStr(ScriptCount) + ' ^ ' + IntToStr(RunCount));
 end;
 
-function TServerConnBuffer.ServerCustAfter(CustInstrucV, SQLVS: Byte;
-  FUser, ScriptValue, SQLValueE, SQLValueOBefore,
-  SQLValueOAfter: TNetProcString): TNetProcString;
+function TServerConnBuffer.ServerCustAfter(CustInstrucV, SQLVS: byte;
+  FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
+  TNetProcString): TNetProcString;
 var
   TempStr, RetStr: TNetProcString;
   I: integer;
@@ -1094,8 +1109,8 @@ begin
             TempStr := NetQuery.NetData.Fields[I].AsString;
 {$ENDIF}
 {$IFNDEF FPC}
-            if NetQuery.NetData.Fields[I].DataType in [ftString,
-              ftFixedChar] then
+            if NetQuery.NetData.Fields[I].DataType in
+              [ftString, ftFixedChar] then
               TempStr := UTF8Encode(TempStr);
 {$ENDIF}
             if (I = 0) and (NetQuery.NetData.RecNo = 1) then
@@ -1124,22 +1139,21 @@ function TServerConnBuffer.DoDynamicCustProc(FDataQuery: TServerSockQuery;
   NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
   FUser, FSubFuncs: TNetProcString): boolean;
 var
-  CustIsts, SQLx: Byte;
+  CustIsts, SQLx: byte;
   ReslScriptV, ReslSQLVE, ReslSQLVOBefore, ReslSQLVOAfter, ClientParam,
-    RetBefore, RetProc, RetAfter, RetVL: TNetProcString;
+  RetBefore, RetProc, RetAfter, RetVL: TNetProcString;
 begin
   Result := False;
   try
-    if (Pos('ClDLL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
-      then
+    if (Pos('ClDLL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
     begin
       CustIsts := GetCustInstruc;
       SQLx := GetSQLStyle(CustIsts);
       ClientParam := GetCustParam;
       ReslSQLVOBefore := DoSCustProcSQLBeforeOpen(CustIsts,
         PAnsiChar(FUser), PAnsiChar(FSubFuncs), PAnsiChar(ClientParam));
-      Log('CustProcMessage: ' + IntToStr(integer(CustIsts)) + '^' + IntToStr
-          (SQLx) + '^' + ClientParam);
+      Log('CustProcMessage: ' + IntToStr(integer(CustIsts)) + '^' +
+        IntToStr(SQLx) + '^' + ClientParam);
       // ReslSQLVE); // + '^' + ReslSQLVOBefore);
       SetInstruction(IstDynamicCustProc);
       WriteByte(SQLx);
@@ -1147,8 +1161,7 @@ begin
       RetBefore := ServerCustBefore(CustIsts, SQLx, FUser, ReslScriptV,
         ReslSQLVE, ReslSQLVOBefore);
       ReslScriptV := DoSCustProcScript(CustIsts, PAnsiChar(FUser),
-        PAnsiChar(FSubFuncs), PAnsiChar(ClientParam),
-        PAnsiChar(RetBefore));
+        PAnsiChar(FSubFuncs), PAnsiChar(ClientParam), PAnsiChar(RetBefore));
       ReslSQLVE := DoSCustProcSQLExec(CustIsts, PAnsiChar(FUser),
         PAnsiChar(FSubFuncs), PAnsiChar(ClientParam), PAnsiChar(RetBefore));
       RetProc := ServerCustProc(CustIsts, SQLx, PAnsiChar(FUser),
@@ -1175,7 +1188,7 @@ begin
   end;
 end;
 
-function TServerConnBuffer.DoInternalSpecialSQL(CustSubInstrucs: Byte;
+function TServerConnBuffer.DoInternalSpecialSQL(CustSubInstrucs: byte;
   FUser: string; ASQLStyle: SQLStyle; SQLText: TNetProcString): boolean;
 begin
   Result := False;
@@ -1192,21 +1205,20 @@ function TServerConnBuffer.DoInternalCustProc(FDataQuery: TServerSockQuery;
   NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
   FUser, FSubFuncs: TNetProcString): boolean;
 var
-  CustIsts, CustSubIst: Byte;
+  CustIsts, CustSubIst: byte;
   ClientParam, RetVL: TNetProcString;
 begin
   Result := False;
   try
-    if (Pos('INNER', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
-      then
+    if (Pos('INNER', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
     begin
       CustIsts := GetCustInstruc;
       CustSubIst := 0;
-      if CustIsts = Byte(InternalSQLInstruciton) then
+      if CustIsts = byte(InternalSQLInstruciton) then
         CustSubIst := ReadByte;
       ClientParam := GetCustParam;
-      Log('CustInternalProc: ' + IntToStr(integer(CustIsts))
-          + '^' + ClientParam); // ReslSQLVE); // + '^' + ReslSQLVOBefore);
+      Log('CustInternalProc: ' + IntToStr(integer(CustIsts)) + '^' + ClientParam);
+      // ReslSQLVE); // + '^' + ReslSQLVOBefore);
       if Assigned(FOnCustInternalCall) then
         RetVL := FOnCustInternalCall(CustIsts, CustSubIst,
           PAnsiChar(ClientParam), FDataQuery, NetSQLProc, FZStProc,
@@ -1216,7 +1228,7 @@ begin
       Log(RetVL);
       SetInstruction(IstInternalCustProc);
       WriteByte(CustIsts);
-      if CustIsts = Byte(InternalSQLInstruciton) then
+      if CustIsts = byte(InternalSQLInstruciton) then
         DoInternalSpecialSQL(CustSubIst, FUser, SelectSQL, RetVL)
       else
         WriteStr(RetVL);
@@ -1236,21 +1248,20 @@ end;
 function TServerConnBuffer.DoSQLScript(FDataQuery: TServerSockQuery;
   FUser, FSubFuncs: TNetProcString): boolean;
 var
-  CustIsts, SQLx: Byte;
+  CustIsts, SQLx: byte;
   ReslSQLV, ClientParam: TNetProcString;
 begin
   Result := False;
   try
-    if (Pos('SCRIP', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
-      then
+    if (Pos('SCRIP', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
     begin
       CustIsts := GetCustInstruc;
       SQLx := GetSQLStyle(CustIsts);
       ClientParam := GetCustParam;
       ReslSQLV := DoSScriptProc(CustIsts, PAnsiChar(FUser),
         PAnsiChar(FSubFuncs), PAnsiChar(ClientParam));
-      Log('CustMessage: ' + IntToStr(integer(CustIsts)) + '*' + IntToStr
-          (SQLx) + '*' + ReslSQLV);
+      Log('CustMessage: ' + IntToStr(integer(CustIsts)) + '*' +
+        IntToStr(SQLx) + '*' + ReslSQLV);
       SetInstruction(IstSQLScript);
       WriteByte(SQLx);
       ServerScriptProc(CustIsts, SQLx, FUser, ReslSQLV);
@@ -1269,21 +1280,20 @@ end;
 function TServerConnBuffer.DoSpecialSQL(FDataQuery: TServerSockQuery;
   FUser, FSubFuncs: TNetProcString): boolean;
 var
-  CustIsts, SQLx: Byte;
+  CustIsts, SQLx: byte;
   ReslSQLV, ClientParam: TNetProcString;
 begin
   Result := False;
   try
-    if (Pos('SPSQL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
-      then
+    if (Pos('SPSQL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
     begin
       CustIsts := GetCustInstruc;
       SQLx := GetSQLStyle(CustIsts);
       ClientParam := GetCustParam;
       ReslSQLV := DoSSpecialQuery(CustIsts, PAnsiChar(FUser),
         PAnsiChar(FSubFuncs), PAnsiChar(ClientParam));
-      Log('CustMessage: ' + IntToStr(integer(CustIsts)) + '*' + IntToStr
-          (SQLx) + '*' + ReslSQLV);
+      Log('CustMessage: ' + IntToStr(integer(CustIsts)) + '*' +
+        IntToStr(SQLx) + '*' + ReslSQLV);
       SetInstruction(IstSpecialSQL);
       WriteByte(SQLx);
       ServerSQLProc(CustIsts, SQLStyle(SQLx), FUser, ReslSQLV);
@@ -1301,7 +1311,7 @@ begin
   end;
 end;
 
-function TServerConnBuffer.GetCustInstruc: Byte;
+function TServerConnBuffer.GetCustInstruc: byte;
 begin
   try
     Result := ReadByte;
@@ -1319,8 +1329,8 @@ begin
 {$ENDIF}
 end;
 
-function TServerConnBuffer.ServerSQLProc(CustInstrucV: Byte; SQLVS: SQLStyle;
-  FUser, SQLValue: TNetProcString): Byte;
+function TServerConnBuffer.ServerSQLProc(CustInstrucV: byte; SQLVS: SQLStyle;
+  FUser, SQLValue: TNetProcString): byte;
 var
   TempStr, TempField: TNetProcString;
   I, RecCont: integer;
@@ -1371,10 +1381,10 @@ begin
 {$ELSE}
             TempField := UTF8Encode(NetQuery.NetData.Fields[I].FieldName) + ';';
 {$ENDIF}
-            WriteStr(TempField + IntToStr
-                (integer(NetQuery.NetData.Fields[I].DataType)) + ';' + IntToStr
-                (NetQuery.NetData.Fields[I].Size) + ';' + IntToStr
-                (integer(NetQuery.NetData.Fields[I].Required)));
+            WriteStr(TempField + IntToStr(
+              integer(NetQuery.NetData.Fields[I].DataType)) + ';' +
+              IntToStr(NetQuery.NetData.Fields[I].Size) + ';' +
+              IntToStr(integer(NetQuery.NetData.Fields[I].Required)));
           end;
         end;
 
@@ -1385,17 +1395,25 @@ begin
             WriteByte(0);
             for I := 0 to NetQuery.NetData.FieldCount - 1 do
             begin
+              if NetQuery.NetData.Fields[I].DataType in [ftDate, ftTime, ftDateTime] then
+                TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsDateTime)
+              else
+              if NetQuery.NetData.Fields[I].DataType in [ftFloat, ftCurrency] then
+                TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsFloat)
+              else
+              begin
 {$IFDEF OverRad2k7}
-              TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
+                TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
 {$ELSE}
-              TempStr := NetQuery.NetData.Fields[I].AsString;
+                TempStr := NetQuery.NetData.Fields[I].AsString;
 {$ENDIF}
 {$IFNDEF FPC}
-              if NetQuery.NetData.Fields[I].DataType in [ftString,
-                ftFixedChar] then
-                TempStr := UTF8Encode(TempStr);
+                if NetQuery.NetData.Fields[I].DataType in
+                  [ftString, ftFixedChar] then
+                  TempStr := UTF8Encode(TempStr);
 {$ENDIF}
-              WriteStr(TempStr);
+                WriteStr(TempStr);
+              end;
             end;
             Inc(RecCont);
             NetQuery.NetData.Next;
@@ -1420,8 +1438,8 @@ begin
   end;
 end;
 
-function TServerConnBuffer.ServerStoredProc(CustInstrucV, SQLVS: Byte;
-  FUser, SQLValue: TNetProcString; ParamNum, InNum, RetNum: integer): Byte;
+function TServerConnBuffer.ServerStoredProc(CustInstrucV, SQLVS: byte;
+  FUser, SQLValue: TNetProcString; ParamNum, InNum, RetNum: integer): byte;
 var
   OutStr: TNetProcString;
   I, TmpI: integer;
@@ -1459,7 +1477,7 @@ begin
       if (I mod 2) = 0 then
       begin
         TmpI := StrToIntDef(temur[I + ParamNum + 2], 0);
-        NetStoredProc.Params[TmpI].value := temur[I + ParamNum + 3];
+        NetStoredProc.Params[TmpI].Value := temur[I + ParamNum + 3];
       end;
     end;
 
@@ -1473,9 +1491,9 @@ begin
       begin
         TmpI := StrToIntDef(temur[I + ParamNum + InNum + 2], 0);
         if I = 0 then
-          OutStr := OutStr + NetStoredProc.Params[TmpI].value
+          OutStr := OutStr + NetStoredProc.Params[TmpI].Value
         else
-          OutStr := OutStr + ';' + NetStoredProc.Params[TmpI].value;
+          OutStr := OutStr + ';' + NetStoredProc.Params[TmpI].Value;
       end;
     end;
     WriteByte(CustInstrucV);
@@ -1493,8 +1511,8 @@ begin
   end;
 end;
 
-function TServerConnBuffer.ServerScriptProc(CustInstrucV, SQLVS: Byte;
-  FUser, SQLValue: TNetProcString): Byte;
+function TServerConnBuffer.ServerScriptProc(CustInstrucV, SQLVS: byte;
+  FUser, SQLValue: TNetProcString): byte;
 begin
   Result := 0;
   if SQLValue = '' then
@@ -1541,7 +1559,7 @@ end;
 procedure TServerConnBuffer.ExecFuncChangPSW;
 var
   TempPSW, PSW1, PSW2: TNetProcString;
-  RetByte: Byte;
+  RetByte: byte;
 begin
   RetByte := 40;
 
@@ -1551,8 +1569,7 @@ begin
     NetQuery.SQL.add('select * from OPERASINFO where USR = ' + FUSR);
     NetQuery.SuperOpen;
 {$IFDEF OverRad2k7}
-    TempPSW := Uppercase(Trim(NetQuery.NetData.FieldByName('PSW').AsAnsiString)
-      );
+    TempPSW := Uppercase(Trim(NetQuery.NetData.FieldByName('PSW').AsAnsiString));
 {$ELSE}
     TempPSW := Uppercase(Trim(NetQuery.NetData.FieldByName('PSW').AsString));
 {$ENDIF}
@@ -1564,8 +1581,8 @@ begin
     begin
       NetSQLRun.Close;
       NetSQLRun.SQL.Clear;
-      NetSQLRun.SQL.add('update OPERASINFO set PSW = ' + QuotedStr(PSW2)
-          + ' where USR = ' + FUSR);
+      NetSQLRun.SQL.add('update OPERASINFO set PSW = ' + QuotedStr(PSW2) +
+        ' where USR = ' + FUSR);
       NetSQLRun.SuperExecSQL;
       RetByte := 10;
     end;
@@ -1595,33 +1612,30 @@ begin
   @DoSScriptProc := GetProcAddress(DLibHandle, 'DoSScriptProc');
   @DoSCustProcScript := GetProcAddress(DLibHandle, 'DoSCustProcScript');
   @DoSCustProcSQLExec := GetProcAddress(DLibHandle, 'DoSCustProcSQLExec');
-  @DoSCustProcSQLBeforeOpen := GetProcAddress(DLibHandle,
-    'DoSCustProcSQLBeforeOpen');
-  @DoSCustProcSQLAfterOpen := GetProcAddress(DLibHandle,
-    'DoSCustProcSQLAfterOpen');
+  @DoSCustProcSQLBeforeOpen := GetProcAddress(DLibHandle, 'DoSCustProcSQLBeforeOpen');
+  @DoSCustProcSQLAfterOpen := GetProcAddress(DLibHandle, 'DoSCustProcSQLAfterOpen');
   @DoSSpecialQuery := GetProcAddress(DLibHandle, 'DoSSpecialQuery');
   @DoSReturnValue := GetProcAddress(DLibHandle, 'DoSReturnValue');
 end;
 
 initialization
 
-DLibHandle := 0;
+  DLibHandle := 0;
 {$IFDEF LINUX}
-DLibHandle := LoadLibrary(PChar(ExtractFilePath(ParamStr(0)) + 'DBOLSPlugin.so')
-  );
+  DLibHandle := LoadLibrary(PChar(ExtractFilePath(ParamStr(0)) + 'DBOLSPlugin.so'));
 {$ELSE}
-DLibHandle := LoadLibrary
-  (PChar(ExtractFilePath(ParamStr(0)) + 'DBOLSPlugin.dll'));
+  DLibHandle := LoadLibrary(PChar(ExtractFilePath(ParamStr(0)) + 'DBOLSPlugin.dll'));
 {$ENDIF}
-try
-  if DLibHandle <> 0 then
-    LoadAllFunc;
-except
-end;
+  try
+    if DLibHandle <> 0 then
+      LoadAllFunc;
+  except
+  end;
 
 finalization
 
-if DLibHandle <> 0 then
-  FreeLibrary(DLibHandle);
+  if DLibHandle <> 0 then
+    FreeLibrary(DLibHandle);
 
 end.
+
