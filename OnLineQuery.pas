@@ -250,6 +250,7 @@ begin
     begin
       FOnlineConnection.Buffer.ReturnStr := '';
       FOnlineConnection.Buffer.RecvBuffer := '';
+      raise Exception.Create('Connection failed');
       Exit;
     end;
 

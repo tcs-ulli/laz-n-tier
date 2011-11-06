@@ -61,7 +61,8 @@ begin
   if IsBiolife = False then
     Exit;
   if OnlineQuery1.RecordCount < 1 then
-    Exit;;
+    Exit;
+  ;
   Datasource1.OnDataChange := @Datasource1DataChange;
   mStream := TMemoryStream.Create;
   bb := OnlineQuery1.FieldByName('Graphic').AsString;
@@ -92,9 +93,14 @@ begin
   IsBiolife := False;
   with OnlineQuery1 do
   begin
-    Close;
-    SQL.Text := 'select * from vendors000';
-    Open;
+    try
+      Close;
+      SQL.Text := 'select * from vendors000';
+      Open;
+    except
+      on E: Exception do
+        Application.MessageBox(PChar(E.Message + '.'), 'Error', $10);
+    end;
   end;
 end;
 
@@ -134,8 +140,7 @@ begin
 end;
 
 procedure TClientForm.OnlineConnection1DataAvailable(Sender: TObject;
-  ClientThrd: TObject; FDSock: TCSocketClient; ReceiveData: string; Error: word
-  );
+  ClientThrd: TObject; FDSock: TCSocketClient; ReceiveData: string; Error: word);
 begin
 
 end;
