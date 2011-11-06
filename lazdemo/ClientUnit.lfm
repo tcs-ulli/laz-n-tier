@@ -1,18 +1,18 @@
 object ClientForm: TClientForm
-  Left = 233
+  Left = 234
   Height = 314
   Top = 224
-  Width = 812
+  Width = 814
   Caption = 'ClientForm'
   ClientHeight = 314
-  ClientWidth = 812
+  ClientWidth = 814
   OnCreate = FormCreate
   OnShow = FormShow
   LCLVersion = '0.9.31'
   object DBGrid1: TDBGrid
-    Left = 16
+    Left = 18
     Height = 280
-    Top = 24
+    Top = 16
     Width = 480
     Color = clWindow
     Columns = <>
@@ -83,11 +83,11 @@ object ClientForm: TClientForm
   end
   object Datasource1: TDatasource
     DataSet = OnlineQuery1
-    left = 328
+    left = 296
     top = 88
   end
   object OnlineQuery1: TOnlineQuery
-    Active = True
+    Active = False
     FieldDefs = <    
       item
         Name = 'Species_No'
@@ -140,13 +140,13 @@ object ClientForm: TClientForm
     InstrucNum = istSQL
     InstrucSubNum = 0
     CachedUpdate = False
-    OnlineConn = OnlineConnection1
+    OnlineConnection = OnlineConnection1
     PrimaryKey = 'Species_No;Category;Common_Name'
     SQL.Strings = (
       'select * from biolife'
     )
     GetFields = True
     left = 104
-    top = 168
+    top = 176
   end
 end

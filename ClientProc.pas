@@ -45,21 +45,21 @@ unit ClientProc;
 
 interface
 
-uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB,
+uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB, Forms,
 {$IFNDEF FPC}WideStrUtils,
 {$ENDIF}{$IFDEF MSWINDOWS}Windows, {$ELSE}DynLibs, {$ENDIF}MD5;
 
 type
   TClientConnBuffer = class(TOnlineDataBuffer)
-  protected
+  Protected
     FDataSet: TDataSet;
-    procedure ProcessData; override;
+    procedure ProcessData; Override;
     procedure ProcessError(const Msg: TNetProcString);
-  public
+  Public
     FSocket: TCSocket;
     ReturnStr: TNetProcString;
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor Create(AOwner: TComponent); Override;
+    destructor Destroy; Override;
     procedure Log(const Msg: TNetProcString);
     procedure AddSQLParam(const ParamName: TNetProcString; ParamType: TFieldType;
       const Value: TNetProcString);
@@ -402,16 +402,19 @@ begin
         if Result <> RecNumInParam then
           Log('Error recnum. Recnum' + IntToStr(Result) + '*' +
             IntToStr(RecNumInParam));
-      finally
-        FDataSet.EnableControls;
-        FDataSet := nil;
+
+      except
+        on E: Exception do
+        begin
+          ProcessError(E.ClassName + ': ' + E.Message);
+          if SQLIsttion <> IstSQLExec then
+            FDataSet.Close;
+        end;
       end;
     end;
-  except
-    on E: Exception do
-    begin
-      ProcessError(E.ClassName + ': ' + E.Message);
-    end;
+  finally
+    FDataSet.EnableControls;
+    FDataSet := nil;
   end;
   Log('Open:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
 end;
@@ -487,16 +490,18 @@ begin
         if Result <> RecNumInParam then
           Log('Error recnum. Recnum - : ' + IntToStr(Result) + '*' +
             IntToStr(RecNumInParam));
-      finally
-        FDataSet.EnableControls;
-        FDataSet := nil;
+      except
+        on E: Exception do
+        begin
+          ProcessError(E.ClassName + ': ' + E.Message);
+          if SQLVx = 1 then
+            FDataSet.Close;
+        end;
       end;
     end;
-  except
-    on E: Exception do
-    begin
-      ProcessError(E.ClassName + ': ' + E.Message);
-    end;
+  finally
+    FDataSet.EnableControls;
+    FDataSet := nil;
   end;
   Log('Open:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
 end;
@@ -508,10 +513,12 @@ begin
   begin
     istErrorMsg := ReadStr + #13 + Msg;
     Log(istErrorMsg);
-    raise exception.create(istErrorMsg);
+    //raise exception.create(istErrorMsg);
+    Application.MessageBox(PChar(istErrorMsg), 'Error', MB_ICONERROR);
   end
   else
-    raise exception.create(Msg);
+    //raise exception.create(Msg);
+    Application.MessageBox(PChar(Msg), 'Error', MB_ICONERROR);
 end;
 
 function TClientConnBuffer.DoSQLScript(DataSet: TDataset; CPInstruc: Byte;

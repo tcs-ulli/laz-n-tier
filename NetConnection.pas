@@ -1,5 +1,5 @@
 {==============================================================================|
-| Project : OnLine Data Process Component                                      |
+| Project : OnLine Data Process Component                                      |
 |==============================================================================|
 | Copyright (c)2010-2011, Yang JiXian                                          |
 | All rights reserved.                                                         |
@@ -37,7 +37,7 @@
 | Contributor(s):                                                              |
 |==============================================================================}
 
-unit NetConnection;
+unit NetConnection;
 
 {$IFDEF FPC}
 {$MODE Delphi}
@@ -92,14 +92,14 @@ end;
 
 function TOnlineConnection.Logon: Boolean;
 begin
-  if not FActive then
+  if not Active then
     Open;
   Result := Buffer.LogOnServer(FUsrName, FPSW);
 end;
 
 function TOnlineConnection.Logon2: TLogonStyle;
 begin
-  if not FActive then
+  if not Active then
     Open;
   Result := Buffer.LogOnServer2(FUsrName, FPSW);
 end;

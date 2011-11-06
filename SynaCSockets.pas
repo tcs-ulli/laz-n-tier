@@ -109,7 +109,7 @@ type
     FWHost: AnsiString;
     FWPort: AnsiString;
     FHostIP: AnsiString;
-    FActive: boolean;
+    Active: boolean;
     FTimeOut: integer;
     FRecvStr: AnsiString;
     FSocket: TCSocketClient;
@@ -197,13 +197,12 @@ end;
 procedure TCSocketThread.OwnerOpen;
 begin
   FAOwner.ThrdIsRunning := True;
-  FAOwner.FActive := True;
 end;
 
 procedure TCSocketThread.OwnerClose;
 begin
   FAOwner.ThrdIsRunning := False;
-  FAOwner.FActive := False;
+  FAOwner.Active := False;
 end;
 
 procedure TCSocketThread.ClearOwnerJob;
@@ -262,7 +261,9 @@ begin
               Break;
             Connect(FAOwner.FHostIP, FAOwner.FWPort);
             if LastError <> 0 then
-              Synchronize(DoClose);
+              Synchronize(DoClose)
+            else
+              FAOwner.Active := True;
 
             if FAOwner.WithSSL then
             begin
@@ -315,6 +316,7 @@ begin
       Sock.SSLDoShutdown;
     Sock.Free;
   end;
+  FAOwner.Active := False;
 end;
 
 procedure TCSocketThread.DoClose;
@@ -322,7 +324,7 @@ begin
   FAOwner.FJob.Job := doNone;
   if Assigned(FAOwner.FOnSocketClose) then
     FAOwner.FOnSocketClose(FAOwner, Sock, '');
-  FAOwner.FActive := False;
+  FAOwner.Active := False;
   FContinue := False;
   FAOwner.FJob.Job := doNone;
   FJob.Job := doNone;
@@ -415,7 +417,7 @@ begin
   inherited Create(aOwner);
   FCS := SyncObjs.TCriticalSection.Create;
   FSocket := TCSocketClient.Create;
-  FActive := False;
+  Active := False;
   FTimeOut := 12000;
   FMaxSendBandwidth := 0;
   FMaxRecvBandwidth := 0;
@@ -430,7 +432,7 @@ begin
   FSocket.Free;
 
   try
-    if FActive then
+    if Active then
     begin
       FThrd.Terminate;
       OnlineContinue := False;
@@ -448,7 +450,7 @@ begin
   if not IsRunning then
   try
     IsRunning := True;
-    if FActive and ThrdIsRunning then
+    if Active and ThrdIsRunning then
     begin
       FJob.Job := doSend;
       FJob.Data := DataStr;
@@ -507,7 +509,7 @@ procedure TCSocket.T_Connect;
 var
   xct, i: integer;
 begin
-  if (not FActive) and (not ThrdIsRunning) then
+  if (not Active) and (not ThrdIsRunning) then
   begin
     FThrd := TCSocketThread.Create(Self);
     FJob.Job := doConn;
@@ -540,7 +542,7 @@ end;
 procedure TCSocket.P_Connect;
 begin
   try
-    if not FActive then
+    if not Active then
     begin
       try
         FSocket.Connect(FHostIP, FWPort);
@@ -549,9 +551,9 @@ begin
       end;
     end;
     if FSocket.LastError = 0 then
-      FActive := True
+      Active := True
     else
-      FActive := False;
+      Active := False;
   except
   end;
 end;

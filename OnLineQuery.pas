@@ -73,7 +73,7 @@ type
 
   TOnlineQuery = class(TMemDB)
   private
-    FOnlineConn: TOnlineConnection;
+    FOnlineConnection: TOnlineConnection;
     FTableName, FPrimaryKey, FIndexFieldNames, FEditFields: TNetProcString;
     FSync, FLoading: boolean;
     FSQL, FSQLDataStr: TNetProcList;
@@ -131,7 +131,7 @@ type
     property InstrucSubNum: byte read FSubInstrucNum write FSubInstrucNum;
     property ClientParam: TNetProcString read FClientParam write FClientParam;
     property CachedUpdate: boolean read FCachedUpdate write FCachedUpdate;
-    property OnlineConn: TOnlineConnection read FOnlineConn write FOnlineConn;
+    property OnlineConnection: TOnlineConnection read FOnlineConnection write FOnlineConnection;
     property PrimaryKey: TNetProcString read FPrimaryKey write SetPrimaryKey;
     property SQL: TNetProcList read GetSQL write SetSQL;
     property GetFields: boolean read FReplaceFields write FReplaceFields;
@@ -167,7 +167,7 @@ type
     property InstrucNum;
     property ClientParam;
     property CachedUpdate;
-    property OnlineConn;
+    property OnlineConnection;
     property PrimaryKey;
     property SQL;
     property GetFields;
@@ -242,6 +242,20 @@ end;
 
 procedure TOnlineQuery.SetActive(Value: boolean);
 begin
+  if FOnlineConnection = nil then
+    Exit;
+
+  if not FOnlineConnection.Active then
+    if not FOnlineConnection.Logon then
+    begin
+      FOnlineConnection.Buffer.ReturnStr := '';
+      FOnlineConnection.Buffer.RecvBuffer := '';
+      Exit;
+    end;
+
+  if not FOnlineConnection.Active then
+    Exit;
+
   inherited;
   if Active then
     First;
@@ -559,7 +573,7 @@ begin
   end;
   if CacheList.Count > 0 then
   begin
-    CacheCount := FOnlineConn.Buffer.CacheExecSQL(Self, CacheList.Text);
+    CacheCount := FOnlineConnection.Buffer.CacheExecSQL(Self, CacheList.Text);
     if CacheCount = CacheList.Count then
     begin
       Result := True;
@@ -577,7 +591,7 @@ function TOnlineQuery.OnlineRequest(IsSQLOpen: boolean; xInstruc: integer;
 begin
   Result := 0;
   try
-    Result := FOnlineConn.Buffer.DoSpecialSQL(Self, xInstruc, xParam);
+    Result := FOnlineConnection.Buffer.DoSpecialSQL(Self, xInstruc, xParam);
   except
   end;
 end;
@@ -586,7 +600,7 @@ function TOnlineQuery.OnlineScript(xInstruc: integer; xParam: TNetProcString): i
 begin
   Result := 0;
   try
-    Result := FOnlineConn.Buffer.DoSQLScript(Self, xInstruc, xParam);
+    Result := FOnlineConnection.Buffer.DoSQLScript(Self, xInstruc, xParam);
   except
   end;
 end;
@@ -596,7 +610,7 @@ function TOnlineQuery.OnlineStoredProc(xInstruc: integer;
 begin
   Result := 0;
   try
-    Result := FOnlineConn.Buffer.DoStoredProc(Self, xInstruc, xParam);
+    Result := FOnlineConnection.Buffer.DoStoredProc(Self, xInstruc, xParam);
   except
   end;
 end;
@@ -607,8 +621,8 @@ begin
   RetValue := '';
   Result := '';
   try
-    Result := FOnlineConn.Buffer.ProcessDynamicCustProc(Self, xInstruc, xParam);
-    RetValue := FOnlineConn.Buffer.ReturnStr;
+    Result := FOnlineConnection.Buffer.ProcessDynamicCustProc(Self, xInstruc, xParam);
+    RetValue := FOnlineConnection.Buffer.ReturnStr;
   except
   end;
 end;
@@ -617,7 +631,7 @@ function TOnlineQuery.InternalSQL(SubInstruc: integer; xParam: TNetProcString): 
 begin
   Result := 0;
   try
-    Result := FOnlineConn.Buffer.DoInternalSpecialSQL(Self, SubInstruc, xParam);
+    Result := FOnlineConnection.Buffer.DoInternalSpecialSQL(Self, SubInstruc, xParam);
   except
   end;
 end;
@@ -627,8 +641,8 @@ function TOnlineQuery.InternalProcess(xInstruc: integer;
 begin
   RetValue := '';
   try
-    Result := FOnlineConn.Buffer.ProcessInternalCustProc(Self, xInstruc, xParam);
-    RetValue := FOnlineConn.Buffer.ReturnStr;
+    Result := FOnlineConnection.Buffer.ProcessInternalCustProc(Self, xInstruc, xParam);
+    RetValue := FOnlineConnection.Buffer.ReturnStr;
   except
   end;
 end;
@@ -644,10 +658,10 @@ begin
       if FCachedUpdate then
         CacheList.Add(SQL)
       else
-        FOnlineConn.Buffer.ExecSQL(Self, SQL);
+        FOnlineConnection.Buffer.ExecSQL(Self, SQL);
     end;
-    IstSQLOpen: FOnlineConn.Buffer.OpenSQL(Self, SQL, FReplaceFields, TmpR);
-    IstSQLFieldDefs: FOnlineConn.Buffer.UpdateFieldDefs(Self, SQL);
+    IstSQLOpen: FOnlineConnection.Buffer.OpenSQL(Self, SQL, FReplaceFields, TmpR);
+    IstSQLFieldDefs: FOnlineConnection.Buffer.UpdateFieldDefs(Self, SQL);
   end;
 
   SQL := UpperCase(SQL);
@@ -656,12 +670,12 @@ begin
     S := uppercase(Fields[I].FieldName);
     if pos(':' + S, SQL) > 0 then
     begin
-      FOnlineConn.Buffer.AddSQLParam(Fields[I].FieldName, Fields[I].DataType,
+      FOnlineConnection.Buffer.AddSQLParam(Fields[I].FieldName, Fields[I].DataType,
         Fields[I].Value);
     end;
     if pos(':OLD_' + S, SQL) > 0 then
     begin
-      FOnlineConn.Buffer.AddSQLParam('Old_' + Fields[I].FieldName,
+      FOnlineConnection.Buffer.AddSQLParam('Old_' + Fields[I].FieldName,
         Fields[I].DataType, Fields[I].OldValue);
     end;
   end;
@@ -669,7 +683,7 @@ end;
 
 function TOnlineQuery.OnLineRun;
 begin
-  Result := FOnlineConn.Buffer.RunSQL;
+  Result := FOnlineConnection.Buffer.RunSQL;
 end;
 
 procedure TOnlineQuery.SetIndexFieldNames(const Value: TNetProcString);
@@ -741,14 +755,6 @@ procedure TOnlineQuery.InternalOpen;
 var
   i, Keyi, TotalKeyCount: integer;
 begin
-  if not FOnlineConn.FActive then
-    if not FOnlineConn.Logon then
-    begin
-      FOnlineConn.Buffer.ReturnStr := '';
-      FOnlineConn.Buffer.RecvBuffer := '';
-      Exit;
-    end;
-
   if (csDesigning in ComponentState) then
     TmpR := True
   else
@@ -880,7 +886,7 @@ end;
 
 function TOnlineQuery.GetServerTime: TNetProcString;
 begin
-  Result := FOnlineConn.Buffer.GetServerTime;
+  Result := FOnlineConnection.Buffer.GetServerTime;
 end;
 
 end.
