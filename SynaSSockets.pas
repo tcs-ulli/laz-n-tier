@@ -81,7 +81,7 @@ type
   public
     FAOwner: TSSocketServer;
     TempThrd: TCliThread;
-    DisConnected: Boolean;
+    DisConnected, ListenFailed: Boolean;
     constructor Create(aOwner: TSSocketServer);
     destructor Destroy; override;
     procedure Execute; override;
@@ -128,6 +128,7 @@ type
       FSSLKeyPassword, FSSLPFXfile: string;
     FListenSrvThread: TSrvThread;
     procedure SetPort(Value: AnsiString);
+    procedure OnListenerTerminate(Sender: TObject);
   public
     Active: Boolean;
     ThrdList: TList;
@@ -236,6 +237,7 @@ var
   SID: integer;
 begin
   DisConnected := False;
+  ListenFailed := False;
   with Sock do
   begin
     CreateSocket;
@@ -243,7 +245,10 @@ begin
     Bind('0.0.0.0', FAOwner.FPort);
     Listen;
     if LastError <> 0 then
+    begin
+      ListenFailed := True;
       Exit;
+    end;
     FAOwner.Active := True;
     SynChronize(DoClearUsers);
     SID := 0;
@@ -569,14 +574,18 @@ end;
 procedure TSSocketServer.Listen;
 begin
   FListenSrvThread := TSrvThread.Create(Self);
-  Sleep(106);
-  if not Active then
-    RaiseListenError;
+  FListenSrvThread.OnTerminate := OnListenerTerminate;
 end;
 
 procedure TSSocketServer.RaiseListenError;
 begin
   raise Exception.Create('Listen failed on port ' + FPort + ' ');
+end;
+
+procedure TSSocketServer.OnListenerTerminate(Sender: TObject);
+begin
+  if FListenSrvThread.ListenFailed then
+    RaiseListenError;
 end;
 
 procedure TSSocketServer.Close;
