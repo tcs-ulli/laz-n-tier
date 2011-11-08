@@ -1,5 +1,5 @@
 object ServerForm: TServerForm
-  Left = 131
+  Left = 216
   Height = 240
   Top = 136
   Width = 336

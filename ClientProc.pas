@@ -45,7 +45,7 @@ unit ClientProc;
 
 interface
 
-uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB, {$IFNDEF FPC}WideStrUtils,
+uses DataProcUtils, SynaCSockets, SysUtils, Classes, DB, {$IFNDEF FPC}WideStrUtils,
   {$ENDIF}DynLibs, MD5;
 
 type
@@ -59,6 +59,7 @@ type
     ReturnStr: TNetProcString;
     constructor Create(AOwner: TComponent); Override;
     destructor Destroy; Override;
+    procedure Writelog(value: TNetProcString);
     procedure Log(const Msg: TNetProcString);
     procedure AddSQLParam(const ParamName: TNetProcString; ParamType: TFieldType;
       const Value: TNetProcString);
@@ -108,11 +109,13 @@ begin
     Result := '';
 end;
 
-procedure Writelog(value: TNetProcString);
+procedure TClientConnBuffer.Writelog(value: TNetProcString);
 var
   f: textFile;
   s: TNetProcString;
 begin
+  if csDesigning in ComponentState then
+    Exit;
 {$IFDEF EnableLOG}
   s := value;
   s := GetFileName(ParamStr(0)) + '.log';

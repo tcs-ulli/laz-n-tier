@@ -48,7 +48,7 @@ interface
 uses
   Classes, SyncObjs, SysUtils, Blcksock, Synsock, Synautil, SynaIP, SSL_OpenSSL,
   {$IFDEF UNIX}{$IFDEF UseCThreads} cthreads, cmem, {$ENDIF}{$ENDIF}
-  SynaSockUtils;
+  SynaSockUtils, Forms;
 
 type
 
@@ -467,7 +467,10 @@ begin
         FJob.Job := doSend;
         FJob.Data := DataStr;
         while (FJob.Job <> doNone) and OnlineContinue do
+        begin
+          Application.ProcessMessages;
           Sleep(0);
+        end;
         Result := FRecvStr;
       end;
     finally
@@ -526,7 +529,8 @@ begin
     xct := GetTickCount;
     while (FJob.Job <> doNone) and OnlineContinue do
     begin
-      Sleep(1);
+      Sleep(0);
+      Application.ProcessMessages;
       i := GetTickCount - xct;
       if i > 62000 then
         OnlineContinue := False;

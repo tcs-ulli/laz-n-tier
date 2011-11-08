@@ -50,10 +50,11 @@
         <Filename Value="ClientPro.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ClientPro"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="35" Y="23"/>
+        <CursorPos X="1" Y="22"/>
         <UsageCount Value="48"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -63,7 +64,6 @@
         <ComponentName Value="ClientForm"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ClientUnit"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="91"/>
@@ -175,7 +175,7 @@
         <UsageCount Value="10"/>
       </Unit14>
     </Units>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="ClientUnit.pas"/>
         <Caret Line="104" Column="100" TopLine="95"/>
@@ -292,6 +292,10 @@
         <Filename Value="ClientUnit.pas"/>
         <Caret Line="93" Column="148" TopLine="79"/>
       </Position29>
+      <Position30>
+        <Filename Value="ClientPro.lpr"/>
+        <Caret Line="23" Column="35" TopLine="1"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -306,6 +310,7 @@
     </SearchPaths>
     <Linking>
       <Debugging>
+        <DebugInfoType Value="dsAuto"/>
         <UseLineInfoUnit Value="False"/>
         <StripSymbols Value="True"/>
       </Debugging>

@@ -246,7 +246,8 @@ begin
     begin
       FOnlineConnection.Buffer.ReturnStr := '';
       FOnlineConnection.Buffer.RecvBuffer := '';
-      raise Exception.Create('Connection failed');
+      if not (csDesigning in ComponentState) then
+        raise Exception.Create('Connection failed');
       Exit;
     end;
 
