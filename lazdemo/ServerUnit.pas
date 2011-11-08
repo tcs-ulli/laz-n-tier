@@ -65,8 +65,7 @@ end;
 
 procedure TServerForm.FormShow(Sender: TObject);
 begin
-  //ZeosDataServer1.Port:='8081';
-  //ZeosDataServer1.ListenOnPort(8081);
+  //ZeosDataServer1.ListenOnPort(8080);
 end;
 
 function TServerForm.ZeosDataServer1UserLogonCall(UserName, Password:

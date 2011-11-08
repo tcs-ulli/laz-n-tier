@@ -58,12 +58,12 @@ type
 
   TSSocketClient = class(TCustomSocket)
   public
-    LogonStyle: Boolean;
-    ORGID1, ORGID2: AnsiString;
+    LogonStyle: boolean;
+    ORGID1, ORGID2: ansistring;
     ClientFunctions, ClientPermTables, ClientReadTables, ClientSubFuncs,
-      USRID: AnsiString;
+    USRID: ansistring;
     OrgStyle: integer;
-    DisConnected: Boolean;
+    DisConnected: boolean;
     procedure Init;
   end;
 
@@ -81,7 +81,7 @@ type
   public
     FAOwner: TSSocketServer;
     TempThrd: TCliThread;
-    DisConnected, ListenFailed: Boolean;
+    DisConnected, ListenFailed: boolean;
     constructor Create(aOwner: TSSocketServer);
     destructor Destroy; override;
     procedure Execute; override;
@@ -96,12 +96,12 @@ type
   public
     FID: integer;
     FJob: TJobs;
-    FHasLogon: Boolean;
-    UserName, UserID: AnsiString;
+    FHasLogon: boolean;
+    UserName, UserID: ansistring;
     FAOwner: TSSocketServer;
-    FReceiveData, ResponseData: AnsiString;
-    DisConnected: Boolean;
-    FTOnValue: AnsiString;
+    FReceiveData, ResponseData: ansistring;
+    DisConnected: boolean;
+    FTOnValue: ansistring;
     FTOnReason: THookSocketReason;
     constructor Create(HSock: TSocket; aOwner: TSSocketServer);
     procedure Execute; override;
@@ -120,17 +120,17 @@ type
 
   TSSocketServer = class(TComponent)
   private
-    FHost: AnsiString;
-    FPort: AnsiString;
+    FHost: ansistring;
+    FPort: ansistring;
     FThreadCount: integer;
-    FWithSSL, FSSLverifyCert: Boolean;
+    FWithSSL, FSSLverifyCert: boolean;
     FSSLCertCAFile, FSSLCertificateFile, FSSLPrivateKeyFile,
-      FSSLKeyPassword, FSSLPFXfile: string;
+    FSSLKeyPassword, FSSLPFXfile: string;
     FListenSrvThread: TSrvThread;
-    procedure SetPort(Value: AnsiString);
+    procedure SetPort(Value: ansistring);
     procedure OnListenerTerminate(Sender: TObject);
   public
-    Active: Boolean;
+    Active: boolean;
     ThrdList: TList;
     FOnResolvingBegin: TOnSockStatus;
     FOnResolvingEnd: TOnSockStatus;
@@ -154,20 +154,21 @@ type
     procedure Close;
     procedure DisConnectAll;
     procedure DisConnectID(TID: integer);
-    procedure SendToAll(DataStr: AnsiString);
-    procedure SendToClientID(TID: integer; DataStr: AnsiString);
+    procedure SendToAll(DataStr: ansistring);
+    procedure SendToClientID(TID: integer; DataStr: ansistring);
     function Find(FXID: integer): integer;
     procedure RaiseListenError;
   published
     property SSLPFXfile: string read FSSLPFXfile write FSSLPFXfile;
     property SSLCertCAFile: string read FSSLCertCAFile write FSSLCertCAFile;
-    property SSLCertificateFile: string read FSSLCertificateFile write FSSLCertificateFile;
+    property SSLCertificateFile: string read FSSLCertificateFile
+      write FSSLCertificateFile;
     property SSLPrivateKeyFile: string read FSSLPrivateKeyFile write FSSLPrivateKeyFile;
     property SSLKeyPassword: string read FSSLKeyPassword write FSSLKeyPassword;
-    property SSLverifyCert: Boolean read FSSLverifyCert write FSSLverifyCert;
-    property WithSSL: Boolean read FWithSSL write FWithSSL;
-    property Port: AnsiString read FPort write SetPort;
-    property Host: AnsiString read FHost write FHost;
+    property SSLverifyCert: boolean read FSSLverifyCert write FSSLverifyCert;
+    property WithSSL: boolean read FWithSSL write FWithSSL;
+    property Port: ansistring read FPort write SetPort;
+    property Host: ansistring read FHost write FHost;
     property ConnectionCount: integer read FThreadCount;
     property MaxSendBandwidth: integer read FMaxSendBandwidth write FMaxSendBandwidth;
     property MaxRecvBandwidth: integer read FMaxRecvBandwidth write FMaxRecvBandwidth;
@@ -303,7 +304,7 @@ end;
 
 procedure TCliThread.Execute;
 var
-  s: AnsiString;
+  s: ansistring;
 begin
   Synchronize(DoAddUserCount);
   Synchronize(DoOnConnectionChange);
@@ -321,8 +322,7 @@ begin
     if FAOwner.WithSSL then
     begin
       try
-        if (not Sock.SSLAcceptConnection) or
-          (Sock.SSL.LastError <> 0) then
+        if (not Sock.SSLAcceptConnection) or (Sock.SSL.LastError <> 0) then
         begin
           Sock.Free;
           Exit;
@@ -417,51 +417,51 @@ procedure TCliThread.SockCallBack(Sender: TObject; Reason: THookSocketReason;
   const Value: string);
 begin
   if not terminated then
-  try
-    FTOnReason := Reason;
-    FTOnVaLUE := Value;
-    if Assigned(FAOwner.FOnProgress) then
-      SynChronize(DoOnProgress);
-    case Reason of
-      HR_ResolvingBegin:
-        if Assigned(FAOwner.FOnResolvingBegin) then
-          FAOwner.FOnResolvingBegin(FAOwner, Sock, Value);
-      HR_ResolvingEnd:
-        if Assigned(FAOwner.FOnResolvingEnd) then
-          FAOwner.FOnResolvingEnd(FAOwner, Sock, Value);
-      HR_SocketCreate:
-        if Assigned(FAOwner.FOnSocketCreate) then
-          FAOwner.FOnSocketCreate(FAOwner, Sock, Value);
-      HR_SocketClose:
+    try
+      FTOnReason := Reason;
+      FTOnVaLUE := Value;
+      if Assigned(FAOwner.FOnProgress) then
+        SynChronize(DoOnProgress);
+      case Reason of
+        HR_ResolvingBegin:
+          if Assigned(FAOwner.FOnResolvingBegin) then
+            FAOwner.FOnResolvingBegin(FAOwner, Sock, Value);
+        HR_ResolvingEnd:
+          if Assigned(FAOwner.FOnResolvingEnd) then
+            FAOwner.FOnResolvingEnd(FAOwner, Sock, Value);
+        HR_SocketCreate:
+          if Assigned(FAOwner.FOnSocketCreate) then
+            FAOwner.FOnSocketCreate(FAOwner, Sock, Value);
+        HR_SocketClose:
         begin
           if Assigned(FAOwner.FOnSocketClose) then
             SynChronize(DoOnDisConnect);
           Terminate;
         end;
-      HR_Bind:
-        if Assigned(FAOwner.FOnBind) then
-          FAOwner.FOnBind(FAOwner, Sock, Value);
-      HR_Connect:
-        if Assigned(FAOwner.FOnConnect) then
-          SynChronize(DoOnConnect);
-      HR_CanRead:
-        if Assigned(FAOwner.FOnCanRead) then
-          FAOwner.FOnCanRead(FAOwner, Sock, Value);
-      HR_CanWrite:
-        if Assigned(FAOwner.FOnCanWrite) then
-          FAOwner.FOnCanWrite(FAOwner, Sock, Value);
-      HR_Accept:
-        if Assigned(FAOwner.FOnAccept) then
-          FAOwner.FOnAccept(FAOwner, Sock, Value);
-      HR_Wait:
-        if Assigned(FAOwner.FOnWait) then
-          FAOwner.FOnWait(FAOwner, Sock, Value);
-      HR_Error:
-        if Assigned(FAOwner.FOnSockError) then
-          FAOwner.FOnSockError(FAOwner, Sock, Value);
+        HR_Bind:
+          if Assigned(FAOwner.FOnBind) then
+            FAOwner.FOnBind(FAOwner, Sock, Value);
+        HR_Connect:
+          if Assigned(FAOwner.FOnConnect) then
+            SynChronize(DoOnConnect);
+        HR_CanRead:
+          if Assigned(FAOwner.FOnCanRead) then
+            FAOwner.FOnCanRead(FAOwner, Sock, Value);
+        HR_CanWrite:
+          if Assigned(FAOwner.FOnCanWrite) then
+            FAOwner.FOnCanWrite(FAOwner, Sock, Value);
+        HR_Accept:
+          if Assigned(FAOwner.FOnAccept) then
+            FAOwner.FOnAccept(FAOwner, Sock, Value);
+        HR_Wait:
+          if Assigned(FAOwner.FOnWait) then
+            FAOwner.FOnWait(FAOwner, Sock, Value);
+        HR_Error:
+          if Assigned(FAOwner.FOnSockError) then
+            FAOwner.FOnSockError(FAOwner, Sock, Value);
+      end;
+    except
     end;
-  except
-  end;
 end;
 
 constructor TSSocketServer.Create(aOwner: TComponent);
@@ -474,7 +474,7 @@ begin
   FMaxSendBandwidth := 0;
   FMaxRecvBandwidth := 0;
   FThreadCount := 0;
-  WithSSL := false;
+  WithSSL := False;
 end;
 
 procedure TSSocketServer.DisConnectAll;
@@ -507,7 +507,7 @@ begin
   end;
 end;
 
-procedure TSSocketServer.SendToAll(DataStr: AnsiString);
+procedure TSSocketServer.SendToAll(DataStr: ansistring);
 var
   i: integer;
 begin
@@ -546,7 +546,7 @@ begin
   end;
 end;
 
-procedure TSSocketServer.SendToClientID(TID: integer; DataStr: AnsiString);
+procedure TSSocketServer.SendToClientID(TID: integer; DataStr: ansistring);
 var
   i: integer;
 begin
@@ -565,16 +565,28 @@ begin
   inherited Destroy;
 end;
 
-procedure TSSocketServer.SetPort(Value: AnsiString);
+procedure TSSocketServer.SetPort(Value: ansistring);
 begin
   Close;
   FPort := Value;
 end;
 
 procedure TSSocketServer.Listen;
+const
+  TIMEOUT = 10;
+var
+  Count: integer;
 begin
+  Count := TIMEOUT;
   FListenSrvThread := TSrvThread.Create(Self);
-  FListenSrvThread.OnTerminate := OnListenerTerminate;
+  //FListenSrvThread.OnTerminate := OnListenerTerminate;
+  while not Active and (Count > 0) do
+  begin
+    Sleep(100);
+    Count := Count - 1;
+  end;
+  if not Active then
+    RaiseListenError;
 end;
 
 procedure TSSocketServer.RaiseListenError;
@@ -584,8 +596,8 @@ end;
 
 procedure TSSocketServer.OnListenerTerminate(Sender: TObject);
 begin
-  if FListenSrvThread.ListenFailed then
-    RaiseListenError;
+  //if FListenSrvThread.ListenFailed then
+  //  RaiseListenError;
 end;
 
 procedure TSSocketServer.Close;

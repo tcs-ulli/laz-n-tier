@@ -45,9 +45,8 @@ unit ClientProc;
 
 interface
 
-uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB,
-{$IFNDEF FPC}WideStrUtils,
-{$ENDIF}{$IFDEF MSWINDOWS}Windows, {$ELSE}DynLibs, {$ENDIF}MD5;
+uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB, {$IFNDEF FPC}WideStrUtils,
+  {$ENDIF}{$IFDEF VER180}Windows, {$ELSE}DynLibs, {$ENDIF}MD5;
 
 type
   TClientConnBuffer = class(TOnlineDataBuffer)
@@ -529,10 +528,12 @@ begin
   begin
     istErrorMsg := ReadStr + #13 + Msg;
     Log(istErrorMsg);
-    raise exception.create(istErrorMsg);
+    if not (csDesigning in ComponentState) then
+      raise exception.create(istErrorMsg);
   end
   else
-    raise exception.create(Msg);
+    if not (csDesigning in ComponentState) then
+      raise exception.create(Msg);
 end;
 
 function TClientConnBuffer.DoSQLScript(DataSet: TDataset; CPInstruc: Byte;

@@ -89,6 +89,7 @@ type
       ): TNetProcString;
     function DoUserLogOnCall(User, Password: TNetProcString): TLogonStyle;   
     property DisplayLines: TStrings read FDisplayLines write SetDisplayLines;
+    property Server: TSSocketServer read SSocketServer write SSocketServer;
   published
     property Active: Boolean read FActive write SetActive;
     property LocalOnly: Boolean read FLocalOnly write FLocalOnly;
@@ -97,7 +98,6 @@ type
     property ZeosDBConnection: TZConnection read FZeosDBConnection write
       SetZConnection;
     property Port: string read FPort write SetPort;
-    property Server: TSSocketServer read SSocketServer write SSocketServer;
     property OnCustInternalCall: TOnCustInternalCall read FOnCustInternalCall
       write FOnCustInternalCall;
     property OnUserLogonCall: TOnUserLogonCall read FOnUserLogonCall
