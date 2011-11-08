@@ -47,8 +47,8 @@ interface
 
 uses
   Messages, SysUtils, Classes, ServerProc, Db, SynaSSockets, ZAbstractRODataset,
-  ZAbstractDataset, ZDataset, ZConnection, DataProcUtils, ZSqlProcessor, ZAbstractConnection,
-  ZStoredProcedure, ZeosProv;
+  ZAbstractDataset, ZDataset, ZConnection, DataProcUtils, ZSqlProcessor,
+  ZAbstractConnection, ZStoredProcedure, ZeosProv;
 
 type
   TZeosDataServer = class(TComponent)

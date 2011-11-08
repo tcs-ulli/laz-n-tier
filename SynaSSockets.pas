@@ -572,19 +572,22 @@ end;
 
 procedure TSSocketServer.Listen;
 const
-  TIMEOUT = 10;
+  TIMEOUT = 100;
 var
   Count: integer;
 begin
   Count := TIMEOUT;
   FListenSrvThread := TSrvThread.Create(Self);
   //FListenSrvThread.OnTerminate := OnListenerTerminate;
+  FListenSrvThread.ListenFailed := False;
   while not Active and (Count > 0) do
   begin
-    Sleep(100);
+    Sleep(10);
     Count := Count - 1;
+    if FListenSrvThread.ListenFailed then
+      Break;
   end;
-  if not Active then
+  if FListenSrvThread.ListenFailed then
     RaiseListenError;
 end;
 
