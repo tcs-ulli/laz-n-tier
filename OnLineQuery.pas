@@ -47,12 +47,8 @@ unit OnLineQuery;
 interface
 
 uses
-  MemDataBase, Variants, NetConnection, DateUtils,
-{$IFDEF FPC}
-  //  LCLIntf, LCLType, LMessages,
-{$ELSE}Windows, {$ENDIF}
-  Messages, SysUtils, Classes, Graphics, Controls, DB, SynaCSockets, ClientProc,
-  DataProcUtils;
+  MemDataBase, Variants, NetConnection, DateUtils, Messages, SysUtils, Classes,
+  Graphics, Controls, DB, SynaCSockets, ClientProc, DataProcUtils;
 
 type
   TOnNetProcListChange = procedure() of object;

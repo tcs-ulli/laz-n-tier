@@ -46,7 +46,7 @@ unit ClientProc;
 interface
 
 uses Classes, DataProcUtils, SynaCSockets, SysUtils, DB, {$IFNDEF FPC}WideStrUtils,
-  {$ENDIF}{$IFDEF VER180}Windows, {$ELSE}DynLibs, {$ENDIF}MD5;
+  {$ENDIF}DynLibs, MD5;
 
 type
   TClientConnBuffer = class(TOnlineDataBuffer)

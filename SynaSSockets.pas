@@ -46,10 +46,9 @@ unit SynaSSockets;
 interface
 
 uses
-  Classes, SyncObjs, SysUtils, //{$IFNDEF LINUX}Windows, {$ENDIF}
-  Blcksock, Synsock, Synautil, {$IFDEF UNIX}{$IFDEF UseCThreads}
-  cthreads, cmem, {$ENDIF}{$ENDIF}//{$IFDEF FPC}LclIntf, {$ENDIF} SynaIP,
-  SSL_OpenSSL, SynaSockUtils;
+  Classes, SyncObjs, SysUtils, Blcksock, Synsock, Synautil, {$IFDEF UNIX}
+  {$IFDEF UseCThreads} cthreads, cmem, {$ENDIF}{$ENDIF} SSL_OpenSSL,
+  SynaSockUtils;
 
 type
 
