@@ -58,28 +58,28 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('DBNetProcessor Base', [TSSocketServer]);
-  RegisterComponents('DBNetProcessor Base', [TCSocket]);
-  RegisterComponents('DBNetProcessor Advanced', [TOnlineQuery]);
+  RegisterComponents('DBNet Base', [TSSocketServer]);
+  RegisterComponents('DBNet Base', [TCSocket]);
+  RegisterComponents('DBNet Advanced', [TOnlineQuery]);
   {$IFDEF FPC}
-  RegisterComponents('DBNetProcessor Advanced', [TClientDataset]);
+  RegisterComponents('DBNet Advanced', [TClientDataset]);
   {$ENDIF}
-  RegisterComponents('DBNetProcessor Advanced', [TOnlineConnection]);
-  RegisterComponents('DBNetProcessor Base', [TMemDB]);
-  RegisterComponents('DBNetProcessor Advanced', [TZeosDataServer]);
-//  RegisterComponents('DBNetProcessor Advanced', [TUniDataServer]);
-//  RegisterComponents('DBNetProcessor Advanced', [TUIBDataServer]);
-  RegisterComponents('DBNetProcessor Base', [TZeosSQLQuery]);
-  RegisterComponents('DBNetProcessor Base', [TZeosScriptQuery]);
-  RegisterComponents('DBNetProcessor Base', [TZeosStoredProcQuery]);
-//  RegisterComponents('DBNetProcessor Base', [TUniDaSQLQuery]);
-//  RegisterComponents('DBNetProcessor Base', [TUniDaScriptQuery]);
-//  RegisterComponents('DBNetProcessor Base', [TUniDaStoredProcQuery]);
-{  RegisterComponents('DBNetProcessor Base', [TUIBSQLQuery]);
-  RegisterComponents('DBNetProcessor Base', [TUIBScriptQuery]);
-  RegisterComponents('DBNetProcessor Base', [TUIBStoredProcQuery]);     }
-//  RegisterComponents('DBNetProcessor Base', [TOnlineDataSource]);
-//  RegisterComponents('DBNetProcessor Base', [TZeosConnection]);
+  RegisterComponents('DBNet Advanced', [TOnlineConnection]);
+  RegisterComponents('DBNet Base', [TMemDB]);
+  RegisterComponents('DBNet Advanced', [TZeosDataServer]);
+//  RegisterComponents('DBNet Advanced', [TUniDataServer]);
+//  RegisterComponents('DBNet Advanced', [TUIBDataServer]);
+  RegisterComponents('DBNet Base', [TZeosSQLQuery]);
+  RegisterComponents('DBNet Base', [TZeosScriptQuery]);
+  RegisterComponents('DBNet Base', [TZeosStoredProcQuery]);
+//  RegisterComponents('DBNet Base', [TUniDaSQLQuery]);
+//  RegisterComponents('DBNet Base', [TUniDaScriptQuery]);
+//  RegisterComponents('DBNet Base', [TUniDaStoredProcQuery]);
+{  RegisterComponents('DBNet Base', [TUIBSQLQuery]);
+  RegisterComponents('DBNet Base', [TUIBScriptQuery]);
+  RegisterComponents('DBNet Base', [TUIBStoredProcQuery]);     }
+//  RegisterComponents('DBNet Base', [TOnlineDataSource]);
+//  RegisterComponents('DBNet Base', [TZeosConnection]);
 end;
 
 end.

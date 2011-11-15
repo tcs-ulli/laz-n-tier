@@ -48,7 +48,7 @@ interface
 uses
   Classes, SyncObjs, SysUtils, Blcksock, Synsock, Synautil, SynaIP, SSL_OpenSSL,
   {$IFDEF UNIX}{$IFDEF UseCThreads} cthreads, cmem, {$ENDIF}{$ENDIF}
-  SynaSockUtils, Forms;
+  Types, SynaSockUtils, Forms;
 
 type
 
@@ -161,6 +161,7 @@ type
       read FOnDataAvailable write FOnDataAvailable;
   end;
 
+{$IFDEF FPC}
 {$IFDEF WINDOWS}
 {$IFDEF MSWindows}
 function GetTickCount: DWORD; stdcall; external 'kernel32.dll' Name 'GetTickCount';
@@ -170,11 +171,15 @@ function GetTickCount: DWORD; stdcall; external KernelDLL Name 'GetTickCount';
 {$ELSE}
 function GetTickCount: DWord;
 {$ENDIF}
+{$ELSE}
+function GetTickCount: DWORD; stdcall; external 'kernel32.dll' Name 'GetTickCount';
+{$ENDIF}
 
 implementation
 
 {==============================================================================}
 
+{$IFDEF FPC}
 {$IFNDEF WINDOWS}
 
 function GetTickCount: DWord;
@@ -182,6 +187,7 @@ begin
   Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
 end;
 
+{$ENDIF}
 {$ENDIF}
 
 procedure TCSocketClient.Init;

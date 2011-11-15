@@ -45,8 +45,8 @@ unit ServerProc;
 
 interface
 
-uses DataProcUtils, SynaSSockets, SysUtils, Classes, DB, SyncObjs, DynLibs, MD5,
-  StrUtils;
+uses DataProcUtils, SynaSSockets, SysUtils, Classes, DB, SyncObjs, {$IFDEF FPC}
+  DynLibs, {$ELSE} Windows, {$ENDIF} MD5, StrUtils;
 
 type
   TServerConnBuffer = class;
