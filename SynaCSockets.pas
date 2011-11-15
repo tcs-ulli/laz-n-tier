@@ -47,8 +47,8 @@ interface
 
 uses
   Classes, SyncObjs, SysUtils, Blcksock, Synsock, Synautil, SynaIP, SSL_OpenSSL,
-  {$IFDEF UNIX}{$IFDEF UseCThreads} cthreads, cmem, {$ENDIF}{$ENDIF}
-  Types, SynaSockUtils, Forms;
+  {$IFDEF UNIX}{$IFDEF UseCThreads} cthreads, cmem, {$ENDIF}{$ENDIF} Types,
+  SynaSockUtils;
 
 type
 
@@ -189,6 +189,17 @@ end;
 
 {$ENDIF}
 {$ENDIF}
+
+procedure ProcessAppMessage;
+begin
+  (*{$IFDEF FPC}
+  WidGetSet.AppProcessMessages;
+  {$ELSE}
+  Application.ProcessMessages;
+  {$ENDIF}    *)
+  CheckSynchronize;
+  Sleep(6);
+end;
 
 procedure TCSocketClient.Init;
 begin
@@ -474,7 +485,7 @@ begin
         FJob.Data := DataStr;
         while (FJob.Job <> doNone) and OnlineContinue do
         begin
-          Application.ProcessMessages;
+          ProcessAppMessage;
           Sleep(0);
         end;
         Result := FRecvStr;
@@ -536,7 +547,7 @@ begin
     while (FJob.Job <> doNone) and OnlineContinue do
     begin
       Sleep(0);
-      Application.ProcessMessages;
+      ProcessAppMessage;
       i := GetTickCount - xct;
       if i > 62000 then
         OnlineContinue := False;
