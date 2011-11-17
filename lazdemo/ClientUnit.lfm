@@ -1,5 +1,5 @@
 object ClientForm: TClientForm
-  Left = 234
+  Left = 121
   Height = 314
   Top = 224
   Width = 814
@@ -66,6 +66,24 @@ object ClientForm: TClientForm
     OnClick = Button6Click
     TabOrder = 4
   end
+  object Button1: TButton
+    Left = 512
+    Height = 30
+    Top = 231
+    Width = 92
+    Caption = 'ExecSQL'
+    OnClick = Button1Click
+    TabOrder = 5
+  end
+  object Button2: TButton
+    Left = 608
+    Height = 30
+    Top = 231
+    Width = 92
+    Caption = 'ExecScript'
+    OnClick = Button2Click
+    TabOrder = 6
+  end
   object OnlineConnection1: TOnlineConnection
     WithSSL = False
     TimeOut = 12000
@@ -87,7 +105,7 @@ object ClientForm: TClientForm
     top = 88
   end
   object OnlineQuery1: TOnlineQuery
-    Active = True
+    Active = False
     FieldDefs = <    
       item
         Name = 'Species_No'
@@ -141,7 +159,6 @@ object ClientForm: TClientForm
     InstrucSubNum = 0
     CachedUpdate = False
     OnlineConnection = OnlineConnection1
-    PrimaryKey = 'Species_No;Category;Common_Name'
     SQL.Strings = (
       'select * from biolife'
     )

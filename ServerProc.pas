@@ -727,7 +727,7 @@ begin
     begin
       NetSQLRun.ExecSQL;
       WriteByte(byte(SQLIsttion));
-      WriteInt(NetQuery.RowsAffected);
+      WriteInt(NetSQLRun.RowsAffected);
       NetSQLRun.SQL.Clear;
       ProcessSendData;
       Exit;

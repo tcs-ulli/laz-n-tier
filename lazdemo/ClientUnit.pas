@@ -13,6 +13,8 @@ type
   { TClientForm }
 
   TClientForm = class(TForm)
+    Button1: TButton;
+    Button2: TButton;
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
@@ -22,6 +24,8 @@ type
     OnlineConnection1: TOnlineConnection;
     OnlineQuery1: TOnlineQuery;
     ScrollBox1: TScrollBox;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
@@ -85,6 +89,31 @@ begin
     Close;
     SQL.Text := 'select * from customer';
     Open;
+  end;
+end;
+
+procedure TClientForm.Button1Click(Sender: TObject);
+begin
+  with OnlineQuery1 do
+  begin
+    Close;
+    SQL.Text := 'insert into industry values (8001, ' + QuotedStr('industry1') + ', ' + QuotedStr('industry2') + ')';
+    ExecSQL;
+    ShowMessage(IntToStr(OnlineQuery1.RowsAffected));
+  end;
+end;
+
+procedure TClientForm.Button2Click(Sender: TObject);
+var i: integer;
+begin
+  with OnlineQuery1 do
+  begin
+    Close;
+    SQL.Clear;
+    for i := 0 to 6 do
+      SQL.Add('insert into industry values (' + IntToStr(8006 + i) + ', ' + QuotedStr('industry1') + ', ' + QuotedStr('industry2') + ')');
+    ExecScript;
+    ShowMessage(IntToStr(OnlineQuery1.RowsAffected));
   end;
 end;
 
