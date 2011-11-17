@@ -93,11 +93,16 @@ begin
 end;
 
 procedure TClientForm.Button1Click(Sender: TObject);
+var maxid: integer;
 begin
   with OnlineQuery1 do
   begin
     Close;
-    SQL.Text := 'insert into industry values (8001, ' + QuotedStr('industry1') + ', ' + QuotedStr('industry2') + ')';
+    SQL.Text := 'select max(ind_code) from industry';
+    Open;
+    maxid := Fields[0].AsInteger + 1;
+    Close;
+    SQL.Text := 'insert into industry values (' + IntToStr(maxid) + ', ' + QuotedStr('industry1') + ', ' + QuotedStr('industry2') + ')';
     ExecSQL;
     ShowMessage(IntToStr(OnlineQuery1.RowsAffected));
   end;
