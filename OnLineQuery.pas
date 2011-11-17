@@ -79,6 +79,7 @@ type
     FInstrucNum: TInstruction;
     FSubInstrucNum: byte;
     FClientParam: TNetProcString;
+    FRowsAffected: integer;
     procedure SetInstrucNum(Value: TInstruction);
     procedure DestroyQuerys;
     procedure OnLinePepare(SQL: TNetProcString; SQLInstruction: TSQLInstruction);
@@ -120,6 +121,9 @@ type
     procedure ReOpenTable;
     function GetServerTime: TNetProcString;
     procedure Open;
+    procedure ExecSQL;
+    procedure ExecScript;
+    function RowsAffected: longint;
     property ThinQuery: boolean read FThinQuery write FThinQuery;
     property TableName: TNetProcString read FTableName write SetTableName;
   published
@@ -127,7 +131,8 @@ type
     property InstrucSubNum: byte read FSubInstrucNum write FSubInstrucNum;
     property ClientParam: TNetProcString read FClientParam write FClientParam;
     property CachedUpdate: boolean read FCachedUpdate write FCachedUpdate;
-    property OnlineConnection: TOnlineConnection read FOnlineConnection write FOnlineConnection;
+    property OnlineConnection: TOnlineConnection
+      read FOnlineConnection write FOnlineConnection;
     property PrimaryKey: TNetProcString read FPrimaryKey write SetPrimaryKey;
     property SQL: TNetProcList read GetSQL write SetSQL;
     property GetFields: boolean read FReplaceFields write FReplaceFields;
@@ -330,7 +335,8 @@ begin
 end;
 
 function FieldToSQLString(Field: TField; TmpStr, Value: TNetProcString): TNetProcString;
-var ValueStr: string;
+var
+  ValueStr: string;
 begin
   case Field.DataType of
     ftUnknown, ftString, ftFixedChar, ftWideString, ftMemo, ftVariant, ftBlob,
@@ -369,14 +375,15 @@ begin
       if Length(trim(TmpStr)) = 0 then
         TmpStr := '0.00'
       else
-        TmpStr :=  SetAnsiDoubleStr(Value);
+        TmpStr := SetAnsiDoubleStr(Value);
     end;
     ftDate, ftTime, ftDateTime:
     begin
       if Length(trim(TmpStr)) = 0 then
         TmpStr := '''' + '2009-11-01 11:11:11' + ''''
       else
-        TmpStr := '''' + FormatDateTime('yyyy-MM-dd HH:mm:ss', StrToDateTime(Value)) + '''';
+        TmpStr := '''' + FormatDateTime('yyyy-MM-dd HH:mm:ss',
+          StrToDateTime(Value)) + '''';
     end;
     else
     begin
@@ -452,8 +459,8 @@ begin
 {$ENDIF}
 end;
 
-function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues: boolean):
-TNetProcString;
+function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
+  boolean): TNetProcString;
 var
   S, S1, TmpStr, FieldStr: TNetProcString;
   Sep: boolean;
@@ -875,6 +882,21 @@ begin
     OnLinePepare(FSQLDataStr.Text, IstSQLExec);
   end;
   inherited InternalDelete;
+end;
+
+procedure TOnlineQuery.ExecSQL;
+begin
+  FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self, FSQL.Text);
+end;
+
+procedure TOnlineQuery.ExecScript;
+begin
+  FRowsAffected := FOnlineConnection.Buffer.DoSQLScript(Self, FSubInstrucNum, FSQL.Text);
+end;
+
+function TOnlineQuery.RowsAffected: longint;
+begin
+  Result := FRowsAffected;
 end;
 
 procedure TOnlineQuery.ReOpenTable;
