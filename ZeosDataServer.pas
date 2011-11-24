@@ -66,6 +66,7 @@ type
     FPort: string;
     FOnCustInternalCall: TOnCustInternalCall;
     FOnUserLogonCall: TOnUserLogonCall;
+    FOnConnectionChange: TOnConnectionChange;
     procedure SetAuthenticate(Value: Boolean);
     procedure SetDisplayLines(Value: TStrings);
     procedure SetZConnection(FServerConn: TZConnection);
@@ -77,6 +78,7 @@ type
       Value: string);
     procedure SSocketServerDataAvailable(Sender, ClientThrd: TObject;
       FDSock: TSSocketClient; ReceiveData: string; Error: Word);
+    procedure SSocketServerConnectionChange(Sender: TObject; TCount: integer);
     procedure Display(Msg: string);
   public
     SrvConnBuffer: TServerConnBuffer;
@@ -101,7 +103,9 @@ type
     property OnCustInternalCall: TOnCustInternalCall read FOnCustInternalCall
       write FOnCustInternalCall;
     property OnUserLogonCall: TOnUserLogonCall read FOnUserLogonCall
-      write FOnUserLogonCall;  
+      write FOnUserLogonCall;
+    property OnConnectionChange: TOnConnectionChange read FOnConnectionChange
+      write FOnConnectionChange;
   end;
 
 implementation
@@ -115,6 +119,12 @@ procedure TZeosDataServer.SSocketServerConnect(Sender: TObject;
   FSSock: TSSocketClient; Value: string);
 begin
   Display(FSSock.GetRemoteSinIP + ' Connected');
+end;
+
+procedure TZeosDataServer.SSocketServerConnectionChange(Sender: TObject; TCount: integer);
+begin
+  if Assigned(OnConnectionChange) then
+    OnConnectionChange(Sender, TCount);
 end;
 
 procedure TZeosDataServer.SSocketServerDataAvailable(Sender, ClientThrd: TObject;
@@ -204,6 +214,7 @@ begin
   SSocketServer.OnSocketClose := SSocketServerSocketClose;
   SSocketServer.OnConnect := SSocketServerConnect;
   SSocketServer.OnDataAvailable := SSocketServerDataAvailable;
+  SSocketServer.OnConnectionChange := SSocketServerConnectionChange;
   Display('Starting Database Engine...');
   Display('Waiting for clients...');
   SrvConnBuffer.NetQuery := QuerySQL;
