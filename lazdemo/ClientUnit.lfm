@@ -84,6 +84,15 @@ object ClientForm: TClientForm
     OnClick = Button2Click
     TabOrder = 6
   end
+  object Button3: TButton
+    Left = 704
+    Height = 30
+    Top = 231
+    Width = 92
+    Caption = 'GetName'
+    OnClick = Button3Click
+    TabOrder = 7
+  end
   object OnlineConnection1: TOnlineConnection
     WithSSL = False
     TimeOut = 12000
