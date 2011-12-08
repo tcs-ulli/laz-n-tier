@@ -46,7 +46,7 @@ unit ServerProc;
 interface
 
 uses DataProcUtils, SynaSSockets, SysUtils, Classes, DB, SyncObjs, {$IFDEF FPC}
-  DynLibs, {$ELSE} Windows, {$ENDIF} MD5, StrUtils;
+  DynLibs, {$ELSE}Windows, {$ENDIF}MD5, StrUtils;
 
 type
   TServerConnBuffer = class;
@@ -110,15 +110,22 @@ type
     procedure SetOnlineDataSet(Value: TServerSockQuery);
   public
   published
-    property OnlineDataSet: TServerSockQuery read FOnlineDataSet write SetOnlineDataSet;
+    property OnlineDataSet: TServerSockQuery read FOnlineDataSet write
+      SetOnlineDataSet;
   end;
 
   TOnCustInternalCall = function(CustInstruc, CustSubInstruc: byte;
-    CliParam: PAnsiChar; DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
+    CliParam: PAnsiChar; DataQuery: TServerSockQuery; DataSQLProc:
+      TServerSockQuery;
     DataStoredProc: TServerSockQuery;
     User, SubFunctions: TNetProcString): TNetProcString of object;
 
-  TOnUserLogonCall = function(UserName, Password: TNetProcString): TLogonStyle of object;
+  TOnUserLogonCall = function(UserName, Password: TNetProcString): TLogonStyle of
+    object;
+
+  TOnUserDataProcCall = procedure(CSender, ClientThrd: TObject;
+    FDSock: TSSocketClient; ReceiveData: string; Error: Word
+    ) of object;
 
   TServerConnBuffer = class(TOnlineDataBuffer)
   private
@@ -134,7 +141,7 @@ type
     NetSQLProc: TServerSockQuery;
     SessionName, DatabaseName: TNetProcString;
     TempClientFunctions, TempClientReadTables, TempClientPermTables,
-    TempORGID1, TempORGID2, TempSubFuncs: TNetProcString;
+      TempORGID1, TempORGID2, TempSubFuncs: TNetProcString;
     TempOrgStyle: integer;
     LogonStyle: boolean;
     FUSR: TNetProcString;
@@ -192,8 +199,9 @@ type
   T_Do_S_AfterProc = function(CustInstruc: byte;
     FUser, FSubFuncs, CliParam, StrBefore: PAnsiChar): PAnsiChar; cdecl;
   T_Do_S_ReturnProc = function(CustInstruc: byte;
-    FUser, FSubFuncs, CliParam, StrBefore, StrProc, StrAfter: PAnsiChar): PAnsiChar;
-    cdecl;
+    FUser, FSubFuncs, CliParam, StrBefore, StrProc, StrAfter: PAnsiChar):
+      PAnsiChar;
+  cdecl;
 
 var
   ServerLog: TStrings = nil;
@@ -223,7 +231,7 @@ var
   f: textFile;
   s: TNetProcString;
 begin
-  {$IFDEF EnableLOG}
+{$IFDEF EnableLOG}
   s := Value;
   s := ExtractFilePath(ParamStr(0)) + 'DBNetProc.log';
   assignfile(f, s);
@@ -236,7 +244,7 @@ begin
   finally
     Closefile(f);
   end;
-  {$ENDIF}
+{$ENDIF}
 end;
 
 procedure TOnlineDataSource.SetOnlineDataSet(Value: TServerSockQuery);
@@ -550,10 +558,10 @@ begin
     IstLogin:
       ExecFuncLogin;
     IstTime:
-    begin
-      WriteStr(FormatDateTime('yyyyMMdd hh:mm:ss', Now));
-      ProcessSendData;
-    end;
+      begin
+        WriteStr(FormatDateTime('yyyyMMdd hh:mm:ss', Now));
+        ProcessSendData;
+      end;
     IstSQL:
       ExecFuncSQL;
     IstSQLCacheExec:
@@ -574,12 +582,13 @@ begin
       DoStoredProc(NetStoredProc, FUSR, TempSubFuncs);
     IstChangePSW:
       ExecFuncChangPSW;
-    else
-      ExecFuncError('Unknown Instruction');
+  else
+    ExecFuncError('Unknown Instruction');
   end;
 end;
 
-function TServerConnBuffer.ServerCheckLogon(UserCode, UcPSW: TNetProcString): TLogonStyle;
+function TServerConnBuffer.ServerCheckLogon(UserCode, UcPSW: TNetProcString):
+  TLogonStyle;
 var
   FPSW: TNetProcString;
   FTempPermMode: integer;
@@ -767,10 +776,11 @@ begin
             WriteByte(0);
             for I := 0 to NetQuery.NetData.FieldCount - 1 do
             begin
-              if NetQuery.NetData.Fields[I].DataType in [ftDate, ftTime, ftDateTime] then
+              if NetQuery.NetData.Fields[I].DataType in [ftDate, ftTime,
+                ftDateTime] then
                 TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsDateTime)
-              else
-              if NetQuery.NetData.Fields[I].DataType in [ftFloat, ftCurrency] then
+              else if NetQuery.NetData.Fields[I].DataType in [ftFloat,
+                ftCurrency] then
                 TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsFloat)
               else
               begin
@@ -879,9 +889,10 @@ var
 begin
   UsrName := ReadStr;
   UsrPsw := ReadStr;
-  {$IFDEF DBSTOREDLOGON}
+  HasLoggedOn := PermDenied;
+{$IFDEF DBSTOREDLOGON}
   HasLoggedOn := ServerCheckLogon(UsrName, UsrPsw);
-  {$ELSE}
+{$ELSE}
   if Assigned(FOnUserLogonCall) then
   begin
     HasLoggedOn := FOnUserLogonCall(UsrName, UsrPsw);
@@ -893,7 +904,7 @@ begin
     LogonStyle := True;
     TempSubFuncs := 'ALL';
   end;
-  {$ENDIF}
+{$ENDIF}
   if (UsrName = SuperUsr) and (UsrPsw = SuperPsw) then
     HasLoggedOn := LogedOnServer;
   if HasLoggedOn = LogedOnServer then
@@ -951,7 +962,8 @@ begin
 end;
 
 function TServerConnBuffer.ServerCustBefore(CustInstrucV, SQLVS: byte;
-  FUser, ScriptValue, SQLValueE, SQLValueOBefore: TNetProcString): TNetProcString;
+  FUser, ScriptValue, SQLValueE, SQLValueOBefore: TNetProcString):
+    TNetProcString;
 var
   TempStr, RetStr: TNetProcString;
   I: integer;
@@ -1018,33 +1030,33 @@ begin
   RunCount := 0;
 
   if (NetSQLProc <> nil) and (ScriptValue <> '') then
-    try
-      NetSQLProc.Script.Clear;
+  try
+    NetSQLProc.Script.Clear;
 {$IFNDEF FPC}
-      NetSQLProc.Script.Text := UTF8Decode(ScriptValue);
+    NetSQLProc.Script.Text := UTF8Decode(ScriptValue);
 {$ELSE}
-      NetSQLProc.Script.Text := ScriptValue;
+    NetSQLProc.Script.Text := ScriptValue;
 {$ENDIF}
-      Log('ClientScript: ' + #13#10 + NetSQLProc.Script.Text);
+    Log('ClientScript: ' + #13#10 + NetSQLProc.Script.Text);
 
-      NetSQLProc.StartTransaction;
-      try
-        NetSQLProc.ExecScript;
-      except
-        NetSQLProc.RollBack;
-      end;
-      NetSQLProc.Commit;
-
-      ScriptCount := NetSQLProc.RowsAffected;
-      NetSQLProc.Script.Clear;
+    NetSQLProc.StartTransaction;
+    try
+      NetSQLProc.ExecScript;
     except
-      on E: Exception do
-      begin
-        NetSQLProc.Reconnect;
-        ExecFuncError(E.ClassName + ': ' + E.Message);
-        Exit;
-      end;
+      NetSQLProc.RollBack;
     end;
+    NetSQLProc.Commit;
+
+    ScriptCount := NetSQLProc.RowsAffected;
+    NetSQLProc.Script.Clear;
+  except
+    on E: Exception do
+    begin
+      NetSQLProc.Reconnect;
+      ExecFuncError(E.ClassName + ': ' + E.Message);
+      Exit;
+    end;
+  end;
 
   if SQLValueE <> '' then
   begin
@@ -1139,11 +1151,12 @@ function TServerConnBuffer.DoDynamicCustProc(FDataQuery: TServerSockQuery;
 var
   CustIsts, SQLx: byte;
   ReslScriptV, ReslSQLVE, ReslSQLVOBefore, ReslSQLVOAfter, ClientParam,
-  RetBefore, RetProc, RetAfter, RetVL: TNetProcString;
+    RetBefore, RetProc, RetAfter, RetVL: TNetProcString;
 begin
   Result := False;
   try
-    if (Pos('ClDLL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
+    if (Pos('ClDLL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
+      then
     begin
       CustIsts := GetCustInstruc;
       SQLx := GetSQLStyle(CustIsts);
@@ -1208,14 +1221,16 @@ var
 begin
   Result := False;
   try
-    if (Pos('INNER', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
+    if (Pos('INNER', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
+      then
     begin
       CustIsts := GetCustInstruc;
       CustSubIst := 0;
       if CustIsts = byte(InternalSQLInstruciton) then
         CustSubIst := ReadByte;
       ClientParam := GetCustParam;
-      Log('CustInternalProc: ' + IntToStr(integer(CustIsts)) + '^' + ClientParam);
+      Log('CustInternalProc: ' + IntToStr(integer(CustIsts)) + '^' +
+        ClientParam);
       // ReslSQLVE); // + '^' + ReslSQLVOBefore);
       if Assigned(FOnCustInternalCall) then
         RetVL := FOnCustInternalCall(CustIsts, CustSubIst,
@@ -1251,7 +1266,8 @@ var
 begin
   Result := False;
   try
-    if (Pos('SCRIP', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
+    if (Pos('SCRIP', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
+      then
     begin
       CustIsts := GetCustInstruc;
       SQLx := GetSQLStyle(CustIsts);
@@ -1283,7 +1299,8 @@ var
 begin
   Result := False;
   try
-    if (Pos('SPSQL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL') then
+    if (Pos('SPSQL', TempClientFunctions) > 0) or (TempClientFunctions = 'ALL')
+      then
     begin
       CustIsts := GetCustInstruc;
       SQLx := GetSQLStyle(CustIsts);
@@ -1393,10 +1410,11 @@ begin
             WriteByte(0);
             for I := 0 to NetQuery.NetData.FieldCount - 1 do
             begin
-              if NetQuery.NetData.Fields[I].DataType in [ftDate, ftTime, ftDateTime] then
+              if NetQuery.NetData.Fields[I].DataType in [ftDate, ftTime,
+                ftDateTime] then
                 TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsDateTime)
-              else
-              if NetQuery.NetData.Fields[I].DataType in [ftFloat, ftCurrency] then
+              else if NetQuery.NetData.Fields[I].DataType in [ftFloat,
+                ftCurrency] then
                 TempStr := FloatToDotStr(NetQuery.NetData.Fields[I].AsFloat)
               else
               begin
@@ -1567,7 +1585,8 @@ begin
     NetQuery.SQL.add('select * from OPERASINFO where USR = ' + FUSR);
     NetQuery.SuperOpen;
 {$IFDEF OverRad2k7}
-    TempPSW := Uppercase(Trim(NetQuery.NetData.FieldByName('PSW').AsAnsiString));
+    TempPSW :=
+      Uppercase(Trim(NetQuery.NetData.FieldByName('PSW').AsAnsiString));
 {$ELSE}
     TempPSW := Uppercase(Trim(NetQuery.NetData.FieldByName('PSW').AsString));
 {$ENDIF}
@@ -1610,8 +1629,10 @@ begin
   @DoSScriptProc := GetProcAddress(DLibHandle, 'DoSScriptProc');
   @DoSCustProcScript := GetProcAddress(DLibHandle, 'DoSCustProcScript');
   @DoSCustProcSQLExec := GetProcAddress(DLibHandle, 'DoSCustProcSQLExec');
-  @DoSCustProcSQLBeforeOpen := GetProcAddress(DLibHandle, 'DoSCustProcSQLBeforeOpen');
-  @DoSCustProcSQLAfterOpen := GetProcAddress(DLibHandle, 'DoSCustProcSQLAfterOpen');
+  @DoSCustProcSQLBeforeOpen := GetProcAddress(DLibHandle,
+    'DoSCustProcSQLBeforeOpen');
+  @DoSCustProcSQLAfterOpen := GetProcAddress(DLibHandle,
+    'DoSCustProcSQLAfterOpen');
   @DoSSpecialQuery := GetProcAddress(DLibHandle, 'DoSSpecialQuery');
   @DoSReturnValue := GetProcAddress(DLibHandle, 'DoSReturnValue');
 end;
@@ -1620,9 +1641,11 @@ initialization
 
   DLibHandle := 0;
 {$IFDEF LINUX}
-  DLibHandle := LoadLibrary(PChar(ExtractFilePath(ParamStr(0)) + 'DBOLSPlugin.so'));
+  DLibHandle := LoadLibrary(PChar(ExtractFilePath(ParamStr(0)) +
+    'DBOLSPlugin.so'));
 {$ELSE}
-  DLibHandle := LoadLibrary(PChar(ExtractFilePath(ParamStr(0)) + 'DBOLSPlugin.dll'));
+  DLibHandle := LoadLibrary(PChar(ExtractFilePath(ParamStr(0)) +
+    'DBOLSPlugin.dll'));
 {$ENDIF}
   try
     if DLibHandle <> 0 then

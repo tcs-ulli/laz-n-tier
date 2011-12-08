@@ -66,6 +66,7 @@ type
     FPort: string;
     FOnCustInternalCall: TOnCustInternalCall;
     FOnUserLogonCall: TOnUserLogonCall;
+    FOnDataProcCall: TOnUserDataProcCall;
     FOnConnectionChange: TOnConnectionChange;
     procedure SetAuthenticate(Value: Boolean);
     procedure SetDisplayLines(Value: TStrings);
@@ -106,6 +107,8 @@ type
       write FOnUserLogonCall;
     property OnConnectionChange: TOnConnectionChange read FOnConnectionChange
       write FOnConnectionChange;
+    property OnDataProcCall: TOnUserDataProcCall read FOnDataProcCall
+      write FOnDataProcCall;
   end;
 
 implementation
@@ -192,6 +195,8 @@ begin
     Display(FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
     Display('Data Length:' + IntToStr(Length(SrvConnBuffer.SendBuffer)));
   end;
+  if Assigned(FOnDataProcCall) then
+    FOnDataProcCall(Sender, ClientThrd, FDSock, ReceiveData, Error);
 end;
 
 procedure TZeosDataServer.SSocketServerSocketClose(Sender: TObject;

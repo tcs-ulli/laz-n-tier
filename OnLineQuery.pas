@@ -71,11 +71,11 @@ type
   private
     FOnlineConnection: TOnlineConnection;
     FTableName, FPrimaryKey, FIndexFieldNames, FEditFields: TNetProcString;
-    FSync, FLoading: boolean;
+    FSync, FLoading: Boolean;
     FSQL, FSQLDataStr: TNetProcList;
-    FReplaceFields: boolean;
-    TmpR, FThinQuery: boolean;
-    FCachedUpdate: boolean;
+    FReplaceFields: Boolean;
+    TmpR, FThinQuery: Boolean;
+    FCachedUpdate: Boolean;
     FInstrucNum: TInstruction;
     FSubInstrucNum: byte;
     FClientParam: TNetProcString;
@@ -87,11 +87,11 @@ type
     procedure SetIndexFieldNames(const Value: TNetProcString);
     procedure SetTableName(const Value: TNetProcString);
     procedure SetPrimaryKey(const Value: TNetProcString);
-    procedure SetSync(Value: boolean);
+    procedure SetSync(Value: Boolean);
     function GetSQL: TNetProcList;
     procedure SetSQL(Value: TNetProcList);
-    function GetActive: boolean;
-    procedure SetActive(Value: boolean); override;
+    function GetActive: Boolean;
+    procedure SetActive(Value: Boolean); override;
     procedure SQLStringChange;
   protected
     procedure InternalInitFieldDefs; override;
@@ -102,8 +102,8 @@ type
   public
     CacheList: TNetProcList;
     RetValue: TNetProcString;
-    function ApplyCacheUpdate: boolean;
-    function OnlineRequest(IsSQLOpen: boolean; xInstruc: integer;
+    function ApplyCacheUpdate: Boolean;
+    function OnlineRequest(IsSQLOpen: Boolean; xInstruc: integer;
       xParam: TNetProcString): integer;
     function InternalSQL(SubInstruc: integer; xParam: TNetProcString): integer;
     function OnlineScript(xInstruc: integer; xParam: TNetProcString): integer;
@@ -113,30 +113,30 @@ type
     function InternalProcess(xInstruc: integer; xParam: TNetProcString): TNetProcString;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property Sync: boolean read FSync write SetSync;
+    property Sync: Boolean read FSync write SetSync;
     procedure GenerateInsertData;
     procedure GenerateUpdateData;
     procedure GenerateDeleteData;
-    function ComputePrimaryKeyForSQLData(OldValues, NullValues: boolean): TNetProcString;
+    function ComputePrimaryKeyForSQLData(OldValues, NullValues: Boolean): TNetProcString;
     procedure ReOpenTable;
     function GetServerTime: TNetProcString;
     procedure Open;
     procedure ExecSQL;
     procedure ExecScript;
     function RowsAffected: longint;
-    property ThinQuery: boolean read FThinQuery write FThinQuery;
+    property ThinQuery: Boolean read FThinQuery write FThinQuery;
     property TableName: TNetProcString read FTableName write SetTableName;
   published
     property InstrucNum: TInstruction read FInstrucNum write SetInstrucNum;
     property InstrucSubNum: byte read FSubInstrucNum write FSubInstrucNum;
     property ClientParam: TNetProcString read FClientParam write FClientParam;
-    property CachedUpdate: boolean read FCachedUpdate write FCachedUpdate;
+    property CachedUpdate: Boolean read FCachedUpdate write FCachedUpdate;
     property OnlineConnection: TOnlineConnection
       read FOnlineConnection write FOnlineConnection;
     property PrimaryKey: TNetProcString read FPrimaryKey write SetPrimaryKey;
     property SQL: TNetProcList read GetSQL write SetSQL;
-    property GetFields: boolean read FReplaceFields write FReplaceFields;
-    property Active: boolean read GetActive write SetActive;
+    property GetFields: Boolean read FReplaceFields write FReplaceFields;
+    property Active: Boolean read GetActive write SetActive;
     property Filtered;
     property Filter;
     property BeforeOpen;
@@ -236,12 +236,12 @@ begin
     FOnNetProcListChange;
 end;
 
-function TOnlineQuery.GetActive: boolean;
+function TOnlineQuery.GetActive: Boolean;
 begin
   Result := (State <> dsInactive) and (State <> dsOpening);
 end;
 
-procedure TOnlineQuery.SetActive(Value: boolean);
+procedure TOnlineQuery.SetActive(Value: Boolean);
 begin
   if FOnlineConnection = nil then
     Exit;
@@ -399,7 +399,7 @@ end;
 procedure TOnlineQuery.GenerateInsertData;
 var
   _SQL, _Into, _Values, _Where, S, S1, TmpStr, FieldStr: TNetProcString;
-  Sep, IsBlob: boolean;
+  Sep, IsBlob: Boolean;
   Field: TField;
 begin
   _Into := '';
@@ -460,10 +460,10 @@ begin
 end;
 
 function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
-  boolean): TNetProcString;
+  Boolean): TNetProcString;
 var
   S, S1, TmpStr, FieldStr: TNetProcString;
-  Sep: boolean;
+  Sep: Boolean;
   Field: TField;
 begin
   Sep := False;
@@ -494,9 +494,9 @@ end;
 procedure TOnlineQuery.GenerateUpdateData;
 var
   _From, _Values, S, S1, TmpStr, FieldStr: TNetProcString;
-  Sep: boolean;
+  Sep: Boolean;
   Field: TField;
-  IsChanged: boolean;
+  IsChanged: Boolean;
 begin
   _From := '';
   _Values := '';
@@ -565,7 +565,7 @@ begin
 {$ENDIF}
 end;
 
-function TOnlineQuery.ApplyCacheUpdate: boolean;
+function TOnlineQuery.ApplyCacheUpdate: Boolean;
 var
   CacheCount, I: integer;
 begin
@@ -597,7 +597,7 @@ begin
     Result := True;
 end;
 
-function TOnlineQuery.OnlineRequest(IsSQLOpen: boolean; xInstruc: integer;
+function TOnlineQuery.OnlineRequest(IsSQLOpen: Boolean; xInstruc: integer;
   xParam: TNetProcString): integer;
 begin
   Result := 0;
@@ -714,7 +714,7 @@ begin
   FPrimaryKey := Value;
 end;
 
-procedure TOnlineQuery.SetSync(Value: boolean);
+procedure TOnlineQuery.SetSync(Value: Boolean);
 begin
   CheckBrowseMode;
   if State = dsBrowse then
