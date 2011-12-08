@@ -62,7 +62,7 @@ type
     function ExecSQL: integer; override;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ParamByName(ParamStr: TNetProcString): TParam; override;
+    function ParamByName(ParamStr: AnsiNetProcString): TParam; override;
     function Open: boolean; override;
     function SuperOpen: boolean; override;
     procedure Close; override;
@@ -86,7 +86,7 @@ type
     procedure Close; override;
     function SuperExecSQL: integer; override;
     function ExecSQL: integer; override;
-    function ParamByName(ParamStr: TNetProcString): TParam; override;
+    function ParamByName(ParamStr: AnsiNetProcString): TParam; override;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Reconnect; override;
@@ -108,7 +108,7 @@ type
     function SuperExecSQL: integer; override;
     function ExecSQL: integer; override;
     function ExecScript: integer; override;
-    function ParamByName(ParamStr: TNetProcString): TParam; override;
+    function ParamByName(ParamStr: AnsiNetProcString): TParam; override;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Reconnect; override;
@@ -129,7 +129,7 @@ type
     procedure Close; override;
     function SuperExecSQL: integer; override;
     function ExecSQL: integer; override;
-    function ParamByName(ParamStr: TNetProcString): TParam; override;
+    function ParamByName(ParamStr: AnsiNetProcString): TParam; override;
     function ExecStoredProc: string; override;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -174,7 +174,7 @@ begin
   inherited Close;
 end;
 
-function TZeosCustomQuery.ParamByName(ParamStr: TNetProcString): TParam;
+function TZeosCustomQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
 begin
 
 end;
@@ -271,7 +271,7 @@ end;
 
 function TZeosSQLQuery.ExecSQL: integer;
 var
-  TName: TNetProcString;
+  TName: AnsiNetProcString;
 begin
   inherited ExecSQL;
   Result := 0;
@@ -281,7 +281,7 @@ begin
   Result := RowsAffected;
 end;
 
-function TZeosSQLQuery.ParamByName(ParamStr: TNetProcString): TParam;
+function TZeosSQLQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
 begin
   inherited ParamByName(ParamStr);
   Result := nil;
@@ -362,7 +362,7 @@ begin
   Result := 0;
 end;
 
-function TZeosScriptQuery.ParamByName(ParamStr: TNetProcString): TParam;
+function TZeosScriptQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
 begin
   Result := TZSQLProcessor(NetComponent).ParamByName(ParamStr);
 end;
@@ -449,7 +449,7 @@ begin
   Result := 0;
 end;
 
-function TZeosStoredProcQuery.ParamByName(ParamStr: TNetProcString): TParam;
+function TZeosStoredProcQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
 begin
   try
     Result := TZStoredProc(NetData).ParamByName(ParamStr);

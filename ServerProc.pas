@@ -61,14 +61,14 @@ type
     NetComponent: TComponent;
     RowsAffected: integer;
     ORGIDStyle: integer;
-    ORGID1, ORGID2: TNetProcString;
+    ORGID1, ORGID2: AnsiNetProcString;
     DataOwner: TServerConnBuffer;
     StoredProcName: string;
     procedure Reconnect; virtual;
     function ExecSQL: integer; virtual;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ParamByName(ParamStr: TNetProcString): TParam; virtual;
+    function ParamByName(ParamStr: AnsiNetProcString): TParam; virtual;
     function Open: boolean; virtual;
     function SuperOpen: boolean; virtual;
     procedure ClearParam; virtual;
@@ -91,7 +91,7 @@ type
     function ExecSQL: integer; override;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ParamByName(ParamStr: TNetProcString): TParam; override;
+    function ParamByName(ParamStr: AnsiNetProcString): TParam; override;
     function Open: boolean; override;
     function SuperOpen: boolean; override;
     procedure Close; override;
@@ -118,9 +118,9 @@ type
     CliParam: PAnsiChar; DataQuery: TServerSockQuery; DataSQLProc:
       TServerSockQuery;
     DataStoredProc: TServerSockQuery;
-    User, SubFunctions: TNetProcString): TNetProcString of object;
+    User, SubFunctions: AnsiNetProcString): AnsiNetProcString of object;
 
-  TOnUserLogonCall = function(UserName, Password: TNetProcString): TLogonStyle of
+  TOnUserLogonCall = function(UserName, Password: AnsiNetProcString): TLogonStyle of
     object;
 
   TOnUserDataProcCall = procedure(CSender, ClientThrd: TObject;
@@ -139,53 +139,53 @@ type
     NetSQLRun: TServerSockQuery;
     NetStoredProc: TServerSockQuery;
     NetSQLProc: TServerSockQuery;
-    SessionName, DatabaseName: TNetProcString;
+    SessionName, DatabaseName: AnsiNetProcString;
     TempClientFunctions, TempClientReadTables, TempClientPermTables,
-      TempORGID1, TempORGID2, TempSubFuncs: TNetProcString;
+      TempORGID1, TempORGID2, TempSubFuncs: AnsiNetProcString;
     TempOrgStyle: integer;
     LogonStyle: boolean;
-    FUSR: TNetProcString;
+    FUSR: AnsiNetProcString;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Log(const Msg: TNetProcString);
+    procedure Log(const Msg: AnsiNetProcString);
     procedure ExecFuncSQL;
     procedure ExecFuncSQLCacheUpdate;
     procedure ExecFuncLoadFile;
-    procedure ExecFuncError(const Msg: TNetProcString);
+    procedure ExecFuncError(const Msg: AnsiNetProcString);
     procedure ExecFuncLogin;
     function DoSQLScript(FDataQuery: TServerSockQuery;
-      FUser, FSubFuncs: TNetProcString): boolean;
+      FUser, FSubFuncs: AnsiNetProcString): boolean;
     function DoStoredProc(FDataQuery: TServerSockQuery;
-      FUser, FSubFuncs: TNetProcString): boolean;
+      FUser, FSubFuncs: AnsiNetProcString): boolean;
     function DoSpecialSQL(FDataQuery: TServerSockQuery;
-      FUser, FSubFuncs: TNetProcString): boolean;
+      FUser, FSubFuncs: AnsiNetProcString): boolean;
     function DoInternalSpecialSQL(CustSubInstrucs: byte; FUser: string;
-      ASQLStyle: SQLStyle; SQLText: TNetProcString): boolean;
+      ASQLStyle: SQLStyle; SQLText: AnsiNetProcString): boolean;
     function DoDynamicCustProc(FDataQuery: TServerSockQuery;
       NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
-      FUser, FSubFuncs: TNetProcString): boolean;
+      FUser, FSubFuncs: AnsiNetProcString): boolean;
     function DoInternalCustProc(FDataQuery: TServerSockQuery;
       NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
-      FUser, FSubFuncs: TNetProcString): boolean;
-    function ServerCheckLogon(UserCode, UcPSW: TNetProcString): TLogonStyle;
+      FUser, FSubFuncs: AnsiNetProcString): boolean;
+    function ServerCheckLogon(UserCode, UcPSW: AnsiNetProcString): TLogonStyle;
     procedure ExecFuncChangPSW;
     function ServerSQLProc(CustInstrucV: byte; SQLVS: SQLStyle;
-      FUser, SQLValue: TNetProcString): byte;
+      FUser, SQLValue: AnsiNetProcString): byte;
     function ServerStoredProc(CustInstrucV, SQLVS: byte;
-      FUser, SQLValue: TNetProcString; ParamNum, InNum, RetNum: integer): byte;
+      FUser, SQLValue: AnsiNetProcString; ParamNum, InNum, RetNum: integer): byte;
     function ServerScriptProc(CustInstrucV, SQLVS: byte;
-      FUser, SQLValue: TNetProcString): byte;
+      FUser, SQLValue: AnsiNetProcString): byte;
     function ServerCustBefore(CustInstrucV, SQLVS: byte;
-      FUser, ScriptValue, SQLValueE, SQLValueOBefore: TNetProcString)
-      : TNetProcString;
+      FUser, ScriptValue, SQLValueE, SQLValueOBefore: AnsiNetProcString)
+      : AnsiNetProcString;
     function ServerCustProc(CustInstrucV, SQLVS: byte;
       FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
-      TNetProcString): TNetProcString;
+      AnsiNetProcString): AnsiNetProcString;
     function ServerCustAfter(CustInstrucV, SQLVS: byte;
       FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
-      TNetProcString): TNetProcString;
+      AnsiNetProcString): AnsiNetProcString;
     function GetCustInstruc: byte;
-    function GetCustParam: TNetProcString;
+    function GetCustParam: AnsiNetProcString;
   published
     property OnCustInternalCall: TOnCustInternalCall
       read FOnCustInternalCall write FOnCustInternalCall;
@@ -219,17 +219,17 @@ var
   DoSSpecialQuery: T_Do_S_Proc;
   DoSReturnValue: T_Do_S_ReturnProc;
 
-procedure Writelog(Value: TNetProcString);
+procedure Writelog(Value: AnsiNetProcString);
 
 implementation
 
 {$I SQLProcUtils.inc}
 {$I MemDBRADv.inc}
 
-procedure Writelog(Value: TNetProcString);
+procedure Writelog(Value: AnsiNetProcString);
 var
   f: textFile;
-  s: TNetProcString;
+  s: AnsiNetProcString;
 begin
 {$IFDEF EnableLOG}
   s := Value;
@@ -297,7 +297,7 @@ begin
 
 end;
 
-function TCustomServerSockQuery.ParamByName(ParamStr: TNetProcString): TParam;
+function TCustomServerSockQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
 begin
 
 end;
@@ -363,7 +363,7 @@ end;
 
 function TServerSockQuery.Open: boolean;
 var
-  TName: TNetProcString;
+  TName: AnsiNetProcString;
 begin
   Result := False;
 
@@ -440,7 +440,7 @@ begin
 
 end;
 
-function TServerSockQuery.ParamByName(ParamStr: TNetProcString): TParam;
+function TServerSockQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
 begin
   Result := nil;
 end;
@@ -477,7 +477,7 @@ end;
 
 function TServerSockQuery.ExecSQL: integer;
 var
-  TName: TNetProcString;
+  TName: AnsiNetProcString;
 begin
   Result := 0;
   TName := GetTableNameFromSQL(Self.SQL.Text);
@@ -507,7 +507,7 @@ end;
 
 function TServerSockQuery.SuperExecSQL: integer;
 var
-  TName: TNetProcString;
+  TName: AnsiNetProcString;
 begin
   Result := 0;
   TName := GetTableNameFromSQL(Self.SQL.Text);
@@ -542,7 +542,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TServerConnBuffer.Log(const Msg: TNetProcString);
+procedure TServerConnBuffer.Log(const Msg: AnsiNetProcString);
 begin
 {$IFNDEF FPC}
   if ServerLog <> nil then
@@ -587,10 +587,10 @@ begin
   end;
 end;
 
-function TServerConnBuffer.ServerCheckLogon(UserCode, UcPSW: TNetProcString):
+function TServerConnBuffer.ServerCheckLogon(UserCode, UcPSW: AnsiNetProcString):
   TLogonStyle;
 var
-  FPSW: TNetProcString;
+  FPSW: AnsiNetProcString;
   FTempPermMode: integer;
 begin
   FUSR := '';
@@ -706,7 +706,7 @@ end;
 procedure TServerConnBuffer.ExecFuncSQL;
 var
   SQLIsttion: TSQLInstruction;
-  S1, TempStr, TempSQL, TempField: TNetProcString;
+  S1, TempStr, TempSQL, TempField: AnsiNetProcString;
   I, RecCont: integer;
 begin
   try
@@ -821,7 +821,7 @@ end;
 
 procedure TServerConnBuffer.ExecFuncSQLCacheUpdate;
 var
-  S1: TNetProcString;
+  S1: AnsiNetProcString;
   ParamLen, I: integer;
 begin
   try
@@ -873,7 +873,7 @@ procedure TServerConnBuffer.ExecFuncLoadFile;
 begin
 end;
 
-procedure TServerConnBuffer.ExecFuncError(const Msg: TNetProcString);
+procedure TServerConnBuffer.ExecFuncError(const Msg: AnsiNetProcString);
 begin
   SetInstruction(IstError);
   WriteStr(Msg);
@@ -883,7 +883,7 @@ end;
 
 procedure TServerConnBuffer.ExecFuncLogin();
 var
-  UsrName, UsrPsw: TNetProcString;
+  UsrName, UsrPsw: AnsiNetProcString;
   RetByte: byte;
   HasLoggedOn: TLogonStyle;
 begin
@@ -922,10 +922,10 @@ begin
 end;
 
 function TServerConnBuffer.DoStoredProc(FDataQuery: TServerSockQuery;
-  FUser, FSubFuncs: TNetProcString): boolean;
+  FUser, FSubFuncs: AnsiNetProcString): boolean;
 var
   CustIsts, SQLx: byte;
-  ReslSQLV, ClientParam: TNetProcString;
+  ReslSQLV, ClientParam: AnsiNetProcString;
   StoredParamNum, xInNum, xOutNum: integer;
 begin
   Result := False;
@@ -962,10 +962,10 @@ begin
 end;
 
 function TServerConnBuffer.ServerCustBefore(CustInstrucV, SQLVS: byte;
-  FUser, ScriptValue, SQLValueE, SQLValueOBefore: TNetProcString):
-    TNetProcString;
+  FUser, ScriptValue, SQLValueE, SQLValueOBefore: AnsiNetProcString):
+    AnsiNetProcString;
 var
-  TempStr, RetStr: TNetProcString;
+  TempStr, RetStr: AnsiNetProcString;
   I: integer;
 begin
   RetStr := '';
@@ -1019,9 +1019,9 @@ end;
 
 function TServerConnBuffer.ServerCustProc(CustInstrucV, SQLVS: byte;
   FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
-  TNetProcString): TNetProcString;
+  AnsiNetProcString): AnsiNetProcString;
 var
-  RetStr: TNetProcString;
+  RetStr: AnsiNetProcString;
   ScriptCount, RunCount: integer;
 begin
   RetStr := '';
@@ -1089,9 +1089,9 @@ end;
 
 function TServerConnBuffer.ServerCustAfter(CustInstrucV, SQLVS: byte;
   FUser, ScriptValue, SQLValueE, SQLValueOBefore, SQLValueOAfter:
-  TNetProcString): TNetProcString;
+  AnsiNetProcString): AnsiNetProcString;
 var
-  TempStr, RetStr: TNetProcString;
+  TempStr, RetStr: AnsiNetProcString;
   I: integer;
 begin
   RetStr := '';
@@ -1147,11 +1147,11 @@ end;
 
 function TServerConnBuffer.DoDynamicCustProc(FDataQuery: TServerSockQuery;
   NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
-  FUser, FSubFuncs: TNetProcString): boolean;
+  FUser, FSubFuncs: AnsiNetProcString): boolean;
 var
   CustIsts, SQLx: byte;
   ReslScriptV, ReslSQLVE, ReslSQLVOBefore, ReslSQLVOAfter, ClientParam,
-    RetBefore, RetProc, RetAfter, RetVL: TNetProcString;
+    RetBefore, RetProc, RetAfter, RetVL: AnsiNetProcString;
 begin
   Result := False;
   try
@@ -1200,7 +1200,7 @@ begin
 end;
 
 function TServerConnBuffer.DoInternalSpecialSQL(CustSubInstrucs: byte;
-  FUser: string; ASQLStyle: SQLStyle; SQLText: TNetProcString): boolean;
+  FUser: string; ASQLStyle: SQLStyle; SQLText: AnsiNetProcString): boolean;
 begin
   Result := False;
   try
@@ -1214,10 +1214,10 @@ end;
 
 function TServerConnBuffer.DoInternalCustProc(FDataQuery: TServerSockQuery;
   NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
-  FUser, FSubFuncs: TNetProcString): boolean;
+  FUser, FSubFuncs: AnsiNetProcString): boolean;
 var
   CustIsts, CustSubIst: byte;
-  ClientParam, RetVL: TNetProcString;
+  ClientParam, RetVL: AnsiNetProcString;
 begin
   Result := False;
   try
@@ -1259,10 +1259,10 @@ begin
 end;
 
 function TServerConnBuffer.DoSQLScript(FDataQuery: TServerSockQuery;
-  FUser, FSubFuncs: TNetProcString): boolean;
+  FUser, FSubFuncs: AnsiNetProcString): boolean;
 var
   CustIsts, SQLx: byte;
-  ReslSQLV, ClientParam: TNetProcString;
+  ReslSQLV, ClientParam: AnsiNetProcString;
 begin
   Result := False;
   try
@@ -1292,10 +1292,10 @@ begin
 end;
 
 function TServerConnBuffer.DoSpecialSQL(FDataQuery: TServerSockQuery;
-  FUser, FSubFuncs: TNetProcString): boolean;
+  FUser, FSubFuncs: AnsiNetProcString): boolean;
 var
   CustIsts, SQLx: byte;
-  ReslSQLV, ClientParam: TNetProcString;
+  ReslSQLV, ClientParam: AnsiNetProcString;
 begin
   Result := False;
   try
@@ -1335,7 +1335,7 @@ begin
   end;
 end;
 
-function TServerConnBuffer.GetCustParam: TNetProcString;
+function TServerConnBuffer.GetCustParam: AnsiNetProcString;
 begin
 {$IFDEF FPC}
   Result := ReadStr;
@@ -1345,9 +1345,9 @@ begin
 end;
 
 function TServerConnBuffer.ServerSQLProc(CustInstrucV: byte; SQLVS: SQLStyle;
-  FUser, SQLValue: TNetProcString): byte;
+  FUser, SQLValue: AnsiNetProcString): byte;
 var
-  TempStr, TempField: TNetProcString;
+  TempStr, TempField: AnsiNetProcString;
   I, RecCont: integer;
 begin
   Result := 0;
@@ -1455,9 +1455,9 @@ begin
 end;
 
 function TServerConnBuffer.ServerStoredProc(CustInstrucV, SQLVS: byte;
-  FUser, SQLValue: TNetProcString; ParamNum, InNum, RetNum: integer): byte;
+  FUser, SQLValue: AnsiNetProcString; ParamNum, InNum, RetNum: integer): byte;
 var
-  OutStr: TNetProcString;
+  OutStr: AnsiNetProcString;
   I, TmpI: integer;
   temur: StrArray;
 begin
@@ -1528,7 +1528,7 @@ begin
 end;
 
 function TServerConnBuffer.ServerScriptProc(CustInstrucV, SQLVS: byte;
-  FUser, SQLValue: TNetProcString): byte;
+  FUser, SQLValue: AnsiNetProcString): byte;
 begin
   Result := 0;
   if SQLValue = '' then
@@ -1574,7 +1574,7 @@ end;
 
 procedure TServerConnBuffer.ExecFuncChangPSW;
 var
-  TempPSW, PSW1, PSW2: TNetProcString;
+  TempPSW, PSW1, PSW2: AnsiNetProcString;
   RetByte: byte;
 begin
   RetByte := 40;

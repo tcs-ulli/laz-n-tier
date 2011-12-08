@@ -70,7 +70,7 @@ type
   TOnlineQuery = class(TMemDB)
   private
     FOnlineConnection: TOnlineConnection;
-    FTableName, FPrimaryKey, FIndexFieldNames, FEditFields: TNetProcString;
+    FTableName, FPrimaryKey, FIndexFieldNames, FEditFields: AnsiNetProcString;
     FSync, FLoading: Boolean;
     FSQL, FSQLDataStr: TNetProcList;
     FReplaceFields: Boolean;
@@ -78,15 +78,15 @@ type
     FCachedUpdate: Boolean;
     FInstrucNum: TInstruction;
     FSubInstrucNum: byte;
-    FClientParam: TNetProcString;
+    FClientParam: AnsiNetProcString;
     FRowsAffected: integer;
     procedure SetInstrucNum(Value: TInstruction);
     procedure DestroyQuerys;
-    procedure OnLinePepare(SQL: TNetProcString; SQLInstruction: TSQLInstruction);
+    procedure OnLinePepare(SQL: AnsiNetProcString; SQLInstruction: TSQLInstruction);
     function OnLineRun: integer;
-    procedure SetIndexFieldNames(const Value: TNetProcString);
-    procedure SetTableName(const Value: TNetProcString);
-    procedure SetPrimaryKey(const Value: TNetProcString);
+    procedure SetIndexFieldNames(const Value: AnsiNetProcString);
+    procedure SetTableName(const Value: AnsiNetProcString);
+    procedure SetPrimaryKey(const Value: AnsiNetProcString);
     procedure SetSync(Value: Boolean);
     function GetSQL: TNetProcList;
     procedure SetSQL(Value: TNetProcList);
@@ -101,39 +101,39 @@ type
     procedure InternalPost; override;
   public
     CacheList: TNetProcList;
-    RetValue: TNetProcString;
+    RetValue: AnsiNetProcString;
     function ApplyCacheUpdate: Boolean;
     function OnlineRequest(IsSQLOpen: Boolean; xInstruc: integer;
-      xParam: TNetProcString): integer;
-    function InternalSQL(SubInstruc: integer; xParam: TNetProcString): integer;
-    function OnlineScript(xInstruc: integer; xParam: TNetProcString): integer;
-    function OnlineStoredProc(xInstruc: integer; xParam: TNetProcString): integer;
+      xParam: AnsiNetProcString): integer;
+    function InternalSQL(SubInstruc: integer; xParam: AnsiNetProcString): integer;
+    function OnlineScript(xInstruc: integer; xParam: AnsiNetProcString): integer;
+    function OnlineStoredProc(xInstruc: integer; xParam: AnsiNetProcString): integer;
     function OnlineClientProcess(xInstruc: integer;
-      xParam: TNetProcString): TNetProcString;
-    function InternalProcess(xInstruc: integer; xParam: TNetProcString): TNetProcString;
+      xParam: AnsiNetProcString): AnsiNetProcString;
+    function InternalProcess(xInstruc: integer; xParam: AnsiNetProcString): AnsiNetProcString;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property Sync: Boolean read FSync write SetSync;
     procedure GenerateInsertData;
     procedure GenerateUpdateData;
     procedure GenerateDeleteData;
-    function ComputePrimaryKeyForSQLData(OldValues, NullValues: Boolean): TNetProcString;
+    function ComputePrimaryKeyForSQLData(OldValues, NullValues: Boolean): AnsiNetProcString;
     procedure ReOpenTable;
-    function GetServerTime: TNetProcString;
+    function GetServerTime: AnsiNetProcString;
     procedure Open;
     procedure ExecSQL;
     procedure ExecScript;
     function RowsAffected: longint;
     property ThinQuery: Boolean read FThinQuery write FThinQuery;
-    property TableName: TNetProcString read FTableName write SetTableName;
+    property TableName: AnsiNetProcString read FTableName write SetTableName;
   published
     property InstrucNum: TInstruction read FInstrucNum write SetInstrucNum;
     property InstrucSubNum: byte read FSubInstrucNum write FSubInstrucNum;
-    property ClientParam: TNetProcString read FClientParam write FClientParam;
+    property ClientParam: AnsiNetProcString read FClientParam write FClientParam;
     property CachedUpdate: Boolean read FCachedUpdate write FCachedUpdate;
     property OnlineConnection: TOnlineConnection
       read FOnlineConnection write FOnlineConnection;
-    property PrimaryKey: TNetProcString read FPrimaryKey write SetPrimaryKey;
+    property PrimaryKey: AnsiNetProcString read FPrimaryKey write SetPrimaryKey;
     property SQL: TNetProcList read GetSQL write SetSQL;
     property GetFields: Boolean read FReplaceFields write FReplaceFields;
     property Active: Boolean read GetActive write SetActive;
@@ -311,9 +311,9 @@ begin
     EmptyTable;
 end;
 
-function GetTableNameFromSQL(SQLText: TNetProcString): TNetProcString;
+function GetTableNameFromSQL(SQLText: AnsiNetProcString): AnsiNetProcString;
 var
-  TempSQL, SUBSQL: TNetProcString;
+  TempSQL, SUBSQL: AnsiNetProcString;
   WPS, SLen: integer;
 begin
   TempSQL := UpperCase(SQLText);
@@ -334,7 +334,7 @@ begin
     Result := A1;
 end;
 
-function FieldToSQLString(Field: TField; TmpStr, Value: TNetProcString): TNetProcString;
+function FieldToSQLString(Field: TField; TmpStr, Value: AnsiNetProcString): AnsiNetProcString;
 var
   ValueStr: string;
 begin
@@ -398,7 +398,7 @@ end;
 
 procedure TOnlineQuery.GenerateInsertData;
 var
-  _SQL, _Into, _Values, _Where, S, S1, TmpStr, FieldStr: TNetProcString;
+  _SQL, _Into, _Values, _Where, S, S1, TmpStr, FieldStr: AnsiNetProcString;
   Sep, IsBlob: Boolean;
   Field: TField;
 begin
@@ -419,8 +419,6 @@ begin
     begin
       _Into := _Into + ', ';
       _Values := _Values + ', ';
-      if not isBlob then
-        _Where := _Where + ' and ' + ' ';
     end;
 
     Sep := True;
@@ -431,7 +429,7 @@ begin
     TmpStr := Field.AsString;
     {$ENDIF}
 
-     {$IFDEF OverDelphi2007}
+    {$IFDEF OverDelphi2007}
     FieldStr := Field.AsAnsiString;
     {$ELSE}
     FieldStr := Field.AsString;
@@ -446,11 +444,9 @@ begin
     end;
 
     _Values := _Values + TmpStr;
-    if not isBlob then
-      _Where := _Where + S1 + '=:' + S1;
   end;
 
-  _SQL := _SQL + 'insert into ' + FTableName + ' (' + _Into + ')' +
+  _SQL := 'insert into ' + FTableName + ' (' + _Into + ')' +
     ' ' + 'values (' + _Values + ')';
 {$IFDEF FPC}
   FSQLDataStr.Text := UTF8Decode(_SQL);
@@ -460,9 +456,9 @@ begin
 end;
 
 function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
-  Boolean): TNetProcString;
+  Boolean): AnsiNetProcString;
 var
-  S, S1, TmpStr, FieldStr: TNetProcString;
+  S, S1, TmpStr, FieldStr: AnsiNetProcString;
   Sep: Boolean;
   Field: TField;
 begin
@@ -493,7 +489,7 @@ end;
 
 procedure TOnlineQuery.GenerateUpdateData;
 var
-  _From, _Values, S, S1, TmpStr, FieldStr: TNetProcString;
+  _From, _Values, S, S1, TmpStr, FieldStr: AnsiNetProcString;
   Sep: Boolean;
   Field: TField;
   IsChanged: Boolean;
@@ -598,7 +594,7 @@ begin
 end;
 
 function TOnlineQuery.OnlineRequest(IsSQLOpen: Boolean; xInstruc: integer;
-  xParam: TNetProcString): integer;
+  xParam: AnsiNetProcString): integer;
 begin
   Result := 0;
   try
@@ -607,7 +603,7 @@ begin
   end;
 end;
 
-function TOnlineQuery.OnlineScript(xInstruc: integer; xParam: TNetProcString): integer;
+function TOnlineQuery.OnlineScript(xInstruc: integer; xParam: AnsiNetProcString): integer;
 begin
   Result := 0;
   try
@@ -617,7 +613,7 @@ begin
 end;
 
 function TOnlineQuery.OnlineStoredProc(xInstruc: integer;
-  xParam: TNetProcString): integer;
+  xParam: AnsiNetProcString): integer;
 begin
   Result := 0;
   try
@@ -627,7 +623,7 @@ begin
 end;
 
 function TOnlineQuery.OnlineClientProcess(xInstruc: integer;
-  xParam: TNetProcString): TNetProcString;
+  xParam: AnsiNetProcString): AnsiNetProcString;
 begin
   RetValue := '';
   Result := '';
@@ -638,7 +634,7 @@ begin
   end;
 end;
 
-function TOnlineQuery.InternalSQL(SubInstruc: integer; xParam: TNetProcString): integer;
+function TOnlineQuery.InternalSQL(SubInstruc: integer; xParam: AnsiNetProcString): integer;
 begin
   Result := 0;
   try
@@ -648,7 +644,7 @@ begin
 end;
 
 function TOnlineQuery.InternalProcess(xInstruc: integer;
-  xParam: TNetProcString): TNetProcString;
+  xParam: AnsiNetProcString): AnsiNetProcString;
 begin
   RetValue := '';
   try
@@ -661,7 +657,7 @@ end;
 procedure TOnlineQuery.OnLinePepare;
 var
   I: integer;
-  S: TNetProcString;
+  S: AnsiNetProcString;
 begin
   case SQLInstruction of
     IstSQLExec:
@@ -697,18 +693,18 @@ begin
   Result := FOnlineConnection.Buffer.RunSQL;
 end;
 
-procedure TOnlineQuery.SetIndexFieldNames(const Value: TNetProcString);
+procedure TOnlineQuery.SetIndexFieldNames(const Value: AnsiNetProcString);
 begin
   FIndexFieldNames := Value;
 end;
 
-procedure TOnlineQuery.SetTableName(const Value: TNetProcString);
+procedure TOnlineQuery.SetTableName(const Value: AnsiNetProcString);
 begin
   CheckInactive;
   FTableName := Value;
 end;
 
-procedure TOnlineQuery.SetPrimaryKey(const Value: TNetProcString);
+procedure TOnlineQuery.SetPrimaryKey(const Value: AnsiNetProcString);
 begin
   CheckInactive;
   FPrimaryKey := Value;
@@ -910,7 +906,7 @@ begin
     Active := True;
 end;
 
-function TOnlineQuery.GetServerTime: TNetProcString;
+function TOnlineQuery.GetServerTime: AnsiNetProcString;
 begin
   Result := FOnlineConnection.Buffer.GetServerTime;
 end;

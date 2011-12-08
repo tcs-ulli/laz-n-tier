@@ -53,39 +53,39 @@ type
   Protected
     FDataSet: TDataSet;
     procedure ProcessData; Override;
-    procedure ProcessError(const Msg: TNetProcString);
+    procedure ProcessError(const Msg: AnsiNetProcString);
   Public
     FSocket: TCSocket;
-    ReturnStr: TNetProcString;
+    ReturnStr: AnsiNetProcString;
     constructor Create(AOwner: TComponent); Override;
     destructor Destroy; Override;
-    procedure Writelog(value: TNetProcString);
-    procedure Log(const Msg: TNetProcString);
-    procedure AddSQLParam(const ParamName: TNetProcString; ParamType: TFieldType;
-      const Value: TNetProcString);
-    function OpenSQL(DataSet: TDataset; const SQL: TNetProcString; HasFields, TmpRF:
+    procedure Writelog(value: AnsiNetProcString);
+    procedure Log(const Msg: AnsiNetProcString);
+    procedure AddSQLParam(const ParamName: AnsiNetProcString; ParamType: TFieldType;
+      const Value: AnsiNetProcString);
+    function OpenSQL(DataSet: TDataset; const SQL: AnsiNetProcString; HasFields, TmpRF:
       boolean): Integer;
-    function UpdateFieldDefs(DataSet: TDataset; const SQL: TNetProcString): Integer;
-    function ExecSQL(DataSet: TDataset; const SQL: TNetProcString): Integer;
-    function CacheExecSQL(DataSet: TDataset; const SQL: TNetProcString): Integer;
+    function UpdateFieldDefs(DataSet: TDataset; const SQL: AnsiNetProcString): Integer;
+    function ExecSQL(DataSet: TDataset; const SQL: AnsiNetProcString): Integer;
+    function CacheExecSQL(DataSet: TDataset; const SQL: AnsiNetProcString): Integer;
     function RunSQL: Integer;
     function ClientRunSQL(SQLVx: Byte): Integer;
-    function LogOnServer(UsrName, UsrPsw: TNetProcString): Boolean;
-    function LogOnServer2(UsrName, UsrPsw: TNetProcString): TLogonStyle;
-    function GetServerTime: TNetProcString;
-    function ChangePassword(OldPSW, NewPSW: TNetProcString): Boolean;
+    function LogOnServer(UsrName, UsrPsw: AnsiNetProcString): Boolean;
+    function LogOnServer2(UsrName, UsrPsw: AnsiNetProcString): TLogonStyle;
+    function GetServerTime: AnsiNetProcString;
+    function ChangePassword(OldPSW, NewPSW: AnsiNetProcString): Boolean;
     function DoSQLScript(DataSet: TDataset; CPInstruc: Byte; CliParam:
-      TNetProcString): integer;
+      AnsiNetProcString): integer;
     function DoStoredProc(DataSet: TDataset; CPInstruc: Byte; CliParam:
-      TNetProcString): integer;
+      AnsiNetProcString): integer;
     function DOSpecialSQL(DataSet: TDataset; CPInstruc: Byte; CliParam:
-      TNetProcString): integer;
+      AnsiNetProcString): integer;
     function DoInternalSpecialSQL(DataSet: TDataset; SubInstruc: Byte; CliParam:
-      TNetProcString): integer;
+      AnsiNetProcString): integer;
     function ProcessDynamicCustProc(DataSet: TDataset; CPInstruc: Byte;
-      CliParam: TNetProcString): TNetProcString;
+      CliParam: AnsiNetProcString): AnsiNetProcString;
     function ProcessInternalCustProc(DataSet: TDataset; CPInstruc: Byte;
-      CliParam: TNetProcString): TNetProcString;
+      CliParam: AnsiNetProcString): AnsiNetProcString;
   end;
 
 var
@@ -109,10 +109,10 @@ begin
     Result := '';
 end;
 
-procedure TClientConnBuffer.Writelog(value: TNetProcString);
+procedure TClientConnBuffer.Writelog(value: AnsiNetProcString);
 var
   f: textFile;
-  s: TNetProcString;
+  s: AnsiNetProcString;
 begin
   if csDesigning in ComponentState then
     Exit;
@@ -145,7 +145,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TClientConnBuffer.Log(const Msg: TNetProcString);
+procedure TClientConnBuffer.Log(const Msg: AnsiNetProcString);
 begin
   if ClientLog <> nil then
     ClientLog.add(msg);
@@ -210,7 +210,7 @@ begin
   FDataSet := nil;
 end;
 
-function TClientConnBuffer.LogOnServer(UsrName, UsrPsw: TNetProcString): Boolean;
+function TClientConnBuffer.LogOnServer(UsrName, UsrPsw: AnsiNetProcString): Boolean;
 begin
   SetInstruction(IstLogin);
   WriteStr(UsrName);
@@ -221,7 +221,7 @@ begin
   Result := ReadByte = Byte(Ord(LogedOnServer));
 end;
 
-function TClientConnBuffer.LogOnServer2(UsrName, UsrPsw: TNetProcString):
+function TClientConnBuffer.LogOnServer2(UsrName, UsrPsw: AnsiNetProcString):
   TLogonStyle;
 begin
   SetInstruction(IstLogin);
@@ -233,7 +233,7 @@ begin
   Result := TLogonStyle(ReadByte);
 end;
 
-function TClientConnBuffer.GetServerTime: TNetProcString;
+function TClientConnBuffer.GetServerTime: AnsiNetProcString;
 begin
   SetInstruction(IstTime);
   ProcessSendData;
@@ -242,7 +242,7 @@ begin
   Result := ReadStr;
 end;
 
-function TClientConnBuffer.ChangePassword(OldPSW, NewPSW: TNetProcString): Boolean;
+function TClientConnBuffer.ChangePassword(OldPSW, NewPSW: AnsiNetProcString): Boolean;
 begin
   SetInstruction(IstChangePSW);
   WriteStr(StrMD5(OldPSW));
@@ -257,7 +257,7 @@ function TClientConnBuffer.CacheExecSQL;
 var
   TempCacheList: TStringList;
   I: integer;
-  TempStr: TNetProcString;
+  TempStr: AnsiNetProcString;
 begin
   TempCacheList := TStringList.Create;
   Result := 0;
@@ -282,7 +282,7 @@ begin
     if Length(Trim(TempCacheList[I])) > 0 then
     begin
       WriteByte(0);
-      TempStr := UTF8Encode(TNetProcString(TempCacheList[I]));
+      TempStr := UTF8Encode(AnsiNetProcString(TempCacheList[I]));
       WriteStr(TempStr);
     end;
     Log(TempStr);
@@ -306,8 +306,8 @@ begin
   TempCacheList.Free;
 end;
 
-procedure TClientConnBuffer.AddSQLParam(const ParamName: TNetProcString; ParamType:
-  TFieldType; const Value: TNetProcString);
+procedure TClientConnBuffer.AddSQLParam(const ParamName: AnsiNetProcString; ParamType:
+  TFieldType; const Value: AnsiNetProcString);
 begin
   WriteByte(0);
   WriteStr(ParamName + ';' + IntToStr(Integer(ParamType)));
@@ -317,13 +317,13 @@ end;
 function TClientConnBuffer.RunSQL;
 var
   I, _FieldCount: Integer;
-  S, Name: TNetProcString;
+  S, Name: AnsiNetProcString;
   Datatype: TFieldType;
   Size: Integer;
   Required: Boolean;
   SQLIsttion: TSQLInstruction;
   RecNumInParam: integer;
-  TempStr: TNetProcString;
+  TempStr: AnsiNetProcString;
 begin
   Result := 0;
   WriteByte(1);
@@ -432,12 +432,12 @@ end;
 function TClientConnBuffer.ClientRunSQL(SQLVx: Byte): integer;
 var
   I, _FieldCount: Integer;
-  S, Name: TNetProcString;
+  S, Name: AnsiNetProcString;
   Datatype: TFieldType;
   Size: Integer;
   Required: Boolean;
   RecNumInParam: integer;
-  TempStr: TNetProcString;
+  TempStr: AnsiNetProcString;
 begin
   Result := 0;
   if (SQLVx > 2) or (SQLVX < 1) then
@@ -524,8 +524,8 @@ begin
   Log('Open:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
 end;
 
-procedure TClientConnBuffer.ProcessError(const Msg: TNetProcString);
-var istErrorMsg: TNetProcString;
+procedure TClientConnBuffer.ProcessError(const Msg: AnsiNetProcString);
+var istErrorMsg: AnsiNetProcString;
 begin
   if Instruction = IstError then
   begin
@@ -540,7 +540,7 @@ begin
 end;
 
 function TClientConnBuffer.DoSQLScript(DataSet: TDataset; CPInstruc: Byte;
-  CliParam: TNetProcString): integer;
+  CliParam: AnsiNetProcString): integer;
 var
   ReturnValue: Byte;
 begin
@@ -562,7 +562,7 @@ begin
 end;
 
 function TClientConnBuffer.DoStoredProc(DataSet: TDataset; CPInstruc: Byte;
-  CliParam: TNetProcString): integer;
+  CliParam: AnsiNetProcString): integer;
 var
   ReturnValue: Byte;
 begin
@@ -585,7 +585,7 @@ begin
 end;
 
 function TClientConnBuffer.DoSpecialSQL(DataSet: TDataset; CPInstruc: Byte;
-  CliParam: TNetProcString): integer;
+  CliParam: AnsiNetProcString): integer;
 var
   ReturnValue: Byte;
 begin
@@ -607,11 +607,11 @@ begin
 end;
 
 function TClientConnBuffer.DoInternalSpecialSQL(DataSet: TDataset; SubInstruc:
-  Byte; CliParam: TNetProcString): integer;
+  Byte; CliParam: AnsiNetProcString): integer;
 var
   ReturnValue: Byte;
   _FieldCount, I, Size, RecNumInParam: integer;
-  S, TempStr: TNetProcString;
+  S, TempStr: AnsiNetProcString;
   Datatype: TFieldType;
   Required: Boolean;
 begin
@@ -683,7 +683,7 @@ end;
 
 function TClientConnBuffer.ProcessDynamicCustProc(DataSet: TDataset; CPInstruc:
   Byte;
-  CliParam: TNetProcString): TNetProcString;
+  CliParam: AnsiNetProcString): AnsiNetProcString;
 var
   ReturnValue: Byte;
 begin
@@ -715,7 +715,7 @@ end;
 
 function TClientConnBuffer.ProcessInternalCustProc(DataSet: TDataset; CPInstruc:
   Byte;
-  CliParam: TNetProcString): TNetProcString;
+  CliParam: AnsiNetProcString): AnsiNetProcString;
 var
   ReturnValue: Byte;
 begin

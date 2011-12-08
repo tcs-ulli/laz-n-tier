@@ -88,9 +88,9 @@ type
     procedure ListenOnPort(Port: integer);
     function DoCustInternalCall(CustInstrucx, CustSubInstrucx: Byte; CliParam: PAnsiChar;
       DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
-      DataStoredProc: TServerSockQuery; User, SubFunctions: TNetProcString
-      ): TNetProcString;
-    function DoUserLogOnCall(User, Password: TNetProcString): TLogonStyle;   
+      DataStoredProc: TServerSockQuery; User, SubFunctions: AnsiNetProcString
+      ): AnsiNetProcString;
+    function DoUserLogOnCall(User, Password: AnsiNetProcString): TLogonStyle;   
     property DisplayLines: TStrings read FDisplayLines write SetDisplayLines;
     property Server: TSSocketServer read SSocketServer write SSocketServer;
   published
@@ -298,15 +298,15 @@ end;
 
 function TZeosDataServer.DoCustInternalCall(CustInstrucx, custSubInstrucx: Byte; CliParam: PAnsiChar;
   DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
-  DataStoredProc: TServerSockQuery; User, SubFunctions: TNetProcString
-  ): TNetProcString;
+  DataStoredProc: TServerSockQuery; User, SubFunctions: AnsiNetProcString
+  ): AnsiNetProcString;
 begin
   if Assigned(FOnCustInternalCall) then
     Result := FOnCustInternalCall(CustInstrucx, CustSubInstrucx, CliParam, DataQuery,
       DataSQLProc, DataStoredProc, User, SubFunctions);
 end;
 
-function TZeosDataServer.DoUserLogOnCall(User, Password: TNetProcString): TLogonStyle;
+function TZeosDataServer.DoUserLogOnCall(User, Password: AnsiNetProcString): TLogonStyle;
 begin
   Result := PermDenied;
   if Assigned(FOnUserLogOnCall) then

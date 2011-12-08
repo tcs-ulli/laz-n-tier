@@ -55,15 +55,15 @@ type
   public
     ConnectError: integer;
     Buffer: TClientConnBuffer;
-    FUsrName, FPSW: TNetProcString;
+    FUsrName, FPSW: AnsiNetProcString;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Open;
     function Logon: Boolean;
     function Logon2: TLogonStyle;
   published
-    property UserName: TNetProcString read FUsrName write FUsrName;
-    property Password: TNetProcString read FPSW write FPSW;
+    property UserName: AnsiNetProcString read FUsrName write FUsrName;
+    property Password: AnsiNetProcString read FPSW write FPSW;
   end;
 
 implementation

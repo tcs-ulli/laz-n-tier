@@ -59,14 +59,14 @@ type
     istSQLCacheExec, istChangePSW, istSpecialSQL, istSQLScript, istStoredProc,
     istDynamicCustProc, istInternalCustProc, istInternalOpen, InternalSQLInstruciton);
   TSQLInstruction = (IstSQLExec, IstSQLOpen, IstSQLFieldDefs, IstSQLWithFields);
-  TNetProcString = AnsiString;
-  PNetProcString = ^TNetProcString;
+  AnsiNetProcString = AnsiString;
+  PNetProcString = ^AnsiNetProcString;
   TInstructionName = record
     Instruction: TInstruction;
-    Name: TNetProcString;
+    Name: AnsiNetProcString;
   end;
   
-  StrArray = array of TNetProcString;
+  StrArray = array of AnsiNetProcString;
   AnsiInt = LongWord;
   PAnsiInt = ^AnsiInt;
   PDouble = ^Double;
@@ -77,34 +77,34 @@ type
     TotalSize: AnsiInt;
     procedure ProcessData; virtual; abstract;
   public
-    RecvBuffer: TNetProcString;
-    SendBuffer: TNetProcString;
+    RecvBuffer: AnsiNetProcString;
+    SendBuffer: AnsiNetProcString;
     LoginTime: TDateTime;
     LoginName: ShortString;
     Instruction: TInstruction;
     HeaderSize: AnsiInt;
     constructor Create(aOwner: TComponent); override;
-    procedure SetInstruction(Instruc: TInstruction; const Value: TNetProcString = '');
-    function GetInstruction(Value: TNetProcString): TInstruction;
+    procedure SetInstruction(Instruc: TInstruction; const Value: AnsiNetProcString = '');
+    function GetInstruction(Value: AnsiNetProcString): TInstruction;
     function ReadByte: Byte;
     function ReadInt: AnsiInt;
-    function ReadStr: TNetProcString;
+    function ReadStr: AnsiNetProcString;
     procedure WriteByte(Value: Byte);
     procedure WriteInt(Value: AnsiInt);
-    procedure WriteStr(const Value: TNetProcString);
+    procedure WriteStr(const Value: AnsiNetProcString);
     procedure ProcessReadData;
     procedure ProcessSendData;
   end;
 
 {$I Instructions.inc}
 
-function RetrieveStr(var txt: TNetProcString; const Separador: TNetProcString): TNetProcString;
-function GetBufDotStr(s: TNetProcString; Dot: AnsiChar; xLen: integer): StrArray;
+function RetrieveStr(var txt: AnsiNetProcString; const Separador: AnsiNetProcString): AnsiNetProcString;
+function GetBufDotStr(s: AnsiNetProcString; Dot: AnsiChar; xLen: integer): StrArray;
 procedure PutIntegerToArray(s: PNetProcString; index, num: integer);
-function PutArrayToInteger(s: TNetProcString; index: integer): integer;
-function FloatToDotStr(Value: Double): TNetProcString;
-function DotStrToFloat(Value: TNetProcString): Double;
-function SetAnsiDoubleStr(Value: TNetProcString): TNetProcString;
+function PutArrayToInteger(s: AnsiNetProcString; index: integer): integer;
+function FloatToDotStr(Value: Double): AnsiNetProcString;
+function DotStrToFloat(Value: AnsiNetProcString): Double;
+function SetAnsiDoubleStr(Value: AnsiNetProcString): AnsiNetProcString;
 
 implementation
 
@@ -118,7 +118,7 @@ begin
   LoginTime := Now;
 end;
 
-procedure TOnlineDataBuffer.SetInstruction(Instruc: TInstruction; const Value: TNetProcString = '');
+procedure TOnlineDataBuffer.SetInstruction(Instruc: TInstruction; const Value: AnsiNetProcString = '');
 var SignatureLen: integer;
 begin
   Instruction := Instruc;
@@ -131,7 +131,7 @@ begin
   if Value <> '' then WriteStr(Value);
 end;
 
-function TOnlineDataBuffer.GetInstruction(Value: TNetProcString): TInstruction;
+function TOnlineDataBuffer.GetInstruction(Value: AnsiNetProcString): TInstruction;
 begin
   if Length(Value) > 0 then
     Result := TInstruction(Ord(Value[1]))
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-function TOnlineDataBuffer.ReadStr: TNetProcString;
+function TOnlineDataBuffer.ReadStr: AnsiNetProcString;
 var
   Size: AnsiInt;
 begin
@@ -187,7 +187,7 @@ begin
   move(Value, SendBuffer[BufferLen + 1], SizeOf(AnsiInt));
 end;
 
-procedure TOnlineDataBuffer.WriteStr(const Value: TNetProcString);
+procedure TOnlineDataBuffer.WriteStr(const Value: AnsiNetProcString);
 var
   BufferLen, DataLen: AnsiInt;
 begin

@@ -1,5 +1,5 @@
-function SetAnsiDoubleStr(Value: TNetProcString): TNetProcString;
-var TempStr: TNetProcString; i, j, k, valuelen: integer;
+function SetAnsiDoubleStr(Value: AnsiNetProcString): AnsiNetProcString;
+var TempStr: AnsiNetProcString; i, j, k, valuelen: integer;
 begin
   valuelen := Length(Value);
   SetLength(TempStr, valuelen);
@@ -19,19 +19,19 @@ begin
   Result := TempStr;
 end;
 
-function FloatToDotStr(Value: Double): TNetProcString;
+function FloatToDotStr(Value: Double): AnsiNetProcString;
 begin
   SetLength(Result, SizeOf(Double));
   move(Value, Result[1], SizeOf(Double));
 end;
 
-function DotStrToFloat(Value: TNetProcString): Double;
+function DotStrToFloat(Value: AnsiNetProcString): Double;
 begin
   Result := $FFFFFFFF;
   Result := PDouble(@Value[1])^;
 end;
 
-function GetBufDotStr(s: TNetProcString; Dot: AnsiChar; xLen: integer): StrArray;
+function GetBufDotStr(s: AnsiNetProcString; Dot: AnsiChar; xLen: integer): StrArray;
 var str: StrArray; i, j: integer;
 begin
   i := 1;
@@ -56,7 +56,7 @@ begin
   s^[index + 3] := AnsiChar((num shr 24) and $FF);
 end;
 
-function PutArrayToInteger(s: TNetProcString; index: integer): integer;
+function PutArrayToInteger(s: AnsiNetProcString; index: integer): integer;
 var t1, t2, t3, t4: integer;
 begin
   t1 := Ord(s[index]);
@@ -69,7 +69,7 @@ begin
   result := t1 + t2 + t3 + t4;
 end;
 
-function RetrieveStr(var txt: TNetProcString; const Separador: TNetProcString): TNetProcString;
+function RetrieveStr(var txt: AnsiNetProcString; const Separador: AnsiNetProcString): AnsiNetProcString;
 var i: integer;
 begin
   i := Pos(Separador, txt);

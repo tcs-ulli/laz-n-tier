@@ -37,10 +37,10 @@
 | Contributor(s):                                                              |
 |==============================================================================}
 
-function GetTableNameFromSQL(ASQL: TNetProcString): TNetProcString;
+function GetTableNameFromSQL(ASQL: AnsiNetProcString): AnsiNetProcString;
 var
   PPOS: integer;
-  TempSQL, USQL: TNetProcString;
+  TempSQL, USQL: AnsiNetProcString;
 begin
   USQL := UpperCase(Trim(ASQL));
 
@@ -120,10 +120,10 @@ begin
 
 end;
 
-function UpdateInsFunc(src0, corgid1, corgid2: TNetProcString; stlod: integer): TNetProcString;
+function UpdateInsFunc(src0, corgid1, corgid2: AnsiNetProcString; stlod: integer): AnsiNetProcString;
 var
   vi, fi, i, srclen: integer;
-  s1, s2, t1, t2, src: TNetProcString;
+  s1, s2, t1, t2, src: AnsiNetProcString;
   ts01, ts02: TStringList;
   haveid1, haveid2: boolean;
 begin
@@ -238,10 +238,10 @@ begin
   ts02.Free;
 end;
 
-function UpdateUPDFunc(src0, corgid1, corgid2: TNetProcString; stlod: integer): TNetProcString;
+function UpdateUPDFunc(src0, corgid1, corgid2: AnsiNetProcString; stlod: integer): AnsiNetProcString;
 var
   vi, fi, i, srclen: integer;
-  s1, s2, t1, t2, src: TNetProcString;
+  s1, s2, t1, t2, src: AnsiNetProcString;
   ts01, ts02: TStringList;
   TsCount, TmpTS: integer;
 begin
@@ -356,9 +356,9 @@ begin
 {$ENDIF}
 end;
 
-function GetTableORGIDStyle2(NetQuery: TServerSockQuery; TBName: TNetProcString): integer;
+function GetTableORGIDStyle2(NetQuery: TServerSockQuery; TBName: AnsiNetProcString): integer;
 var
-  TempSQL: TNetProcString;
+  TempSQL: AnsiNetProcString;
 begin
   TempSQL := NetQuery.SQL.Text;
   try
