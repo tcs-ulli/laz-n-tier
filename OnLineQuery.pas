@@ -375,7 +375,7 @@ begin
       if Length(trim(TmpStr)) = 0 then
         TmpStr := '0.00'
       else
-        TmpStr := SetAnsiDoubleStr(Value);
+        TmpStr := SetAnsiDoubleStr(Trim(Value));
     end;
     ftDate, ftTime, ftDateTime:
     begin

@@ -1,4 +1,4 @@
-function SetAnsiDoubleStr(Value: AnsiNetProcString): AnsiNetProcString;
+{function SetAnsiDoubleStr(Value: AnsiNetProcString): AnsiNetProcString;
 var TempStr: AnsiNetProcString; i, j, k, valuelen: integer;
 begin
   valuelen := Length(Value);
@@ -17,6 +17,11 @@ begin
     TempStr := Copy(TempStr, 1, k - 1) + '.' + Copy(TempStr, k, j);
   SetLength(TempStr, j + 1);
   Result := TempStr;
+end;   }
+
+function SetAnsiDoubleStr(Value: AnsiNetProcString): AnsiNetProcString;
+begin
+  Result := StringReplace(Value, DecimalSeparator, '.', [rfReplaceAll]);
 end;
 
 function FloatToDotStr(Value: Double): AnsiNetProcString;
