@@ -377,12 +377,28 @@ begin
       else
         TmpStr := SetAnsiDoubleStr(Trim(Value));
     end;
-    ftDate, ftTime, ftDateTime:
+    ftDateTime:
     begin
       if Length(trim(TmpStr)) = 0 then
         TmpStr := '''' + '2009-11-01 11:11:11' + ''''
       else
         TmpStr := '''' + FormatDateTime('yyyy-MM-dd HH:mm:ss',
+          StrToDateTime(Value)) + '''';
+    end;
+    ftDate:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '''' + '2009-11-01' + ''''
+      else
+        TmpStr := '''' + FormatDateTime('yyyy-MM-dd',
+          StrToDateTime(Value)) + '''';
+    end;
+    ftTime:
+    begin
+      if Length(trim(TmpStr)) = 0 then
+        TmpStr := '''' + '11:11:11' + ''''
+      else
+        TmpStr := '''' + FormatDateTime('HH:mm:ss',
           StrToDateTime(Value)) + '''';
     end;
     else
@@ -398,13 +414,12 @@ end;
 
 procedure TOnlineQuery.GenerateInsertData;
 var
-  _SQL, _Into, _Values, _Where, S, S1, TmpStr, FieldStr: AnsiNetProcString;
+  _SQL, _Into, _Values, S, S1, TmpStr, FieldStr: AnsiNetProcString;
   Sep, IsBlob: Boolean;
   Field: TField;
 begin
   _Into := '';
   _Values := '';
-  _Where := '';
   _SQL := '';
   Sep := False;
   S := FEditFields;
