@@ -313,17 +313,22 @@ end;
 
 function GetTableNameFromSQL(SQLText: AnsiNetProcString): AnsiNetProcString;
 var
-  TempSQL, SUBSQL: AnsiNetProcString;
-  WPS, SLen: integer;
+  TempSQL: AnsiNetProcString;
+  FPS, WPS, SLen, TBLen: integer;
 begin
   TempSQL := UpperCase(SQLText);
+  if Pos('SELECT', TrimLeft(TempSQL)) <> 1 then
+    Exit;
   SLen := Length(SQLText);
-  SUBSQL := Trim(Copy(SQLText, Pos('FROM ', TempSQL) + 5, SLen));
-  WPS := Pos('WHERE', TempSQL);
-  if WPS = 0 then
-    Result := SUBSQL
+  FPS := Pos('FROM ', TempSQL) + 5;
+  WPS := Pos('WHERE', TempSQL) - 2;
+  if WPS = -2 then
+    TBLen := SLen - FPS + 1
   else
-    Result := Copy(SUBSQL, 1, WPS - 1);
+    TBLen := WPS - FPS + 1;
+  SetLength(Result, TBLen);
+  move(SQLText[FPS], Result[1], TBLen);
+  Result := Trim(Result);
 end;
 
 function Min(A1, A2: integer): integer;
