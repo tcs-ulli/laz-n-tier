@@ -20,8 +20,8 @@ type
     function ZeosDataServer1CustInternalCall(CustInstruc, CustSubInstruc: byte;
       CliParam: PChar; DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
       DataStoredProc: TServerSockQuery;
-      User, SubFunctions: TNetProcString): TNetProcString;
-    function ZeosDataServer1UserLogonCall(UserName, Password: TNetProcString):
+      User, SubFunctions: AnsiNetProcString): AnsiNetProcString;
+    function ZeosDataServer1UserLogonCall(UserName, Password: AnsiNetProcString):
       TLogonStyle;
   private
     { private declarations }
@@ -41,7 +41,7 @@ implementation
 function TServerForm.ZeosDataServer1CustInternalCall(CustInstruc, CustSubInstruc: byte;
   CliParam: PChar; DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
   DataStoredProc: TServerSockQuery;
-  User, SubFunctions: TNetProcString): TNetProcString;
+  User, SubFunctions: AnsiNetProcString): AnsiNetProcString;
 begin
   {Now it is not internal thin query demo
   case CustInstruc of
@@ -69,7 +69,7 @@ begin
 end;
 
 function TServerForm.ZeosDataServer1UserLogonCall(UserName, Password:
-  TNetProcString): TLogonStyle;
+  AnsiNetProcString): TLogonStyle;
 begin
   Result := LogedOnServer;
 end;

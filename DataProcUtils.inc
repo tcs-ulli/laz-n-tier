@@ -26,9 +26,12 @@ begin
 end;
 
 function DotStrToFloat(Value: AnsiNetProcString): Double;
+var TmpStr: AnsiNetProcString; aLen: integer;
 begin
-  Result := $FFFFFFFF;
-  Result := PDouble(@Value[1])^;
+  aLen := Length(Value);
+  SetLength(TmpStr, 8 - aLen);
+  TmpStr := TmpStr + Value;
+  Result := PDouble(@TmpStr[1])^;
 end;
 
 function GetBufDotStr(s: AnsiNetProcString; Dot: AnsiChar; xLen: integer): StrArray;
