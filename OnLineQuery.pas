@@ -246,18 +246,20 @@ begin
   if FOnlineConnection = nil then
     Exit;
 
-  if not FOnlineConnection.Active then
-    if not FOnlineConnection.Logon then
-    begin
-      FOnlineConnection.Buffer.ReturnStr := '';
-      FOnlineConnection.Buffer.RecvBuffer := '';
-      if not (csDesigning in ComponentState) then
-        raise Exception.Create('Connection failed');
-      Exit;
-    end;
+  if Value then
+    if not FOnlineConnection.Active then
+      if not FOnlineConnection.Logon then
+      begin
+        FOnlineConnection.Buffer.ReturnStr := '';
+        FOnlineConnection.Buffer.RecvBuffer := '';
+        if not (csDesigning in ComponentState) then
+          raise Exception.Create('Connection failed');
+        Exit;
+      end;
 
-  if not FOnlineConnection.Active then
-    Exit;
+  if Value then    
+    if not FOnlineConnection.Active then
+      Exit;
 
   inherited;
   if Active then
@@ -345,68 +347,68 @@ var
 begin
   case Field.DataType of
     ftUnknown, ftString, ftFixedChar, ftWideString, ftMemo, ftVariant, ftBlob,
-    ftFmtMemo:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := '''' + ' ' + ''''
-      else
+      ftFmtMemo:
       begin
-        ValueStr := Value;
-        if Pos('''', Value) > 0 then
-          ValueStr := StringReplace(Value, '''', '''''', [rfReplaceAll]);
-        TmpStr := '''' + ValueStr + '''';
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := '''' + ' ' + ''''
+        else
+        begin
+          ValueStr := Value;
+          if Pos('''', Value) > 0 then
+            ValueStr := StringReplace(Value, '''', '''''', [rfReplaceAll]);
+          TmpStr := '''' + ValueStr + '''';
+        end;
       end;
-    end;
     ftTypedBinary:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := 'NULL'
-      else
-        TmpStr := Value;
-    end;
+      begin
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := 'NULL'
+        else
+          TmpStr := Value;
+      end;
     ftSmallint, ftInteger, ftWord, ftBCD, ftBytes,
-    ftVarBytes, ftAutoInc, ftLargeint:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := '0';
-    end;
+      ftVarBytes, ftAutoInc, ftLargeint:
+      begin
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := '0';
+      end;
     ftBoolean:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := '0';
-    end;
+      begin
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := '0';
+      end;
     ftFloat, ftCurrency:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := '0.00'
-      else
-        TmpStr := SetAnsiDoubleStr(Trim(Value));
-    end;
+      begin
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := '0.00'
+        else
+          TmpStr := SetAnsiDoubleStr(Trim(Value));
+      end;
     ftDateTime:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := '''' + '2009-11-01 11:11:11' + ''''
-      else
-        TmpStr := '''' + FormatDateTime('yyyy-MM-dd HH:mm:ss',
-          StrToDateTime(Value)) + '''';
-    end;
+      begin
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := '''' + '2009-11-01 11:11:11' + ''''
+        else
+          TmpStr := '''' + FormatDateTime('yyyy-MM-dd HH:mm:ss',
+            StrToDateTime(Value)) + '''';
+      end;
     ftDate:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := '''' + '2009-11-01' + ''''
-      else
-        TmpStr := '''' + FormatDateTime('yyyy-MM-dd',
-          StrToDateTime(Value)) + '''';
-    end;
+      begin
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := '''' + '2009-11-01' + ''''
+        else
+          TmpStr := '''' + FormatDateTime('yyyy-MM-dd',
+            StrToDateTime(Value)) + '''';
+      end;
     ftTime:
-    begin
-      if Length(trim(TmpStr)) = 0 then
-        TmpStr := '''' + '11:11:11' + ''''
-      else
-        TmpStr := '''' + FormatDateTime('HH:mm:ss',
-          StrToDateTime(Value)) + '''';
-    end;
-    else
+      begin
+        if Length(trim(TmpStr)) = 0 then
+          TmpStr := '''' + '11:11:11' + ''''
+        else
+          TmpStr := '''' + FormatDateTime('HH:mm:ss',
+            StrToDateTime(Value)) + '''';
+      end;
+  else
     begin
       if Length(trim(TmpStr)) = 0 then
         TmpStr := '''' + ' ' + ''''
@@ -443,17 +445,17 @@ begin
 
     Sep := True;
     _Into := _Into + S1;
-    {$IFDEF OverDelphi2007}
+{$IFDEF OverDelphi2007}
     TmpStr := Field.AsAnsiString;
-    {$ELSE}
+{$ELSE}
     TmpStr := Field.AsString;
-    {$ENDIF}
+{$ENDIF}
 
-    {$IFDEF OverDelphi2007}
+{$IFDEF OverDelphi2007}
     FieldStr := Field.AsAnsiString;
-    {$ELSE}
+{$ELSE}
     FieldStr := Field.AsString;
-    {$ENDIF}
+{$ENDIF}
 
     TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
 
@@ -525,14 +527,14 @@ begin
     if Field = nil then
       raise Exception.Create('Invalid EditField=' + S1);
 
-    {$IFDEF OverDelphi2007}
+{$IFDEF OverDelphi2007}
     if Field.AsAnsiString <> VarToStr(Field.OldValue) then
-    {$ELSE}
-      if Field.AsString <> VarToStr(Field.OldValue) then
-    {$ENDIF}
-        IsChanged := True
-      else
-        IsChanged := False;
+{$ELSE}
+    if Field.AsString <> VarToStr(Field.OldValue) then
+{$ENDIF}
+      IsChanged := True
+    else
+      IsChanged := False;
 
     if Sep and IsChanged then
     begin
@@ -542,17 +544,17 @@ begin
 
     if IsChanged then
     begin
-    {$IFDEF OverDelphi2007}
+{$IFDEF OverDelphi2007}
       TmpStr := Field.AsAnsiString;
-    {$ELSE}
+{$ELSE}
       TmpStr := Field.AsString;
-    {$ENDIF}
+{$ENDIF}
 
-    {$IFDEF OverDelphi2007}
+{$IFDEF OverDelphi2007}
       FieldStr := Field.AsAnsiString;
-    {$ELSE}
+{$ELSE}
       FieldStr := Field.AsString;
-    {$ENDIF}
+{$ENDIF}
 
       TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
       Sep := True;
@@ -575,7 +577,7 @@ procedure TOnlineQuery.GenerateDeleteData;
 begin
   FSQLDataStr.Text := 'Delete from ' + FTableName + ' where ' +
 {$IFDEF FPC}
-    UTF8Decode(ComputePrimaryKeyForSQLData(True, False));
+  UTF8Decode(ComputePrimaryKeyForSQLData(True, False));
 {$ELSE}
   ComputePrimaryKeyForSQLData(True, False);
 {$ENDIF}
@@ -681,12 +683,12 @@ var
 begin
   case SQLInstruction of
     IstSQLExec:
-    begin
-      if FCachedUpdate then
-        CacheList.Add(SQL)
-      else
-        FOnlineConnection.Buffer.ExecSQL(Self, SQL);
-    end;
+      begin
+        if FCachedUpdate then
+          CacheList.Add(SQL)
+        else
+          FOnlineConnection.Buffer.ExecSQL(Self, SQL);
+      end;
     IstSQLOpen: FOnlineConnection.Buffer.OpenSQL(Self, SQL, FReplaceFields, TmpR);
     IstSQLFieldDefs: FOnlineConnection.Buffer.UpdateFieldDefs(Self, SQL);
   end;
