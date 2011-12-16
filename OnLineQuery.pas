@@ -115,7 +115,7 @@ type
     destructor Destroy; override;
     property Sync: Boolean read FSync write SetSync;
     procedure GenerateInsertData;
-    procedure GenerateUpdateData;
+    function GenerateUpdateData: Boolean;
     procedure GenerateDeleteData;
     function ComputePrimaryKeyForSQLData(OldValues, NullValues: Boolean): AnsiNetProcString;
     procedure ReOpenTable;
@@ -509,17 +509,19 @@ begin
   end;
 end;
 
-procedure TOnlineQuery.GenerateUpdateData;
+function TOnlineQuery.GenerateUpdateData: Boolean;
 var
   _From, _Values, S, S1, TmpStr, FieldStr: AnsiNetProcString;
   Sep: Boolean;
   Field: TField;
-  IsChanged: Boolean;
+  IsChanged: Boolean; ChangeCount: integer;
 begin
+  Result := False;
   _From := '';
   _Values := '';
   Sep := False;
   S := FEditFields;
+  ChangeCount := 0;
   while S <> '' do
   begin
     S1 := RetrieveStr(S, ';');
@@ -532,7 +534,10 @@ begin
 {$ELSE}
     if Field.AsString <> VarToStr(Field.OldValue) then
 {$ENDIF}
-      IsChanged := True
+    begin
+      IsChanged := True;
+      ChangeCount := ChangeCount + 1;
+    end
     else
       IsChanged := False;
 
@@ -571,6 +576,10 @@ begin
     'update ' + FTableName + ' set ' + _Values + ' ' + 'where ' +
     ComputePrimaryKeyForSQLData(True, False);
 {$ENDIF}
+  if ChangeCount > 0 then
+    Result := True
+  else
+    FSQLDataStr.Text := '';
 end;
 
 procedure TOnlineQuery.GenerateDeleteData;
@@ -879,8 +888,8 @@ begin
     end
     else
     begin
-      GenerateUpdateData;
-      OnLinePepare(FSQLDataStr.Text, IstSQLExec);
+      if GenerateUpdateData then
+        OnLinePepare(FSQLDataStr.Text, IstSQLExec);
     end;
   end;
   inherited InternalPost;
