@@ -197,7 +197,7 @@ begin
   FDataSet := DataSet;
   SetInstruction(IstSQL);
   WriteByte(Byte(IstSQLExec));
-  WriteStr(UTF8Encode(SQL));
+  WriteStr(SQL);
   WriteByte(1);
   ProcessSendData;
   Log('ExecSQL Send:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));

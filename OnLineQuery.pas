@@ -419,6 +419,38 @@ begin
   Result := TmpStr;
 end;
 
+function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
+  Boolean): AnsiNetProcString;
+var
+  S, S1, TmpStr, FieldStr: AnsiNetProcString;
+  Sep: Boolean;
+  Field: TField;
+begin
+  Sep := False;
+  S := FPrimaryKey;
+  Result := '';
+  while S <> '' do
+  begin
+    if Sep then
+      Result := Result + ' and ';
+    Sep := True;
+    S1 := RetrieveStr(S, ';');
+    Field := FindField(S1);
+    Result := Result + S1;
+    if NullValues then
+      Result := Result + ' is Null '
+    else if NullValues then
+      Result := Result + '=:' + S1
+    else
+    begin
+      TmpStr := VarToStr(Field.OldValue);
+      FieldStr := TmpStr;
+      TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
+      Result := Result + '=' + TmpStr;
+    end;
+  end;
+end;           
+
 procedure TOnlineQuery.GenerateInsertData;
 var
   _SQL, _Into, _Values, S, S1, TmpStr, FieldStr: AnsiNetProcString;
@@ -457,6 +489,11 @@ begin
     FieldStr := Field.AsString;
 {$ENDIF}
 
+{$IFNDEF FPC}
+    FieldStr := UTF8Encode(FieldStr);
+    TmpStr := UTF8Encode(TmpStr);
+{$ENDIF}
+
     TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
 
     if isBlob then
@@ -475,38 +512,6 @@ begin
 {$ELSE}
   FSQLDataStr.Text := _SQL;
 {$ENDIF}
-end;
-
-function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
-  Boolean): AnsiNetProcString;
-var
-  S, S1, TmpStr, FieldStr: AnsiNetProcString;
-  Sep: Boolean;
-  Field: TField;
-begin
-  Sep := False;
-  S := FPrimaryKey;
-  Result := '';
-  while S <> '' do
-  begin
-    if Sep then
-      Result := Result + ' and ';
-    Sep := True;
-    S1 := RetrieveStr(S, ';');
-    Field := FindField(S1);
-    Result := Result + S1;
-    if NullValues then
-      Result := Result + ' is Null '
-    else if NullValues then
-      Result := Result + '=:' + S1
-    else
-    begin
-      TmpStr := VarToStr(Field.OldValue);
-      FieldStr := TmpStr;
-      TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
-      Result := Result + '=' + TmpStr;
-    end;
-  end;
 end;
 
 function TOnlineQuery.GenerateUpdateData: Boolean;
@@ -559,6 +564,11 @@ begin
       FieldStr := Field.AsAnsiString;
 {$ELSE}
       FieldStr := Field.AsString;
+{$ENDIF}
+
+{$IFNDEF FPC}
+      FieldStr := UTF8Encode(FieldStr);
+      TmpStr := UTF8Encode(TmpStr);
 {$ENDIF}
 
       TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
@@ -913,7 +923,7 @@ end;
 
 procedure TOnlineQuery.ExecSQL;
 begin
-  FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self, FSQL.Text);
+  FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self, UTF8Encode(FSQL.Text));
 end;
 
 procedure TOnlineQuery.ExecScript;
