@@ -716,11 +716,7 @@ begin
     NetSQLRun.SQL.Clear;
     SQLIsttion := TSQLInstruction(ReadByte);
     TempSQL := ReadStr;
-{$IFDEF FPC}
     NetQuery.SQL.Text := TempSQL;
-{$ELSE}
-    NetQuery.SQL.Text := UTF8Decode(TempSQL);
-{$ENDIF}
     NetSQLRun.SQL.Text := NetQuery.SQL.Text;
     while ReadByte = 0 do
     begin
@@ -756,11 +752,7 @@ begin
 
           for I := 0 to NetQuery.NetData.FieldCount - 1 do
           begin
-{$IFNDEF FPC}
-            TempField := UTF8Encode(NetQuery.NetData.Fields[I].FieldName) + ';';
-{$ELSE}
             TempField := NetQuery.NetData.Fields[I].FieldName + ';';
-{$ENDIF}
             WriteStr(TempField + IntToStr(
               integer(NetQuery.NetData.Fields[I].DataType)) + ';' +
               IntToStr(NetQuery.NetData.Fields[I].Size) + ';' +
@@ -788,11 +780,6 @@ begin
                 TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
 {$ELSE}
                 TempStr := NetQuery.NetData.Fields[I].AsString;
-{$ENDIF}
-{$IFNDEF FPC}
-                if NetQuery.NetData.Fields[I].DataType in
-                  [ftString, ftFixedChar] then
-                  TempStr := UTF8Encode(TempStr);
 {$ENDIF}
               end;
               WriteStr(TempStr);
@@ -836,11 +823,7 @@ begin
         if S1 <> '' then
         begin
           NetSQLRun.SQL.Clear;
-{$IFDEF FPC}
           NetSQLRun.SQL.Text := S1;
-{$ELSE}
-          NetSQLRun.SQL.Text := UTF8Decode(S1);
-{$ENDIF}
           Log('CachedUpdate: ' + NetSQLRun.SQL.Text);
           try
             NetSQLRun.ExecSQL;
@@ -973,11 +956,6 @@ begin
   begin
     try
       NetQuery.SQL.Clear;
-{$IFNDEF FPC}
-      SQLValueOBefore := UTF8Decode(SQLValueOBefore);
-{$ELSE}
-      SQLValueOBefore := SQLValueOBefore;
-{$ENDIF}
       NetQuery.SQL.Text := SQLValueOBefore;
       Log('CustProcBeforeSQL: ' + SQLValueOBefore);
       NetQuery.SuperOpen;
@@ -990,11 +968,6 @@ begin
             TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
 {$ELSE}
             TempStr := NetQuery.NetData.Fields[I].AsString;
-{$ENDIF}
-{$IFNDEF FPC}
-            if NetQuery.NetData.Fields[I].DataType in
-              [ftString, ftFixedChar] then
-              TempStr := UTF8Encode(TempStr);
 {$ENDIF}
             if (I = 0) and (NetQuery.NetData.RecNo = 1) then
               RetStr := TempStr
@@ -1032,11 +1005,7 @@ begin
   if (NetSQLProc <> nil) and (ScriptValue <> '') then
   try
     NetSQLProc.Script.Clear;
-{$IFNDEF FPC}
-    NetSQLProc.Script.Text := UTF8Decode(ScriptValue);
-{$ELSE}
     NetSQLProc.Script.Text := ScriptValue;
-{$ENDIF}
     Log('ClientScript: ' + #13#10 + NetSQLProc.Script.Text);
 
     NetSQLProc.StartTransaction;
@@ -1063,9 +1032,6 @@ begin
     try
       NetSQLRun.SQL.Clear;
       NetSQLRun.SQL.Text := SQLValueE;
-{$IFNDEF FPC}
-      NetSQLRun.SQL.Text := UTF8Decode(SQLValueE);
-{$ENDIF}
       NetSQLRun.SuperExecSQL;
       RunCount := NetSQLRun.RowsAffected;
       NetSQLRun.SQL.Clear;
@@ -1099,11 +1065,7 @@ begin
   begin
     try
       NetQuery.SQL.Clear;
-{$IFNDEF FPC}
-      SQLValueOAfter := UTF8Decode(SQLValueOAfter);
-{$ELSE}
       SQLValueOAfter := SQLValueOAfter;
-{$ENDIF}
       NetQuery.SQL.Text := SQLValueOAfter;
       Log('CustProcAfterSQL: ' + SQLValueOAfter);
       NetQuery.SuperOpen;
@@ -1117,11 +1079,6 @@ begin
             TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
 {$ELSE}
             TempStr := NetQuery.NetData.Fields[I].AsString;
-{$ENDIF}
-{$IFNDEF FPC}
-            if NetQuery.NetData.Fields[I].DataType in
-              [ftString, ftFixedChar] then
-              TempStr := UTF8Encode(TempStr);
 {$ENDIF}
             if (I = 0) and (NetQuery.NetData.RecNo = 1) then
               RetStr := TempStr
@@ -1337,11 +1294,7 @@ end;
 
 function TServerConnBuffer.GetCustParam: AnsiNetProcString;
 begin
-{$IFDEF FPC}
   Result := ReadStr;
-{$ELSE}
-  Result := UTF8Decode(ReadStr);
-{$ENDIF}
 end;
 
 function TServerConnBuffer.ServerSQLProc(CustInstrucV: byte; SQLVS: SQLStyle;
@@ -1360,11 +1313,7 @@ begin
   try
     NetQuery.Close;
     NetSQLRun.Close;
-{$IFNDEF FPC}
-    NetQuery.SQL.Text := UTF8Decode(SQLValue);
-{$ELSE}
     NetQuery.SQL.Text := SQLValue;
-{$ENDIF}
     NetSQLRun.SQL.Text := NetQuery.SQL.Text;
 
     Log('ClientQuery: ' + NetQuery.SQL.Text);
@@ -1391,11 +1340,7 @@ begin
 
           for I := 0 to NetQuery.NetData.FieldCount - 1 do
           begin
-{$IFDEF FPC}
             TempField := NetQuery.NetData.Fields[I].FieldName + ';';
-{$ELSE}
-            TempField := UTF8Encode(NetQuery.NetData.Fields[I].FieldName) + ';';
-{$ENDIF}
             WriteStr(TempField + IntToStr(
               integer(NetQuery.NetData.Fields[I].DataType)) + ';' +
               IntToStr(NetQuery.NetData.Fields[I].Size) + ';' +
@@ -1422,11 +1367,6 @@ begin
                 TempStr := NetQuery.NetData.Fields[I].AsAnsiString;
 {$ELSE}
                 TempStr := NetQuery.NetData.Fields[I].AsString;
-{$ENDIF}
-{$IFNDEF FPC}
-                if NetQuery.NetData.Fields[I].DataType in
-                  [ftString, ftFixedChar] then
-                  TempStr := UTF8Encode(TempStr);
 {$ENDIF}
                 WriteStr(TempStr);
               end;
@@ -1537,11 +1477,7 @@ begin
     Exit;
 
   try
-{$IFNDEF FPC}
-    NetSQLProc.Script.Text := UTF8Decode(SQLValue);
-{$ELSE}
     NetSQLProc.Script.Text := SQLValue;
-{$ENDIF}
     NetSQLProc.Script.Clear;
     NetSQLProc.Script.Text := SQLValue;
 

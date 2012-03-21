@@ -170,11 +170,7 @@ begin
     WriteByte(Byte(IstSQLWithFields))
   else
     WriteByte(Byte(IstSQLOpen));
-{$IFDEF FPC}
   WriteStr(SQL);
-{$ELSE}
-  WriteStr(UTF8Encode(SQL));
-{$ENDIF}
   Log(FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
 end;
 
@@ -184,11 +180,7 @@ begin
   FDataSet := DataSet;
   SetInstruction(IstSQL);
   WriteByte(Byte(IstSQLFieldDefs));
-{$IFDEF FPC}
   WriteStr(SQL);
-{$ELSE}
-  WriteStr(UTF8Encode(SQL));
-{$ENDIF}
 end;
 
 function TClientConnBuffer.ExecSQL;
@@ -282,7 +274,7 @@ begin
     if Length(Trim(TempCacheList[I])) > 0 then
     begin
       WriteByte(0);
-      TempStr := UTF8Encode(AnsiNetProcString(TempCacheList[I]));
+      TempStr := AnsiNetProcString(TempCacheList[I]);
       WriteStr(TempStr);
     end;
     Log(TempStr);
@@ -375,25 +367,7 @@ begin
                 if FDataSet.Fields[I].DataType in [ftFloat, ftCurrency] then
                   FDataSet.Fields[I].AsFloat := DotStrToFloat(TempStr)
                 else
-                begin
-{$IFDEF FPC}
                   FDataSet.Fields[I].AsString := TempStr;
-{$ELSE}
-                  if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
-                    then
-{$IFDEF OverRad2k7}
-                    FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-{$ELSE}
-                    FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-{$ENDIF}
-                  else
-{$IFDEF OverRad2k7}
-                    FDataSet.Fields[I].AsAnsiString := TempStr;
-{$ELSE}
-                    FDataSet.Fields[I].AsString := TempStr;
-{$ENDIF}
-{$ENDIF}
-                end;
             end;
             FDataSet.Post;
             Inc(Result);
@@ -480,25 +454,7 @@ begin
               if FDataSet.Fields[I].DataType in [ftFloat, ftCurrency] then
                 FDataSet.Fields[I].AsFloat := DotStrToFloat(TempStr)
               else
-              begin
-{$IFDEF FPC}
                 FDataSet.Fields[I].AsString := TempStr;
-{$ELSE}
-                if FDataSet.Fields[I].DataType in [ftString, ftFixedChar]
-                  then
-{$IFDEF OverRad2k7}
-                  FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-{$ELSE}
-                  FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-{$ENDIF}
-                else
-{$IFDEF OverRad2k7}
-                  FDataSet.Fields[I].AsAnsiString := TempStr;
-{$ELSE}
-                  FDataSet.Fields[I].AsString := TempStr;
-{$ENDIF}
-{$ENDIF}
-              end;
           end;
           FDataSet.Post;
           Inc(Result);
@@ -549,7 +505,7 @@ begin
   SetInstruction(IstSQLScript);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -571,7 +527,7 @@ begin
   SetInstruction(IstStoredProc);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -594,7 +550,7 @@ begin
   SetInstruction(IstSpecialSQL);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -620,7 +576,7 @@ begin
   SetInstruction(IstInternalCustProc);
   WriteByte(101);
   WriteByte(SubInstruc);
-  WriteStr(UTF8Encode(CliParam));
+  WriteStr(CliParam);
   WriteByte(1);
   ProcessSendData;
   RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -649,22 +605,7 @@ begin
       for I := 0 to _FieldCount - 1 do
       begin
         TempStr := ReadStr;
-{$IFDEF FPC}
         FDataSet.Fields[I].AsString := TempStr;
-{$ELSE}
-        if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
-{$IFDEF OverRad2k7}
-          FDataSet.Fields[I].AsAnsiString := UTF8Decode(TempStr)
-{$ELSE}
-          FDataSet.Fields[I].AsString := UTF8Decode(TempStr)
-{$ENDIF}
-        else
-{$IFDEF OverRad2k7}
-          FDataSet.Fields[I].AsAnsiString := TempStr;
-{$ELSE}
-          FDataSet.Fields[I].AsString := TempStr;
-{$ENDIF}
-{$ENDIF}
       end;
       FDataSet.Post;
       Inc(Result);
@@ -693,7 +634,7 @@ begin
   SetInstruction(IstDynamicCustProc);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -701,13 +642,8 @@ begin
     ReturnValue := ReadByte;
     ReturnValue := ReadByte;
     ReturnValue := ReadInt;
-{$IFDEF FPC}
     Result := ReadStr;
     ReturnStr := ReadStr;
-{$ELSE}
-    Result := UTF8Decode(ReadStr);
-    ReturnStr := UTF8Decode(ReadStr);
-{$ENDIF}
   finally
     FDataSet := nil;
   end;
@@ -725,17 +661,13 @@ begin
   SetInstruction(IstInternalCustProc);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
     ProcessReadData;
     ReturnValue := ReadByte;
-{$IFDEF FPC}
     Result := ReadStr;
-{$ELSE}
-    Result := UTF8Decode(ReadStr);
-{$ENDIF}
     log(Result);
   finally
     FDataSet := nil;

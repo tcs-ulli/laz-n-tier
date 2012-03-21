@@ -115,7 +115,7 @@ type
     destructor Destroy; override;
     property Sync: Boolean read FSync write SetSync;
     procedure GenerateInsertData;
-    function GenerateUpdateData: Boolean;
+    procedure GenerateUpdateData;
     procedure GenerateDeleteData;
     function ComputePrimaryKeyForSQLData(OldValues, NullValues: Boolean): AnsiNetProcString;
     procedure ReOpenTable;
@@ -419,38 +419,6 @@ begin
   Result := TmpStr;
 end;
 
-function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
-  Boolean): AnsiNetProcString;
-var
-  S, S1, TmpStr, FieldStr: AnsiNetProcString;
-  Sep: Boolean;
-  Field: TField;
-begin
-  Sep := False;
-  S := FPrimaryKey;
-  Result := '';
-  while S <> '' do
-  begin
-    if Sep then
-      Result := Result + ' and ';
-    Sep := True;
-    S1 := RetrieveStr(S, ';');
-    Field := FindField(S1);
-    Result := Result + S1;
-    if NullValues then
-      Result := Result + ' is Null '
-    else if NullValues then
-      Result := Result + '=:' + S1
-    else
-    begin
-      TmpStr := VarToStr(Field.OldValue);
-      FieldStr := TmpStr;
-      TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
-      Result := Result + '=' + TmpStr;
-    end;
-  end;
-end;           
-
 procedure TOnlineQuery.GenerateInsertData;
 var
   _SQL, _Into, _Values, S, S1, TmpStr, FieldStr: AnsiNetProcString;
@@ -489,11 +457,6 @@ begin
     FieldStr := Field.AsString;
 {$ENDIF}
 
-{$IFNDEF FPC}
-    FieldStr := UTF8Encode(FieldStr);
-    TmpStr := UTF8Encode(TmpStr);
-{$ENDIF}
-
     TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
 
     if isBlob then
@@ -507,26 +470,52 @@ begin
 
   _SQL := 'insert into ' + FTableName + ' (' + _Into + ')' +
     ' ' + 'values (' + _Values + ')';
-{$IFDEF FPC}
-  FSQLDataStr.Text := UTF8Decode(_SQL);
-{$ELSE}
   FSQLDataStr.Text := _SQL;
-{$ENDIF}
 end;
 
-function TOnlineQuery.GenerateUpdateData: Boolean;
+function TOnlineQuery.ComputePrimaryKeyForSQLData(OldValues, NullValues:
+  Boolean): AnsiNetProcString;
+var
+  S, S1, TmpStr, FieldStr: AnsiNetProcString;
+  Sep: Boolean;
+  Field: TField;
+begin
+  Sep := False;
+  S := FPrimaryKey;
+  Result := '';
+  while S <> '' do
+  begin
+    if Sep then
+      Result := Result + ' and ';
+    Sep := True;
+    S1 := RetrieveStr(S, ';');
+    Field := FindField(S1);
+    Result := Result + S1;
+    if NullValues then
+      Result := Result + ' is Null '
+    else if NullValues then
+      Result := Result + '=:' + S1
+    else
+    begin
+      TmpStr := VarToStr(Field.OldValue);
+      FieldStr := TmpStr;
+      TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
+      Result := Result + '=' + TmpStr;
+    end;
+  end;
+end;
+
+procedure TOnlineQuery.GenerateUpdateData;
 var
   _From, _Values, S, S1, TmpStr, FieldStr: AnsiNetProcString;
   Sep: Boolean;
   Field: TField;
-  IsChanged: Boolean; ChangeCount: integer;
+  IsChanged: Boolean;
 begin
-  Result := False;
   _From := '';
   _Values := '';
   Sep := False;
   S := FEditFields;
-  ChangeCount := 0;
   while S <> '' do
   begin
     S1 := RetrieveStr(S, ';');
@@ -539,10 +528,7 @@ begin
 {$ELSE}
     if Field.AsString <> VarToStr(Field.OldValue) then
 {$ENDIF}
-    begin
-      IsChanged := True;
-      ChangeCount := ChangeCount + 1;
-    end
+      IsChanged := True
     else
       IsChanged := False;
 
@@ -566,40 +552,21 @@ begin
       FieldStr := Field.AsString;
 {$ENDIF}
 
-{$IFNDEF FPC}
-      FieldStr := UTF8Encode(FieldStr);
-      TmpStr := UTF8Encode(TmpStr);
-{$ENDIF}
-
       TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
       Sep := True;
       _Values := _Values + S1 + '=' + TmpStr;
     end;
     _From := _From + S1;
   end;
-{$IFDEF FPC}
-  FSQLDataStr.Text :=
-    UTF8Decode('update ' + FTableName + ' set ' + _Values + ' ' +
-    'where ' + ComputePrimaryKeyForSQLData(True, False));
-{$ELSE}
   FSQLDataStr.Text :=
     'update ' + FTableName + ' set ' + _Values + ' ' + 'where ' +
     ComputePrimaryKeyForSQLData(True, False);
-{$ENDIF}
-  if ChangeCount > 0 then
-    Result := True
-  else
-    FSQLDataStr.Text := '';
 end;
 
 procedure TOnlineQuery.GenerateDeleteData;
 begin
   FSQLDataStr.Text := 'Delete from ' + FTableName + ' where ' +
-{$IFDEF FPC}
-  UTF8Decode(ComputePrimaryKeyForSQLData(True, False));
-{$ELSE}
   ComputePrimaryKeyForSQLData(True, False);
-{$ENDIF}
 end;
 
 function TOnlineQuery.ApplyCacheUpdate: Boolean;
@@ -898,8 +865,8 @@ begin
     end
     else
     begin
-      if GenerateUpdateData then
-        OnLinePepare(FSQLDataStr.Text, IstSQLExec);
+      GenerateUpdateData;
+      OnLinePepare(FSQLDataStr.Text, IstSQLExec);
     end;
   end;
   inherited InternalPost;
@@ -923,7 +890,7 @@ end;
 
 procedure TOnlineQuery.ExecSQL;
 begin
-  FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self, UTF8Encode(FSQL.Text));
+  FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self, FSQL.Text);
 end;
 
 procedure TOnlineQuery.ExecScript;
