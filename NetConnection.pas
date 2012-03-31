@@ -56,14 +56,17 @@ type
     ConnectError: integer;
     Buffer: TClientConnBuffer;
     FUsrName, FPSW: AnsiNetProcString;
+    FUTF8Code: TClientEncode;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Open;
     function Logon: Boolean;
     function Logon2: TLogonStyle;
+    procedure SetUTF8Code(Value: TClientEnCode);
   published
     property UserName: AnsiNetProcString read FUsrName write FUsrName;
     property Password: AnsiNetProcString read FPSW write FPSW;
+    property UTF8Code: TClientEncode read FUTF8Code write SetUTF8Code;
   end;
 
 implementation
@@ -83,6 +86,12 @@ destructor TOnlineConnection.Destroy;
 begin
   Buffer.Free;
   inherited Destroy;
+end;
+
+procedure TOnlineConnection.SetUTF8Code(Value: TClientEnCode);
+begin
+  FUTF8Code := Value;
+  Buffer.ClientEncode := Value;
 end;
 
 procedure TOnlineConnection.Open;
