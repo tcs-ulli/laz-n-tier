@@ -299,7 +299,7 @@ begin
   FCachedUpdate := False;
   CacheList := TNetProcList.Create;
   FThinQuery := False;
-  FInstrucNum := IstInternalOpen;
+  FInstrucNum := IstSQL;
   FSubInstrucNum := 0;
   FSQL.OnNetProcListChange := SQLStringChange;
 end;
@@ -724,7 +724,7 @@ begin
           FOnlineConnection.Buffer.ExecSQL(Self, SQL);
       end;
     IstSQLOpen: FOnlineConnection.Buffer.OpenSQL(Self, SQL, FReplaceFields,
-      TmpR);
+        TmpR);
     IstSQLFieldDefs: FOnlineConnection.Buffer.UpdateFieldDefs(Self, SQL);
   end;
 
@@ -824,7 +824,6 @@ begin
     TmpR := True
   else
     TmpR := False;
-
   if FThinQuery then
   begin
     if FLoading then
@@ -940,9 +939,18 @@ begin
 end;
 
 procedure TOnlineQuery.ExecSQL;
+var
+  TempSQL: string;
 begin
+  TempSQL := FSQL.Text;
+  if OnLineConnection.UTF8Code = ccUTF8Encode then
+    TempSQL := UTF8Encode(FSQL.Text);
+
+  if OnLineConnection.UTF8Code = ccUTF8Decode then
+    TempSQL := UTF8Decode(FSQL.Text);
+
   FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self,
-    UTF8Encode(FSQL.Text));
+    TempSQL);
 end;
 
 procedure TOnlineQuery.ExecScript;

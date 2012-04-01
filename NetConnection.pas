@@ -80,6 +80,7 @@ begin
   Port := '8080';
   Host := '127.0.0.1';
   Buffer.FSocket := Self;
+  FUTF8Code := ccNone;
 end;
 
 destructor TOnlineConnection.Destroy;

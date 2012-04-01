@@ -169,8 +169,6 @@ begin
 end;
 
 function TClientConnBuffer.OpenSQL;
-var
-  TempSQL: string;
 begin
   Result := 0;
   Log(FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
@@ -180,29 +178,17 @@ begin
     WriteByte(Byte(IstSQLWithFields))
   else
     WriteByte(Byte(IstSQLOpen));
-  TempSQL := SQL;
-  if ClientEncode = ccUTF8Encode then
-    TempSQL := UTF8Encode(SQL);
-  if ClientEncode = ccUTF8Decode then
-    TempSQL := UTF8Decode(SQL);
-  WriteStr(TempSQL);
+  WriteStr(SQL);
   Log(FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
 end;
 
 function TClientConnBuffer.UpdateFieldDefs;
-var
-  TempSQL: string;
 begin
   Result := 0;
   FDataSet := DataSet;
   SetInstruction(IstSQL);
   WriteByte(Byte(IstSQLFieldDefs));
-  TempSQL := SQL;
-  if ClientEncode = ccUTF8Encode then
-    TempSQL := UTF8Encode(SQL);
-  if ClientEncode = ccUTF8Decode then
-    TempSQL := UTF8Decode(SQL);
-  WriteStr(TempSQL)
+  WriteStr(SQL);
 end;
 
 function TClientConnBuffer.ExecSQL;
@@ -299,7 +285,7 @@ begin
     if Length(Trim(TempCacheList[I])) > 0 then
     begin
       WriteByte(0);
-      TempStr := UTF8Encode(AnsiNetProcString(TempCacheList[I]));
+      TempStr := AnsiNetProcString(TempCacheList[I]);
       WriteStr(TempStr);
     end;
     Log(TempStr);
@@ -371,6 +357,10 @@ begin
           begin
             S := ReadStr;
             Name := RetrieveStr(S, ';');
+            if ClientEncode = ccUTF8Encode then
+              Name := UTF8Encode(Name);
+            if ClientEncode = ccUTF8Decode then
+              Name := UTF8Decode(Name);
             Datatype := TFieldType(StrToInt(RetrieveStr(S, ';')));
             Size := StrToInt(RetrieveStr(S, ';'));
             Required := Boolean(StrToInt(RetrieveStr(S, ';')));
@@ -396,9 +386,9 @@ begin
                 FDataSet.Fields[I].AsFloat := DotStrToFloat(TempStr)
               else
               begin
+                FDataSet.Fields[I].AsString := TempStr;
                 if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
                 begin
-                  FDataSet.Fields[I].AsString := TempStr;
                   if ClientEncode = ccUTF8Encode then
                     FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
                   if ClientEncode = ccUTF8Decode then
@@ -474,6 +464,10 @@ begin
         begin
           S := ReadStr;
           Name := RetrieveStr(S, ';');
+          if ClientEncode = ccUTF8Encode then
+            Name := UTF8Encode(Name);
+          if ClientEncode = ccUTF8Decode then
+            Name := UTF8Decode(Name);
           Datatype := TFieldType(StrToInt(RetrieveStr(S, ';')));
           Size := StrToInt(RetrieveStr(S, ';'));
           Required := Boolean(StrToInt(RetrieveStr(S, ';')));
@@ -492,9 +486,9 @@ begin
               FDataSet.Fields[I].AsFloat := DotStrToFloat(TempStr)
             else
             begin
+              FDataSet.Fields[I].AsString := TempStr;
               if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
               begin
-                FDataSet.Fields[I].AsString := TempStr;
                 if ClientEncode = ccUTF8Encode then
                   FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
                 if ClientEncode = ccUTF8Decode then
@@ -551,7 +545,7 @@ begin
   SetInstruction(IstSQLScript);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -573,7 +567,7 @@ begin
   SetInstruction(IstStoredProc);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -596,7 +590,7 @@ begin
   SetInstruction(IstSpecialSQL);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -622,7 +616,7 @@ begin
   SetInstruction(IstInternalCustProc);
   WriteByte(101);
   WriteByte(SubInstruc);
-  WriteStr(UTF8Encode(CliParam));
+  WriteStr(CliParam);
   WriteByte(1);
   ProcessSendData;
   RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -651,9 +645,9 @@ begin
       for I := 0 to _FieldCount - 1 do
       begin
         TempStr := ReadStr;
+        FDataSet.Fields[I].AsString := TempStr;
         if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
         begin
-          FDataSet.Fields[I].AsString := TempStr;
           if ClientEncode = ccUTF8Encode then
             FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
           if ClientEncode = ccUTF8Decode then
@@ -687,7 +681,7 @@ begin
   SetInstruction(IstDynamicCustProc);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -699,13 +693,13 @@ begin
     ReturnStr := ReadStr;
     if ClientEncode = ccUTF8Encode then
     begin
-      Result := UTF8Encode(ReadStr);
-      ReturnStr := UTF8Encode(ReadStr);
+      Result := UTF8Encode(Result);
+      ReturnStr := UTF8Encode(ReturnStr);
     end;
     if ClientEncode = ccUTF8Decode then
     begin
-      Result := UTF8Decode(ReadStr);
-      ReturnStr := UTF8Decode(ReadStr);
+      Result := UTF8Decode(Result);
+      ReturnStr := UTF8Decode(ReturnStr);
     end;
   finally
     FDataSet := nil;
@@ -724,7 +718,7 @@ begin
   SetInstruction(IstInternalCustProc);
   WriteByte(CPInstruc);
   try
-    WriteStr(UTF8Encode(CliParam));
+    WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
     RecvBuffer := FSocket.ProcessData(SendBuffer);
@@ -732,9 +726,9 @@ begin
     ReturnValue := ReadByte;
     Result := ReadStr;
     if ClientEncode = ccUTF8Encode then
-      Result := UTF8Encode(ReadStr);
+      Result := UTF8Encode(Result);
     if ClientEncode = ccUTF8Decode then
-      Result := UTF8Decode(ReadStr);
+      Result := UTF8Decode(Result);
     log(Result);
   finally
     FDataSet := nil;
