@@ -37,7 +37,6 @@
 | Contributor(s):                                                              |
 |==============================================================================}
 
-
 unit OnLineQuery;
 
 {$IFDEF FPC}
@@ -82,7 +81,8 @@ type
     FRowsAffected: integer;
     procedure SetInstrucNum(Value: TInstruction);
     procedure DestroyQuerys;
-    procedure OnLinePepare(SQL: AnsiNetProcString; SQLInstruction: TSQLInstruction);
+    procedure OnLinePepare(SQL: AnsiNetProcString; SQLInstruction:
+      TSQLInstruction);
     function OnLineRun: integer;
     procedure SetIndexFieldNames(const Value: AnsiNetProcString);
     procedure SetTableName(const Value: AnsiNetProcString);
@@ -105,19 +105,24 @@ type
     function ApplyCacheUpdate: Boolean;
     function OnlineRequest(IsSQLOpen: Boolean; xInstruc: integer;
       xParam: AnsiNetProcString): integer;
-    function InternalSQL(SubInstruc: integer; xParam: AnsiNetProcString): integer;
-    function OnlineScript(xInstruc: integer; xParam: AnsiNetProcString): integer;
-    function OnlineStoredProc(xInstruc: integer; xParam: AnsiNetProcString): integer;
+    function InternalSQL(SubInstruc: integer; xParam: AnsiNetProcString):
+      integer;
+    function OnlineScript(xInstruc: integer; xParam: AnsiNetProcString):
+      integer;
+    function OnlineStoredProc(xInstruc: integer; xParam: AnsiNetProcString):
+      integer;
     function OnlineClientProcess(xInstruc: integer;
       xParam: AnsiNetProcString): AnsiNetProcString;
-    function InternalProcess(xInstruc: integer; xParam: AnsiNetProcString): AnsiNetProcString;
+    function InternalProcess(xInstruc: integer; xParam: AnsiNetProcString):
+      AnsiNetProcString;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property Sync: Boolean read FSync write SetSync;
     procedure GenerateInsertData;
     function GenerateUpdateData: Boolean;
     procedure GenerateDeleteData;
-    function ComputePrimaryKeyForSQLData(OldValues, NullValues: Boolean): AnsiNetProcString;
+    function ComputePrimaryKeyForSQLData(OldValues, NullValues: Boolean):
+      AnsiNetProcString;
     procedure ReOpenTable;
     function GetServerTime: AnsiNetProcString;
     procedure Open;
@@ -129,7 +134,8 @@ type
   published
     property InstrucNum: TInstruction read FInstrucNum write SetInstrucNum;
     property InstrucSubNum: byte read FSubInstrucNum write FSubInstrucNum;
-    property ClientParam: AnsiNetProcString read FClientParam write FClientParam;
+    property ClientParam: AnsiNetProcString read FClientParam write
+      FClientParam;
     property CachedUpdate: Boolean read FCachedUpdate write FCachedUpdate;
     property OnlineConnection: TOnlineConnection
       read FOnlineConnection write FOnlineConnection;
@@ -274,7 +280,8 @@ end;
 procedure TOnlineQuery.SetInstrucNum(Value: TInstruction);
 begin
   FInstrucNum := Value;
-  if Value in [istInternalCustProc, istInternalOpen, InternalSQLInstruciton] then
+  if Value in [istInternalCustProc, istInternalOpen, InternalSQLInstruciton]
+    then
     ThinQuery := True
   else
     ThinQuery := False;
@@ -341,7 +348,8 @@ begin
     Result := A1;
 end;
 
-function FieldToSQLString(Field: TField; TmpStr, Value: AnsiNetProcString): AnsiNetProcString;
+function FieldToSQLString(Field: TField; TmpStr, Value: AnsiNetProcString):
+  AnsiNetProcString;
 var
   ValueStr: string;
 begin
@@ -519,7 +527,8 @@ var
   _From, _Values, S, S1, TmpStr, FieldStr: AnsiNetProcString;
   Sep: Boolean;
   Field: TField;
-  IsChanged: Boolean; ChangeCount: integer;
+  IsChanged: Boolean;
+  ChangeCount: integer;
 begin
   Result := False;
   _From := '';
@@ -554,8 +563,16 @@ begin
       FieldStr := Field.AsString;
 
       if OnLineConnection.UTF8Code = ccUTF8Encode then
+      begin
         FieldStr := UTF8Encode(FieldStr);
-      TmpStr := UTF8Encode(TmpStr);
+        TmpStr := UTF8Encode(TmpStr);
+      end;
+
+      if OnLineConnection.UTF8Code = ccUTF8Decode then
+      begin
+        FieldStr := UTF8Decode(FieldStr);
+        TmpStr := UTF8Decode(TmpStr);
+      end;
 
       TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
       Sep := True;
@@ -584,7 +601,8 @@ begin
 end;
 
 procedure TOnlineQuery.GenerateDeleteData;
-var PrimKeySQL: string;
+var
+  PrimKeySQL: string;
 begin
   PrimKeySQL := ComputePrimaryKeyForSQLData(True, False);
   if OnLineConnection.UTF8Code = ccUTF8Decode then
@@ -636,7 +654,8 @@ begin
   end;
 end;
 
-function TOnlineQuery.OnlineScript(xInstruc: integer; xParam: AnsiNetProcString): integer;
+function TOnlineQuery.OnlineScript(xInstruc: integer; xParam:
+  AnsiNetProcString): integer;
 begin
   Result := 0;
   try
@@ -661,17 +680,20 @@ begin
   RetValue := '';
   Result := '';
   try
-    Result := FOnlineConnection.Buffer.ProcessDynamicCustProc(Self, xInstruc, xParam);
+    Result := FOnlineConnection.Buffer.ProcessDynamicCustProc(Self, xInstruc,
+      xParam);
     RetValue := FOnlineConnection.Buffer.ReturnStr;
   except
   end;
 end;
 
-function TOnlineQuery.InternalSQL(SubInstruc: integer; xParam: AnsiNetProcString): integer;
+function TOnlineQuery.InternalSQL(SubInstruc: integer; xParam:
+  AnsiNetProcString): integer;
 begin
   Result := 0;
   try
-    Result := FOnlineConnection.Buffer.DoInternalSpecialSQL(Self, SubInstruc, xParam);
+    Result := FOnlineConnection.Buffer.DoInternalSpecialSQL(Self, SubInstruc,
+      xParam);
   except
   end;
 end;
@@ -681,7 +703,8 @@ function TOnlineQuery.InternalProcess(xInstruc: integer;
 begin
   RetValue := '';
   try
-    Result := FOnlineConnection.Buffer.ProcessInternalCustProc(Self, xInstruc, xParam);
+    Result := FOnlineConnection.Buffer.ProcessInternalCustProc(Self, xInstruc,
+      xParam);
     RetValue := FOnlineConnection.Buffer.ReturnStr;
   except
   end;
@@ -700,7 +723,8 @@ begin
         else
           FOnlineConnection.Buffer.ExecSQL(Self, SQL);
       end;
-    IstSQLOpen: FOnlineConnection.Buffer.OpenSQL(Self, SQL, FReplaceFields, TmpR);
+    IstSQLOpen: FOnlineConnection.Buffer.OpenSQL(Self, SQL, FReplaceFields,
+      TmpR);
     IstSQLFieldDefs: FOnlineConnection.Buffer.UpdateFieldDefs(Self, SQL);
   end;
 
@@ -710,7 +734,8 @@ begin
     S := uppercase(Fields[I].FieldName);
     if pos(':' + S, SQL) > 0 then
     begin
-      FOnlineConnection.Buffer.AddSQLParam(Fields[I].FieldName, Fields[I].DataType,
+      FOnlineConnection.Buffer.AddSQLParam(Fields[I].FieldName,
+        Fields[I].DataType,
         Fields[I].Value);
     end;
     if pos(':OLD_' + S, SQL) > 0 then
@@ -831,7 +856,8 @@ begin
     else
     begin
       if FTableName = '' then
-        raise Exception.Create('TableName can''t be null, please check the SQL script');
+        raise
+          Exception.Create('TableName can''t be null, please check the SQL script');
       FLoading := True;
       try
         FSync := False;
@@ -915,12 +941,14 @@ end;
 
 procedure TOnlineQuery.ExecSQL;
 begin
-  FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self, UTF8Encode(FSQL.Text));
+  FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self,
+    UTF8Encode(FSQL.Text));
 end;
 
 procedure TOnlineQuery.ExecScript;
 begin
-  FRowsAffected := FOnlineConnection.Buffer.DoSQLScript(Self, FSubInstrucNum, FSQL.Text);
+  FRowsAffected := FOnlineConnection.Buffer.DoSQLScript(Self, FSubInstrucNum,
+    FSQL.Text);
 end;
 
 function TOnlineQuery.RowsAffected: longint;
