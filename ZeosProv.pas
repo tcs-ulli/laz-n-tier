@@ -229,7 +229,7 @@ end;
 procedure TZeosSQLQuery.SetConnection(Value: TZConnection);
 begin
   FConnection := Value;
-  TZQuery(NetData).Connection := Value;
+  TZReadOnlyQuery(NetData).Connection := Value;
 end;
 
 function TZeosSQLQuery.Open: boolean;
@@ -237,9 +237,9 @@ begin
   Result := False;
   inherited Open;
 
-  TZQuery(NetData).Close;
-  TZQuery(NetData).SQL := Self.SQL;
-  TZQuery(NetData).Open;
+  TZReadOnlyQuery(NetData).Close;
+  TZReadOnlyQuery(NetData).SQL := Self.SQL;
+  TZReadOnlyQuery(NetData).Open;
   Result := True;
 end;
 
@@ -247,25 +247,25 @@ function TZeosSQLQuery.SuperOpen: boolean;
 begin
   inherited SuperOpen;
   Result := False;
-  TZQuery(NetData).Close;
-  TZQuery(NetData).SQL := Self.SQL;
-  TZQuery(NetData).Open;
+  TZReadOnlyQuery(NetData).Close;
+  TZReadOnlyQuery(NetData).SQL := Self.SQL;
+  TZReadOnlyQuery(NetData).Open;
   Result := True;
 end;
 
 procedure TZeosSQLQuery.Close;
 begin
   inherited Close;
-  TZQuery(NetData).Close;
+  TZReadOnlyQuery(NetData).Close;
 end;
 
 function TZeosSQLQuery.SuperExecSQL: integer;
 begin
   inherited SuperExecSQL;
   Result := 0;
-  TZQuery(NetData).SQL := Self.SQL;
-  TZQuery(NetData).ExecSQL;
-  RowsAffected := TZQuery(NetData).RowsAffected;
+  TZReadOnlyQuery(NetData).SQL := Self.SQL;
+  TZReadOnlyQuery(NetData).ExecSQL;
+  RowsAffected := TZReadOnlyQuery(NetData).RowsAffected;
   Result := RowsAffected;
 end;
 
@@ -275,9 +275,9 @@ var
 begin
   inherited ExecSQL;
   Result := 0;
-  TZQuery(NetData).SQL := Self.SQL;
-  TZQuery(NetData).ExecSQL;
-  RowsAffected := TZQuery(NetData).RowsAffected;
+  TZReadOnlyQuery(NetData).SQL := Self.SQL;
+  TZReadOnlyQuery(NetData).ExecSQL;
+  RowsAffected := TZReadOnlyQuery(NetData).RowsAffected;
   Result := RowsAffected;
 end;
 
@@ -285,37 +285,37 @@ function TZeosSQLQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
 begin
   inherited ParamByName(ParamStr);
   Result := nil;
-  Result := TZQuery(NetData).ParamByName(ParamStr);
+  Result := TZReadOnlyQuery(NetData).ParamByName(ParamStr);
 end;
 
 procedure TZeosSQLQuery.Reconnect;
 begin
   if Assigned(FConnection) then
-    TZQuery(NetData).Connection.Reconnect;
+    TZReadOnlyQuery(NetData).Connection.Reconnect;
 end;
 
 procedure TZeosSQLQuery.StartTransaction;
 begin
   if Assigned(FConnection) then
-    TZQuery(NetData).Connection.StartTransaction;
+    TZReadOnlyQuery(NetData).Connection.StartTransaction;
 end;
 
 procedure TZeosSQLQuery.Commit;
 begin
   if Assigned(FConnection) then
-    TZQuery(NetData).Connection.Commit;
+    TZReadOnlyQuery(NetData).Connection.Commit;
 end;
 
 procedure TZeosSQLQuery.RollBack;
 begin
   if Assigned(FConnection) then
-    TZQuery(NetData).Connection.Rollback;
+    TZReadOnlyQuery(NetData).Connection.Rollback;
 end;
 
 constructor TZeosSQLQuery.Create(AOwner: TComponent);
 begin
   inherited;
-  NetData := TZQuery.Create(nil);
+  NetData := TZReadOnlyQuery.Create(nil);
 end;
 
 destructor TZeosSQLQuery.Destroy;
