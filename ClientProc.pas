@@ -633,6 +633,10 @@ begin
     begin
       S := ReadStr;
       Name := RetrieveStr(S, ';');
+      if ClientEncode = ccUTF8Encode then
+        Name := UTF8Encode(Name);
+      if ClientEncode = ccUTF8Decode then
+        Name := UTF8Decode(Name);
       Datatype := TFieldType(StrToInt(RetrieveStr(S, ';')));
       Size := StrToInt(RetrieveStr(S, ';'));
       Required := Boolean(StrToInt(RetrieveStr(S, ';')));

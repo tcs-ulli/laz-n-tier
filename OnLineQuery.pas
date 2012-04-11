@@ -333,9 +333,9 @@ begin
   WPS := Pos('WHERE', TempSQL) - 2;
   if WPS = -2 then
   begin
-    WPS := Pos('ORDER BY', TempSQL) - 2;
+    WPS := Pos('GROUP BY', TempSQL) - 2;
     if WPS = -2 then
-      WPS := Pos('GROUP BY', TempSQL) - 2;
+      WPS := Pos('ORDER BY', TempSQL) - 2;
   end;
   if WPS = -2 then
     TBLen := SLen - FPS + 1
