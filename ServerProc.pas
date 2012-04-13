@@ -63,7 +63,7 @@ type
     ORGIDStyle: integer;
     ORGID1, ORGID2: AnsiNetProcString;
     DataOwner: TServerConnBuffer;
-    StoredProcName: string;
+    StoredProcName: AnsiNetProcString;
     procedure Reconnect; virtual;
     function ExecSQL: integer; virtual;
     constructor Create(AOwner: TComponent); override;
@@ -72,12 +72,12 @@ type
     function Open: boolean; virtual;
     function SuperOpen: boolean; virtual;
     procedure ClearParam; virtual;
-    procedure CreateDBParam(DataType: TFieldType; ParamName: string;
+    procedure CreateDBParam(DataType: TFieldType; ParamName: AnsiNetProcString;
       ParamType: TParamType); virtual;
     procedure Close; virtual;
     function SuperExecSQL: integer; virtual;
     function ExecScript: integer; virtual;
-    function ExecStoredProc: string; virtual;
+    function ExecStoredProc: AnsiNetProcString; virtual;
     procedure StartTransaction; virtual;
     procedure Commit; virtual;
     procedure RollBack; virtual;
@@ -97,7 +97,7 @@ type
     procedure Close; override;
     function SuperExecSQL: integer; override;
     function ExecScript: integer; override;
-    function ExecStoredProc: string; override;
+    function ExecStoredProc: AnsiNetProcString; override;
     procedure StartTransaction; override;
     procedure Commit; override;
     procedure RollBack; override;
@@ -124,7 +124,7 @@ type
     object;
 
   TOnUserDataProcCall = procedure(CSender, ClientThrd: TObject;
-    FDSock: TSSocketClient; ReceiveData: string; Error: Word
+    FDSock: TSSocketClient; ReceiveData: AnsiNetProcString; Error: Word
     ) of object;
 
   TServerConnBuffer = class(TOnlineDataBuffer)
@@ -159,7 +159,7 @@ type
       FUser, FSubFuncs: AnsiNetProcString): boolean;
     function DoSpecialSQL(FDataQuery: TServerSockQuery;
       FUser, FSubFuncs: AnsiNetProcString): boolean;
-    function DoInternalSpecialSQL(CustSubInstrucs: byte; FUser: string;
+    function DoInternalSpecialSQL(CustSubInstrucs: byte; FUser: AnsiNetProcString;
       ASQLStyle: SQLStyle; SQLText: AnsiNetProcString): boolean;
     function DoDynamicCustProc(FDataQuery: TServerSockQuery;
       NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
@@ -272,7 +272,7 @@ begin
 end;
 
 procedure TCustomServerSockQuery.CreateDBParam(DataType: TFieldType;
-  ParamName: string; ParamType: TParamType);
+  ParamName: AnsiNetProcString; ParamType: TParamType);
 begin
 
 end;
@@ -312,7 +312,7 @@ begin
 
 end;
 
-function TCustomServerSockQuery.ExecStoredProc: string;
+function TCustomServerSockQuery.ExecStoredProc: AnsiNetProcString;
 begin
 
 end;
@@ -455,7 +455,7 @@ begin
 
 end;
 
-function TServerSockQuery.ExecStoredProc: string;
+function TServerSockQuery.ExecStoredProc: AnsiNetProcString;
 begin
 
 end;
@@ -1157,7 +1157,7 @@ begin
 end;
 
 function TServerConnBuffer.DoInternalSpecialSQL(CustSubInstrucs: byte;
-  FUser: string; ASQLStyle: SQLStyle; SQLText: AnsiNetProcString): boolean;
+  FUser: AnsiNetProcString; ASQLStyle: SQLStyle; SQLText: AnsiNetProcString): boolean;
 begin
   Result := False;
   try

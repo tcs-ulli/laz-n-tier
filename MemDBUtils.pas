@@ -1,10 +1,10 @@
 { ******************************************************* }
-{ }
+
 { Delphi VCL Extensions (RX) }
-{ }
+
 { Copyright (c) 1995, 1996 AO ROSNO }
 { Copyright (c) 1997, 1998 Master-Bank }
-{ }
+
 { ******************************************************* }
 
 unit MemDBUtils;
@@ -12,7 +12,7 @@ unit MemDBUtils;
 interface
 
 uses
-//{$IFDEF FPC} LCLType, LCLProc, LCLIntf, {$ENDIF}
+  //{$IFDEF FPC} LCLType, LCLProc, LCLIntf, {$ENDIF}
   Registry, Classes, SysUtils, DB, IniFiles;
 
 const
@@ -112,40 +112,44 @@ type
   TBookmarkPointerType = Pointer;
   TBuffer = TRecordBuffer;
 {$ELSE}
+  {$IF FPC_RELEASE >= 5}
+  TBookmarkType = TBookmark;
+  {$ELSE}
   TBookmarkType = TBookmarkStr;
+  {$ENDIF}
   TBookmarkPointerType = TBookmark;
   TBuffer = PChar;
 {$ENDIF}
   { TLocateObject }
 
   TLocateObject = class(TObject)
-  Private
+  private
     FDataSet: TDataSet;
     FLookupField: TField;
-    FLookupValue: AnsiString;
-    FLookupExact, FCaseSensitive: Boolean;
+    FLookupValue: ansistring;
+    FLookupExact, FCaseSensitive: boolean;
     FBookmark: TBookmark;
-    FIndexSwitch: Boolean;
+    FIndexSwitch: boolean;
     procedure SetDataSet(Value: TDataSet);
-  Protected
-    function MatchesLookup(Field: TField): Boolean;
-    procedure CheckFieldType(Field: TField); Virtual;
-    procedure ActiveChanged; Virtual;
-    function LocateFilter: Boolean; Virtual;
-    function LocateKey: Boolean; Virtual;
-    function LocateFull: Boolean; Virtual;
-    function UseKey: Boolean; Virtual;
-    function FilterApplicable: Boolean; Virtual;
-    property LookupField: TField Read FLookupField;
-    property LookupValue: AnsiString Read FLookupValue;
-    property LookupExact: Boolean Read FLookupExact;
-    property CaseSensitive: Boolean Read FCaseSensitive;
-    property Bookmark: TBookmark Read FBookmark Write FBookmark;
-  Public
-    function Locate(const KeyField, KeyValue: AnsiString;
-      Exact, ACaseSensitive: Boolean): Boolean;
-    property DataSet: TDataSet Read FDataSet Write SetDataSet;
-    property IndexSwitch: Boolean Read FIndexSwitch Write FIndexSwitch;
+  protected
+    function MatchesLookup(Field: TField): boolean;
+    procedure CheckFieldType(Field: TField); virtual;
+    procedure ActiveChanged; virtual;
+    function LocateFilter: boolean; virtual;
+    function LocateKey: boolean; virtual;
+    function LocateFull: boolean; virtual;
+    function UseKey: boolean; virtual;
+    function FilterApplicable: boolean; virtual;
+    property LookupField: TField read FLookupField;
+    property LookupValue: ansistring read FLookupValue;
+    property LookupExact: boolean read FLookupExact;
+    property CaseSensitive: boolean read FCaseSensitive;
+    property Bookmark: TBookmark read FBookmark write FBookmark;
+  public
+    function Locate(const KeyField, KeyValue: ansistring;
+      Exact, ACaseSensitive: boolean): boolean;
+    property DataSet: TDataSet read FDataSet write SetDataSet;
+    property IndexSwitch: boolean read FIndexSwitch write FIndexSwitch;
   end;
 
 type
@@ -153,53 +157,51 @@ type
 
 const
   CreateLocateObject: TCreateLocateObject = nil;
+
 function CreateLocate(DataSet: TDataSet): TLocateObject;
 
 { Utility routines }
 
-function IsDataSetEmpty(DataSet: TDataSet): Boolean;
+function IsDataSetEmpty(DataSet: TDataSet): boolean;
 procedure RefreshQuery(Query: TDataSet);
-function DataSetSortedSearch(DataSet: TDataSet;
-  const Value, FieldName: AnsiString; CaseInsensitive: Boolean): Boolean;
-function DataSetSectionName(DataSet: TDataSet): AnsiString;
+function DataSetSortedSearch(DataSet: TDataSet; const Value, FieldName: ansistring;
+  CaseInsensitive: boolean): boolean;
+function DataSetSectionName(DataSet: TDataSet): ansistring;
 
 procedure InternalSaveFields(DataSet: TDataSet; IniFile: TObject;
-  const Section: AnsiString);
+  const Section: ansistring);
 procedure InternalRestoreFields(DataSet: TDataSet; IniFile: TObject;
-  const Section: AnsiString; RestoreVisible: Boolean);
+  const Section: ansistring; RestoreVisible: boolean);
 
-function DataSetLocateThrough(DataSet: TDataSet; const KeyFields: AnsiString;
-  const KeyValues: Variant; Options: TLocateOptions): Boolean;
+function DataSetLocateThrough(DataSet: TDataSet; const KeyFields: ansistring;
+  const KeyValues: variant; Options: TLocateOptions): boolean;
 procedure SaveFieldsReg(DataSet: TDataSet; IniFile: TRegIniFile);
 procedure RestoreFieldsReg(DataSet: TDataSet; IniFile: TRegIniFile;
-  RestoreVisible: Boolean);
+  RestoreVisible: boolean);
 procedure SaveFields(DataSet: TDataSet; IniFile: TIniFile);
-procedure RestoreFields(DataSet: TDataSet; IniFile: TIniFile;
-  RestoreVisible: Boolean);
-procedure AssignRecord(Source, Dest: TDataSet; ByName: Boolean);
-function ConfirmDelete: Boolean;
+procedure RestoreFields(DataSet: TDataSet; IniFile: TIniFile; RestoreVisible: boolean);
+procedure AssignRecord(Source, Dest: TDataSet; ByName: boolean);
+function ConfirmDelete: boolean;
 procedure ConfirmDataSetCancel(DataSet: TDataSet);
 procedure CheckRequiredField(Field: TField);
 procedure CheckRequiredFields(const Fields: array of TField);
-function ExtractFieldName(const Fields: AnsiString;
-  var Pos: Integer): AnsiString;
-procedure FillValueForField(const Field: TField; Value: Variant);
+function ExtractFieldName(const Fields: ansistring; var Pos: integer): ansistring;
+procedure FillValueForField(const Field: TField; Value: variant);
 
 { SQL expressions }
 
-function DateToSQL(Value: TDateTime): AnsiString;
+function DateToSQL(Value: TDateTime): ansistring;
 function FormatSQLDateRange(Date1, Date2: TDateTime;
-  const FieldName: AnsiString): AnsiString;
+  const FieldName: ansistring): ansistring;
 function FormatSQLDateRangeEx(Date1, Date2: TDateTime;
-  const FieldName: AnsiString): AnsiString;
-function FormatSQLNumericRange(const FieldName: AnsiString;
-  LowValue, HighValue, LowEmpty, HighEmpty: Double;
-  Inclusive: Boolean): AnsiString;
-function StrMaskSQL(const Value: AnsiString): AnsiString;
-function FormatSQLCondition(const FieldName, AOperator, Value: AnsiString;
-  FieldType: TFieldType; Exact: Boolean): AnsiString;
-function FormatAnsiSQLCondition(const FieldName, AOperator, Value: AnsiString;
-  FieldType: TFieldType; Exact: Boolean): AnsiString;
+  const FieldName: ansistring): ansistring;
+function FormatSQLNumericRange(const FieldName: ansistring;
+  LowValue, HighValue, LowEmpty, HighEmpty: double; Inclusive: boolean): ansistring;
+function StrMaskSQL(const Value: ansistring): ansistring;
+function FormatSQLCondition(const FieldName, AOperator, Value: ansistring;
+  FieldType: TFieldType; Exact: boolean): ansistring;
+function FormatAnsiSQLCondition(const FieldName, AOperator, Value: ansistring;
+  FieldType: TFieldType; Exact: boolean): ansistring;
 
 const
   TrueExpr = '0=0';
@@ -218,12 +220,11 @@ const
 var
   NullDate: TDateTime = { -693594 } 0;
 
-procedure _DBError(const Msg: AnsiString);
-function GetDefaultSection(Component: TComponent): AnsiString;
-procedure IniWriteString(IniFile: TObject; const Section, Ident,
-  Value: AnsiString);
-function IncDay(ADate: TDateTime; Delta: Integer): TDateTime;
-function ReplaceStr(const S, Srch, Replace: AnsiString): AnsiString;
+procedure _DBError(const Msg: ansistring);
+function GetDefaultSection(Component: TComponent): ansistring;
+procedure IniWriteString(IniFile: TObject; const Section, Ident, Value: ansistring);
+function IncDay(ADate: TDateTime; Delta: integer): TDateTime;
+function ReplaceStr(const S, Srch, Replace: ansistring): ansistring;
 
 implementation
 
@@ -231,10 +232,10 @@ uses Forms, Controls, Dialogs, Math;
 
 { Utility routines }
 
-function ReplaceStr(const S, Srch, Replace: AnsiString): AnsiString;
+function ReplaceStr(const S, Srch, Replace: ansistring): ansistring;
 var
-  I: Integer;
-  Source: AnsiString;
+  I: integer;
+  Source: ansistring;
 begin
   Source := S;
   Result := '';
@@ -250,15 +251,14 @@ begin
   until I <= 0;
 end;
 
-function IncDay(ADate: TDateTime; Delta: Integer): TDateTime;
+function IncDay(ADate: TDateTime; Delta: integer): TDateTime;
 begin
   Result := ADate + Delta;
 end;
 
-procedure IniWriteString(IniFile: TObject; const Section, Ident,
-  Value: AnsiString);
+procedure IniWriteString(IniFile: TObject; const Section, Ident, Value: ansistring);
 var
-  S: AnsiString;
+  S: ansistring;
 begin
 {$IFDEF WIN32}
   if IniFile is TRegIniFile then
@@ -280,7 +280,7 @@ begin
 {$ENDIF}
 end;
 
-function GetDefaultSection(Component: TComponent): AnsiString;
+function GetDefaultSection(Component: TComponent): ansistring;
 var
   F: TCustomForm;
   Owner: TComponent;
@@ -315,16 +315,16 @@ begin
     Result := '';
 end;
 
-procedure _DBError(const Msg: AnsiString);
+procedure _DBError(const Msg: ansistring);
 begin
   DatabaseError(Msg);
 end;
 
-function ConfirmDelete: Boolean;
+function ConfirmDelete: boolean;
 begin
   Screen.Cursor := crDefault;
-  Result := MessageDlg(SDeleteRecordQuestion, mtConfirmation, [mbYes, mbNo], 0)
-    = mrYes;
+  Result := MessageDlg(SDeleteRecordQuestion, mtConfirmation,
+    [mbYes, mbNo], 0) = mrYes;
 end;
 
 procedure ConfirmDataSetCancel(DataSet: TDataSet);
@@ -340,12 +340,12 @@ begin
   end;
 end;
 
-function SetToBookmark(ADataSet: TDataSet; ABookmark: TBookmark): Boolean;
+function SetToBookmark(ADataSet: TDataSet; ABookmark: TBookmark): boolean;
 begin
   Result := False;
   with ADataSet do
-    if Active and (ABookmark <> nil) and not(Bof and Eof) and BookmarkValid
-      (ABookmark) then
+    if Active and (ABookmark <> nil) and not (Bof and EOF) and
+      BookmarkValid(ABookmark) then
       try
         ADataSet.GotoBookmark(ABookmark);
         Result := True;
@@ -389,13 +389,13 @@ begin
   FDataSet := Value;
 end;
 
-function TLocateObject.LocateFull: Boolean;
+function TLocateObject.LocateFull: boolean;
 begin
   Result := False;
   with DataSet do
   begin
     First;
-    while not Eof do
+    while not EOF do
     begin
       if MatchesLookup(FLookupField) then
       begin
@@ -407,20 +407,20 @@ begin
   end;
 end;
 
-function TLocateObject.LocateKey: Boolean;
+function TLocateObject.LocateKey: boolean;
 begin
   Result := False;
 end;
 
-function TLocateObject.FilterApplicable: Boolean;
+function TLocateObject.FilterApplicable: boolean;
 begin
   Result := FLookupField.FieldKind in [fkData, fkInternalCalc];
 end;
 
-function TLocateObject.LocateFilter: Boolean;
+function TLocateObject.LocateFilter: boolean;
 var
   Options: TLocateOptions;
-  Value: Variant;
+  Value: variant;
 begin
   try
     Options := [];
@@ -441,8 +441,8 @@ procedure TLocateObject.CheckFieldType(Field: TField);
 begin
 end;
 
-function TLocateObject.Locate(const KeyField, KeyValue: AnsiString;
-  Exact, ACaseSensitive: Boolean): Boolean;
+function TLocateObject.Locate(const KeyField, KeyValue: ansistring;
+  Exact, ACaseSensitive: boolean): boolean;
 var
   LookupKey: TField;
 begin
@@ -493,7 +493,7 @@ begin
   end;
 end;
 
-function TLocateObject.UseKey: Boolean;
+function TLocateObject.UseKey: boolean;
 begin
   Result := False;
 end;
@@ -502,9 +502,9 @@ procedure TLocateObject.ActiveChanged;
 begin
 end;
 
-function TLocateObject.MatchesLookup(Field: TField): Boolean;
+function TLocateObject.MatchesLookup(Field: TField): boolean;
 var
-  Temp: AnsiString;
+  Temp: ansistring;
 begin
   Temp := Field.AsString;
   if not FLookupExact then
@@ -527,16 +527,16 @@ end;
 
 { DataSet locate routines }
 
-function DataSetLocateThrough(DataSet: TDataSet; const KeyFields: AnsiString;
-  const KeyValues: Variant; Options: TLocateOptions): Boolean;
+function DataSetLocateThrough(DataSet: TDataSet; const KeyFields: ansistring;
+  const KeyValues: variant; Options: TLocateOptions): boolean;
 var
-  FieldCount: Integer;
+  FieldCount: integer;
   Fields: TList;
   ABookmark: TBookmark;
 
-  function CompareField(Field: TField; Value: Variant): Boolean;
+  function CompareField(Field: TField; Value: variant): boolean;
   var
-    S, S1: AnsiString;
+    S, S1: ansistring;
 
   begin
     if Field.DataType = ftString then
@@ -555,9 +555,9 @@ var
       Result := (Field.Value = Value);
   end;
 
-  function CompareRecord: Boolean;
+  function CompareRecord: boolean;
   var
-    I: Integer;
+    I: integer;
   begin
     if FieldCount = 1 then
       Result := CompareField(TField(Fields.First), KeyValues)
@@ -574,7 +574,7 @@ begin
   with DataSet do
   begin
     CheckBrowseMode;
-    if Bof and Eof then
+    if Bof and EOF then
       Exit;
   end;
   Fields := TList.Create;
@@ -591,7 +591,7 @@ begin
         with DataSet do
         begin
           First;
-          while not Eof do
+          while not EOF do
           begin
             Result := CompareRecord;
             if Result then
@@ -620,8 +620,7 @@ begin
   InternalSaveFields(DataSet, IniFile, DataSetSectionName(DataSet));
 end;
 
-procedure RestoreFields(DataSet: TDataSet; IniFile: TIniFile;
-  RestoreVisible: Boolean);
+procedure RestoreFields(DataSet: TDataSet; IniFile: TIniFile; RestoreVisible: boolean);
 begin
   InternalRestoreFields(DataSet, IniFile, DataSetSectionName(DataSet),
     RestoreVisible);
@@ -633,7 +632,7 @@ begin
 end;
 
 procedure RestoreFieldsReg(DataSet: TDataSet; IniFile: TRegIniFile;
-  RestoreVisible: Boolean);
+  RestoreVisible: boolean);
 begin
   InternalRestoreFields(DataSet, IniFile, DataSetSectionName(DataSet),
     RestoreVisible);
@@ -641,16 +640,16 @@ end;
 
 { DataSetSortedSearch. Navigate on sorted DataSet routine. }
 
-function DataSetSortedSearch(DataSet: TDataSet;
-  const Value, FieldName: AnsiString; CaseInsensitive: Boolean): Boolean;
+function DataSetSortedSearch(DataSet: TDataSet; const Value, FieldName: ansistring;
+  CaseInsensitive: boolean): boolean;
 var
-  L, H, I: Longint;
-  CurrentPos: Longint;
-  CurrentValue: AnsiString;
+  L, H, I: longint;
+  CurrentPos: longint;
+  CurrentValue: ansistring;
   BookMk: TBookmark;
   Field: TField;
 
-  function UpStr(const Value: AnsiString): AnsiString;
+  function UpStr(const Value: ansistring): ansistring;
   begin
     if CaseInsensitive then
       Result := AnsiUpperCase(Value)
@@ -658,7 +657,7 @@ var
       Result := Value;
   end;
 
-  function GetCurrentStr: AnsiString;
+  function GetCurrentStr: ansistring;
   begin
     Result := Field.AsString;
     if Length(Result) > Length(Value) then
@@ -726,7 +725,7 @@ end;
 
 { Save and restore DataSet Fields layout }
 
-function DataSetSectionName(DataSet: TDataSet): AnsiString;
+function DataSetSectionName(DataSet: TDataSet): ansistring;
 begin
   with DataSet do
     if (Owner <> nil) and (Owner is TCustomForm) then
@@ -735,7 +734,7 @@ begin
       Result := Name;
 end;
 
-function CheckSection(DataSet: TDataSet; const Section: AnsiString): AnsiString;
+function CheckSection(DataSet: TDataSet; const Section: ansistring): ansistring;
 begin
   Result := Section;
   if Result = '' then
@@ -743,9 +742,9 @@ begin
 end;
 
 procedure InternalSaveFields(DataSet: TDataSet; IniFile: TObject;
-  const Section: AnsiString);
+  const Section: ansistring);
 var
-  I: Integer;
+  I: integer;
 begin
   with DataSet do
   begin
@@ -754,17 +753,17 @@ begin
       IniWriteString(IniFile, CheckSection(DataSet, Section),
         Name + Fields[I].FieldName,
         Format('%d,%d,%d', [Fields[I].Index, Fields[I].DisplayWidth,
-          Integer(Fields[I].Visible)]));
+        integer(Fields[I].Visible)]));
     end;
   end;
 end;
 
 procedure InternalRestoreFields(DataSet: TDataSet; IniFile: TObject;
-  const Section: AnsiString; RestoreVisible: Boolean);
+  const Section: ansistring; RestoreVisible: boolean);
 type
   TFieldInfo = packed record
     Field: TField;
-    EndIndex: Integer;
+    EndIndex: integer;
   end;
 
   PFieldArray = ^TFieldArray;
@@ -775,36 +774,35 @@ begin
 
 end;
 
-function IsDataSetEmpty(DataSet: TDataSet): Boolean;
+function IsDataSetEmpty(DataSet: TDataSet): boolean;
 begin
   with DataSet do
-    Result := (not Active) or (Eof and Bof);
+    Result := (not Active) or (EOF and Bof);
 end;
 
 { SQL expressions }
 
-function DateToSQL(Value: TDateTime): AnsiString;
+function DateToSQL(Value: TDateTime): ansistring;
 begin
   Result := IntToStr(Trunc(Value));
 end;
 
 function FormatSQLDateRange(Date1, Date2: TDateTime;
-  const FieldName: AnsiString): AnsiString;
+  const FieldName: ansistring): ansistring;
 begin
   Result := TrueExpr;
   if (Date1 = Date2) and (Date1 <> NullDate) then
   begin
-    Result := Format('%s = %s', [FieldName, FormatDateTime(ServerDateFmt,
-        Date1)]);
+    Result := Format('%s = %s', [FieldName, FormatDateTime(ServerDateFmt, Date1)]);
   end
   else if (Date1 <> NullDate) or (Date2 <> NullDate) then
   begin
     if Date1 = NullDate then
-      Result := Format('%s < %s', [FieldName, FormatDateTime(ServerDateFmt,
-          IncDay(Date2, 1))])
+      Result := Format('%s < %s', [FieldName,
+        FormatDateTime(ServerDateFmt, IncDay(Date2, 1))])
     else if Date2 = NullDate then
-      Result := Format('%s > %s', [FieldName, FormatDateTime(ServerDateFmt,
-          IncDay(Date1, -1))])
+      Result := Format('%s > %s', [FieldName,
+        FormatDateTime(ServerDateFmt, IncDay(Date1, -1))])
     else
       Result := Format('(%s < %s) AND (%s > %s)', [FieldName,
         FormatDateTime(ServerDateFmt, IncDay(Date2, 1)), FieldName,
@@ -813,29 +811,28 @@ begin
 end;
 
 function FormatSQLDateRangeEx(Date1, Date2: TDateTime;
-  const FieldName: AnsiString): AnsiString;
+  const FieldName: ansistring): ansistring;
 begin
   Result := TrueExpr;
   if (Date1 <> NullDate) or (Date2 <> NullDate) then
   begin
     if Date1 = NullDate then
-      Result := Format('%s < %s', [FieldName, FormatDateTime(ServerDateFmt,
-          IncDay(Date2, 1))])
+      Result := Format('%s < %s', [FieldName,
+        FormatDateTime(ServerDateFmt, IncDay(Date2, 1))])
     else if Date2 = NullDate then
-      Result := Format('%s >= %s', [FieldName, FormatDateTime(ServerDateFmt,
-          Date1)])
+      Result := Format('%s >= %s', [FieldName,
+        FormatDateTime(ServerDateFmt, Date1)])
     else
-      Result := Format('(%s < %s) AND (%s >= %s)', [FieldName,
-        FormatDateTime(ServerDateFmt, IncDay(Date2, 1)), FieldName,
-        FormatDateTime(ServerDateFmt, Date1)]);
+      Result := Format('(%s < %s) AND (%s >= %s)',
+        [FieldName, FormatDateTime(ServerDateFmt, IncDay(Date2, 1)),
+        FieldName, FormatDateTime(ServerDateFmt, Date1)]);
   end;
 end;
 
-function FormatSQLNumericRange(const FieldName: AnsiString;
-  LowValue, HighValue, LowEmpty, HighEmpty: Double;
-  Inclusive: Boolean): AnsiString;
+function FormatSQLNumericRange(const FieldName: ansistring;
+  LowValue, HighValue, LowEmpty, HighEmpty: double; Inclusive: boolean): ansistring;
 const
-  Operators: array [Boolean, 1 .. 2] of string[2] = (('>', '<'), ('>=', '<='));
+  Operators: array [boolean, 1 .. 2] of string[2] = (('>', '<'), ('>=', '<='));
 begin
   Result := TrueExpr;
   if (LowValue = HighValue) and (LowValue <> LowEmpty) then
@@ -848,8 +845,7 @@ begin
       Result := Format('%s %s %g', [FieldName, Operators[Inclusive, 2],
         HighValue])
     else if HighValue = HighEmpty then
-      Result := Format('%s %s %g', [FieldName, Operators[Inclusive, 1],
-        LowValue])
+      Result := Format('%s %s %g', [FieldName, Operators[Inclusive, 1], LowValue])
     else
     begin
       Result := Format('(%s %s %g) AND (%s %s %g)',
@@ -859,7 +855,7 @@ begin
   end;
 end;
 
-function StrMaskSQL(const Value: AnsiString): AnsiString;
+function StrMaskSQL(const Value: ansistring): ansistring;
 begin
   if (Pos('*', Value) = 0) and (Pos('?', Value) = 0) and (Value <> '') then
     Result := '*' + Value + '*'
@@ -867,17 +863,17 @@ begin
     Result := Value;
 end;
 
-function FormatSQLCondition(const FieldName, AOperator, Value: AnsiString;
-  FieldType: TFieldType; Exact: Boolean): AnsiString;
+function FormatSQLCondition(const FieldName, AOperator, Value: ansistring;
+  FieldType: TFieldType; Exact: boolean): ansistring;
 var
-  EmptyValue: Boolean;
-  FieldValue: AnsiString;
+  EmptyValue: boolean;
+  FieldValue: ansistring;
   DateValue: TDateTime;
-  LogicOperator: AnsiString;
+  LogicOperator: ansistring;
 begin
   FieldValue := '';
   DateValue := NullDate;
-  Exact := Exact or not(FieldType in [ftString, ftDate, ftTime, ftDateTime]);
+  Exact := Exact or not (FieldType in [ftString, ftDate, ftTime, ftDateTime]);
   if FieldType in [ftDate, ftTime, ftDateTime] then
   begin
     DateValue := StrToDateDef(Value, NullDate);
@@ -888,7 +884,7 @@ begin
   begin
     FieldValue := Value;
     EmptyValue := FieldValue = '';
-    if not(Exact or EmptyValue) then
+    if not (Exact or EmptyValue) then
       FieldValue := ReplaceStr(ReplaceStr(StrMaskSQL(FieldValue), '*', '%'),
         '?', '_');
     if FieldType = ftString then
@@ -912,23 +908,23 @@ begin
   else if (FieldType = ftDateTime) and Exact then
   begin
     DateValue := IncDay(DateValue, 1);
-    Result := Format('(%s >= %s) and (%s < %s)', [FieldName, FieldValue,
-      FieldName, FormatDateTime(ServerDateFmt, DateValue)]);
+    Result := Format('(%s >= %s) and (%s < %s)', [FieldName,
+      FieldValue, FieldName, FormatDateTime(ServerDateFmt, DateValue)]);
+
   end
   else
     Result := Format('%s %s %s', [FieldName, LogicOperator, FieldValue]);
 end;
 
-function FormatAnsiSQLCondition(const FieldName, AOperator, Value: AnsiString;
-  FieldType: TFieldType; Exact: Boolean): AnsiString;
+function FormatAnsiSQLCondition(const FieldName, AOperator, Value: ansistring;
+  FieldType: TFieldType; Exact: boolean): ansistring;
 var
-  S, Esc: AnsiString;
+  S, Esc: ansistring;
 begin
   Esc := '';
   if not Exact and (FieldType = ftString) then
   begin
-    S := ReplaceStr(ReplaceStr(ReplaceStr(Value, '/', '//'), '_', '/_'), '%',
-      '/%');
+    S := ReplaceStr(ReplaceStr(ReplaceStr(Value, '/', '//'), '_', '/_'), '%', '/%');
     if S <> Value then
       Esc := ' ESCAPE''/''';
   end
@@ -949,18 +945,18 @@ end;
 
 procedure CheckRequiredFields(const Fields: array of TField);
 var
-  I: Integer;
+  I: integer;
 begin
   for I := Low(Fields) to High(Fields) do
     CheckRequiredField(Fields[I]);
 end;
 
-procedure AssignRecord(Source, Dest: TDataSet; ByName: Boolean);
+procedure AssignRecord(Source, Dest: TDataSet; ByName: boolean);
 var
-  I: Integer;
+  I: integer;
   F, FSrc: TField;
 begin
-  if not(Dest.State in dsEditModes) then
+  if not (Dest.State in dsEditModes) then
     _DBError(SNotEditing);
   if ByName then
   begin
@@ -994,10 +990,9 @@ begin
   end;
 end;
 
-function ExtractFieldName(const Fields: AnsiString;
-  var Pos: Integer): AnsiString;
+function ExtractFieldName(const Fields: ansistring; var Pos: integer): ansistring;
 var
-  I: Integer;
+  I: integer;
 begin
   I := Pos;
   while (I <= Length(Fields)) and (Fields[I] <> ';') do
@@ -1008,7 +1003,7 @@ begin
   Pos := I;
 end;
 
-procedure FillValueForField(const Field: TField; Value: Variant);
+procedure FillValueForField(const Field: TField; Value: variant);
 var
   DS: TDataSet;
   P: TBookmark;
@@ -1018,7 +1013,7 @@ begin
   P := Pointer(DS.Bookmark);
   try
     DS.First;
-    while not DS.Eof do
+    while not DS.EOF do
     begin
       DS.Edit;
       Field.Value := Value;
