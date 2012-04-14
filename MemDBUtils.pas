@@ -112,7 +112,7 @@ type
   TBookmarkPointerType = Pointer;
   TBuffer = TRecordBuffer;
 {$ELSE}
-  {$IF FPC_RELEASE >= 5}
+  {$IFDEF FPC}
   TBookmarkType = TBookmark;
   {$ELSE}
   TBookmarkType = TBookmarkStr;
