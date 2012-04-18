@@ -18,7 +18,8 @@ const
     (Instruction: istDynamicCustProc; Name: 'ClDLL'),
     (Instruction: istInternalCustProc; Name: 'INNER'),
     (Instruction: istInternalOpen; Name: 'INOPEN'),
-    (Instruction: InternalSQLInstruciton; Name: 'INSQLExec')
+    (Instruction: InternalSQLInstruciton; Name: 'INSQLExec'),
+    (Instruction: istSysName; Name: 'SysName')
     );
 type
   TLogonStyle = (UserNameError, PassWordError, LogedOnServer, PermDenied,

@@ -116,16 +116,19 @@ type
 
   TOnCustInternalCall = function(CustInstruc, CustSubInstruc: byte;
     CliParam: PAnsiChar; DataQuery: TServerSockQuery; DataSQLProc:
-      TServerSockQuery;
+    TServerSockQuery;
     DataStoredProc: TServerSockQuery;
     User, SubFunctions: AnsiNetProcString): AnsiNetProcString of object;
 
-  TOnUserLogonCall = function(UserName, Password: AnsiNetProcString): TLogonStyle of
+  TOnUserLogonCall = function(UserName, Password: AnsiNetProcString): TLogonStyle
+    of
     object;
 
   TOnUserDataProcCall = procedure(CSender, ClientThrd: TObject;
     FDSock: TSSocketClient; ReceiveData: AnsiNetProcString; Error: Word
     ) of object;
+
+  TDBSTOREDLOGON = (NoDBSTOREDLOGON, IsDBSTOREDLOGON);
 
   TServerConnBuffer = class(TOnlineDataBuffer)
   private
@@ -145,6 +148,8 @@ type
     TempOrgStyle: integer;
     LogonStyle: boolean;
     FUSR: AnsiNetProcString;
+    AppServerName: AnsiNetProcString;
+    DBSTOREDLOGON: TDBSTOREDLOGON;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Log(const Msg: AnsiNetProcString);
@@ -159,7 +164,8 @@ type
       FUser, FSubFuncs: AnsiNetProcString): boolean;
     function DoSpecialSQL(FDataQuery: TServerSockQuery;
       FUser, FSubFuncs: AnsiNetProcString): boolean;
-    function DoInternalSpecialSQL(CustSubInstrucs: byte; FUser: AnsiNetProcString;
+    function DoInternalSpecialSQL(CustSubInstrucs: byte; FUser:
+      AnsiNetProcString;
       ASQLStyle: SQLStyle; SQLText: AnsiNetProcString): boolean;
     function DoDynamicCustProc(FDataQuery: TServerSockQuery;
       NetSQLProc: TServerSockQuery; FZStProc: TServerSockQuery;
@@ -172,7 +178,8 @@ type
     function ServerSQLProc(CustInstrucV: byte; SQLVS: SQLStyle;
       FUser, SQLValue: AnsiNetProcString): byte;
     function ServerStoredProc(CustInstrucV, SQLVS: byte;
-      FUser, SQLValue: AnsiNetProcString; ParamNum, InNum, RetNum: integer): byte;
+      FUser, SQLValue: AnsiNetProcString; ParamNum, InNum, RetNum: integer):
+        byte;
     function ServerScriptProc(CustInstrucV, SQLVS: byte;
       FUser, SQLValue: AnsiNetProcString): byte;
     function ServerCustBefore(CustInstrucV, SQLVS: byte;
@@ -200,7 +207,7 @@ type
     FUser, FSubFuncs, CliParam, StrBefore: PAnsiChar): PAnsiChar; cdecl;
   T_Do_S_ReturnProc = function(CustInstruc: byte;
     FUser, FSubFuncs, CliParam, StrBefore, StrProc, StrAfter: PAnsiChar):
-      PAnsiChar;
+    PAnsiChar;
   cdecl;
 
 var
@@ -297,7 +304,8 @@ begin
 
 end;
 
-function TCustomServerSockQuery.ParamByName(ParamStr: AnsiNetProcString): TParam;
+function TCustomServerSockQuery.ParamByName(ParamStr: AnsiNetProcString):
+  TParam;
 begin
 
 end;
@@ -376,7 +384,7 @@ begin
   else
     Exit;
 
-  if DataOwner.MustAuthenticate then
+  if (DataOwner.MustAuthenticate) and (DataOwner.DBSTOREDLOGON = IsDBSTOREDLOGON) then
   begin
     if (Pos(TName, DataOwner.TempClientReadTables) = 0) and
       (DataOwner.TempClientReadTables <> 'ALL') then
@@ -535,6 +543,7 @@ begin
   ThousandSeparator := ',';
   ShortTimeFormat := 'H:mm';
   LongTimeFormat := 'H:mm:ss';
+  DBSTOREDLOGON := NoDBSTOREDLOGON;
 end;
 
 destructor TServerConnBuffer.Destroy;
@@ -560,6 +569,11 @@ begin
     IstTime:
       begin
         WriteStr(FormatDateTime('yyyyMMdd hh:mm:ss', Now));
+        ProcessSendData;
+      end;
+    IstSysName:
+      begin
+        WriteStr(AppServerName);
         ProcessSendData;
       end;
     IstSQL:
@@ -873,21 +887,22 @@ begin
   UsrName := ReadStr;
   UsrPsw := ReadStr;
   HasLoggedOn := PermDenied;
-{$IFDEF DBSTOREDLOGON}
-  HasLoggedOn := ServerCheckLogon(UsrName, UsrPsw);
-{$ELSE}
-  if Assigned(FOnUserLogonCall) then
+  if DBSTOREDLOGON = NoDBSTOREDLOGON then
+    HasLoggedOn := ServerCheckLogon(UsrName, UsrPsw)
+  else
   begin
-    HasLoggedOn := FOnUserLogonCall(UsrName, UsrPsw);
-    TempClientFunctions := 'ALL';
-    TempClientPermTables := 'ALL';
-    TempClientReadTables := 'ALL';
-    TempORGID1 := 'ALL';
-    TempORGID2 := 'ALL';
-    LogonStyle := True;
-    TempSubFuncs := 'ALL';
+    if Assigned(FOnUserLogonCall) then
+    begin
+      HasLoggedOn := FOnUserLogonCall(UsrName, UsrPsw);
+      TempClientFunctions := 'ALL';
+      TempClientPermTables := 'ALL';
+      TempClientReadTables := 'ALL';
+      TempORGID1 := 'ALL';
+      TempORGID2 := 'ALL';
+      LogonStyle := True;
+      TempSubFuncs := 'ALL';
+    end;
   end;
-{$ENDIF}
   if (UsrName = SuperUsr) and (UsrPsw = SuperPsw) then
     HasLoggedOn := LogedOnServer;
   if HasLoggedOn = LogedOnServer then
@@ -946,7 +961,7 @@ end;
 
 function TServerConnBuffer.ServerCustBefore(CustInstrucV, SQLVS: byte;
   FUser, ScriptValue, SQLValueE, SQLValueOBefore: AnsiNetProcString):
-    AnsiNetProcString;
+  AnsiNetProcString;
 var
   TempStr, RetStr: AnsiNetProcString;
   I: integer;
@@ -1157,7 +1172,8 @@ begin
 end;
 
 function TServerConnBuffer.DoInternalSpecialSQL(CustSubInstrucs: byte;
-  FUser: AnsiNetProcString; ASQLStyle: SQLStyle; SQLText: AnsiNetProcString): boolean;
+  FUser: AnsiNetProcString; ASQLStyle: SQLStyle; SQLText: AnsiNetProcString):
+    boolean;
 begin
   Result := False;
   try

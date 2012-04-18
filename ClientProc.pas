@@ -93,6 +93,7 @@ type
       CliParam: AnsiNetProcString): AnsiNetProcString;
     function ProcessInternalCustProc(DataSet: TDataset; CPInstruc: Byte;
       CliParam: AnsiNetProcString): AnsiNetProcString;
+    function GetServerName: AnsiNetProcString;
   end;
 
 var
@@ -238,6 +239,15 @@ end;
 function TClientConnBuffer.GetServerTime: AnsiNetProcString;
 begin
   SetInstruction(IstTime);
+  ProcessSendData;
+  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  ProcessReadData;
+  Result := ReadStr;
+end;
+
+function TClientConnBuffer.GetServerName: AnsiNetProcString;
+begin
+  SetInstruction(IstSysName);
   ProcessSendData;
   RecvBuffer := FSocket.ProcessData(SendBuffer);
   ProcessReadData;

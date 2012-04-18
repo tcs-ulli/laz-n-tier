@@ -63,11 +63,13 @@ type
     FDisplayLines: TStrings;
     FZeosDBConnection: TZConnection;
     FActive: Boolean;
-    FPort: string;
+    FPort: AnsiNetProcString;
     FOnCustInternalCall: TOnCustInternalCall;
     FOnUserLogonCall: TOnUserLogonCall;
     FOnDataProcCall: TOnUserDataProcCall;
     FOnConnectionChange: TOnConnectionChange;
+    FServerName: AnsiNetProcString;
+    FOnLogonStyle: TDBSTOREDLOGON;
     procedure SetAuthenticate(Value: Boolean);
     procedure SetDisplayLines(Value: TStrings);
     procedure SetZConnection(FServerConn: TZConnection);
@@ -81,16 +83,18 @@ type
       FDSock: TSSocketClient; ReceiveData: string; Error: Word);
     procedure SSocketServerConnectionChange(Sender: TObject; TCount: integer);
     procedure Display(Msg: string);
+    procedure SetServerName(Value: string);
   public
     SrvConnBuffer: TServerConnBuffer;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ListenOnPort(Port: integer);
-    function DoCustInternalCall(CustInstrucx, CustSubInstrucx: Byte; CliParam: PAnsiChar;
+    function DoCustInternalCall(CustInstrucx, CustSubInstrucx: Byte; CliParam:
+      PAnsiChar;
       DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
       DataStoredProc: TServerSockQuery; User, SubFunctions: AnsiNetProcString
       ): AnsiNetProcString;
-    function DoUserLogOnCall(User, Password: AnsiNetProcString): TLogonStyle;   
+    function DoUserLogOnCall(User, Password: AnsiNetProcString): TLogonStyle;
     property DisplayLines: TStrings read FDisplayLines write SetDisplayLines;
     property Server: TSSocketServer read SSocketServer write SSocketServer;
   published
@@ -109,6 +113,8 @@ type
       write FOnConnectionChange;
     property OnDataProcCall: TOnUserDataProcCall read FOnDataProcCall
       write FOnDataProcCall;
+    property ServerName: AnsiNetProcString read FServerName write SetServerName;
+    property OnLogonStyle: TDBSTOREDLOGON read FOnLogonStyle write FOnLogonStyle; 
   end;
 
 implementation
@@ -124,15 +130,18 @@ begin
   Display(FSSock.GetRemoteSinIP + ' Connected');
 end;
 
-procedure TZeosDataServer.SSocketServerConnectionChange(Sender: TObject; TCount: integer);
+procedure TZeosDataServer.SSocketServerConnectionChange(Sender: TObject; TCount:
+  integer);
 begin
   if Assigned(OnConnectionChange) then
     OnConnectionChange(Sender, TCount);
 end;
 
-procedure TZeosDataServer.SSocketServerDataAvailable(Sender, ClientThrd: TObject;
+procedure TZeosDataServer.SSocketServerDataAvailable(Sender, ClientThrd:
+  TObject;
   FDSock: TSSocketClient; ReceiveData: string; Error: Word);
-var TempInstruc: TInstruction;
+var
+  TempInstruc: TInstruction;
 begin
   if FLocalOnly then
     if FDSock.GetRemoteSinIP <> '127.0.0.1' then
@@ -146,6 +155,9 @@ begin
       Exit;
     end;
 
+  if TempInstruc = IstSysName then
+    SrvConnBuffer.AppServerName := FServerName;
+
   if TempInstruc = IstLogin then
   begin
     SrvConnBuffer.LogonStyle := False;
@@ -156,6 +168,7 @@ begin
     SrvConnBuffer.TempORGID1 := '';
     SrvConnBuffer.TempORGID2 := '';
     SrvConnBuffer.TempSubFuncs := '';
+    SrvConnBuffer.DBSTOREDLOGON := FOnLogonStyle;
   end
   else
   begin
@@ -296,17 +309,26 @@ begin
   FPort := Value;
 end;
 
-function TZeosDataServer.DoCustInternalCall(CustInstrucx, custSubInstrucx: Byte; CliParam: PAnsiChar;
+procedure TZeosDataServer.SetServerName(Value: string);
+begin
+  FServerName := Value;
+  SrvConnBuffer.AppServerName := Value;
+end;
+
+function TZeosDataServer.DoCustInternalCall(CustInstrucx, custSubInstrucx: Byte;
+  CliParam: PAnsiChar;
   DataQuery: TServerSockQuery; DataSQLProc: TServerSockQuery;
   DataStoredProc: TServerSockQuery; User, SubFunctions: AnsiNetProcString
   ): AnsiNetProcString;
 begin
   if Assigned(FOnCustInternalCall) then
-    Result := FOnCustInternalCall(CustInstrucx, CustSubInstrucx, CliParam, DataQuery,
+    Result := FOnCustInternalCall(CustInstrucx, CustSubInstrucx, CliParam,
+      DataQuery,
       DataSQLProc, DataStoredProc, User, SubFunctions);
 end;
 
-function TZeosDataServer.DoUserLogOnCall(User, Password: AnsiNetProcString): TLogonStyle;
+function TZeosDataServer.DoUserLogOnCall(User, Password: AnsiNetProcString):
+  TLogonStyle;
 begin
   Result := PermDenied;
   if Assigned(FOnUserLogOnCall) then

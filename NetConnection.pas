@@ -63,6 +63,7 @@ type
     function Logon: Boolean;
     function Logon2: TLogonStyle;
     procedure SetUTF8Code(Value: TClientEnCode);
+    function GetServerName: string;
   published
     property UserName: AnsiNetProcString read FUsrName write FUsrName;
     property Password: AnsiNetProcString read FPSW write FPSW;
@@ -72,6 +73,11 @@ type
 implementation
 
 { TOnlineConnection }
+
+function TOnlineConnection.GetServerName: string;
+begin
+  Result := Buffer.GetServerName;
+end;
 
 constructor TOnlineConnection.Create(AOwner: TComponent);
 begin
