@@ -217,11 +217,12 @@ function TClientConnBuffer.LogOnServer(UsrName, UsrPsw: AnsiNetProcString):
 begin
   SetInstruction(IstLogin);
   WriteStr(UsrName);
-  WriteStr(StrMD5(UsrName + StrMD5(UsrPsw) + FormatDateTime('yyyymmdd', Now)));
+  WriteStr(StrMD5(UsrName + UsrPsw + FormatDateTime('yyyyMMdd', Now)));
   ProcessSendData;
   RecvBuffer := FSocket.ProcessData(SendBuffer);
   ProcessReadData;
   Result := ReadByte = Byte(Ord(LogedOnServer));
+  //Log(UsrName);  Log(UsrPsw);
 end;
 
 function TClientConnBuffer.LogOnServer2(UsrName, UsrPsw: AnsiNetProcString):
@@ -229,7 +230,7 @@ function TClientConnBuffer.LogOnServer2(UsrName, UsrPsw: AnsiNetProcString):
 begin
   SetInstruction(IstLogin);
   WriteStr(UsrName);
-  WriteStr(StrMD5(UsrName + StrMD5(UsrPsw) + FormatDateTime('yyyymmdd', Now)));
+  WriteStr(StrMD5(UsrName + UsrPsw + FormatDateTime('yyyyMMdd', Now)));
   ProcessSendData;
   RecvBuffer := FSocket.ProcessData(SendBuffer);
   ProcessReadData;

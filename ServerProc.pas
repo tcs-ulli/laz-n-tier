@@ -128,7 +128,7 @@ type
     FDSock: TSSocketClient; ReceiveData: AnsiNetProcString; Error: Word
     ) of object;
 
-  TDBSTOREDLOGON = (NoDBSTOREDLOGON, IsDBSTOREDLOGON);
+  TDataFixStored = (NoDataFixStored, IsDataFixStored);
 
   TServerConnBuffer = class(TOnlineDataBuffer)
   private
@@ -149,7 +149,7 @@ type
     LogonStyle: boolean;
     FUSR: AnsiNetProcString;
     AppServerName: AnsiNetProcString;
-    DBSTOREDLOGON: TDBSTOREDLOGON;
+    DataFixStored: TDataFixStored;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Log(const Msg: AnsiNetProcString);
@@ -384,7 +384,7 @@ begin
   else
     Exit;
 
-  if (DataOwner.MustAuthenticate) and (DataOwner.DBSTOREDLOGON = IsDBSTOREDLOGON) then
+  if (DataOwner.MustAuthenticate) and (DataOwner.DataFixStored = IsDataFixStored) then
   begin
     if (Pos(TName, DataOwner.TempClientReadTables) = 0) and
       (DataOwner.TempClientReadTables <> 'ALL') then
@@ -543,7 +543,7 @@ begin
   ThousandSeparator := ',';
   ShortTimeFormat := 'H:mm';
   LongTimeFormat := 'H:mm:ss';
-  DBSTOREDLOGON := NoDBSTOREDLOGON;
+  DataFixStored := NoDataFixStored;
 end;
 
 destructor TServerConnBuffer.Destroy;
@@ -887,7 +887,7 @@ begin
   UsrName := ReadStr;
   UsrPsw := ReadStr;
   HasLoggedOn := PermDenied;
-  if DBSTOREDLOGON = NoDBSTOREDLOGON then
+  if DataFixStored = IsDataFixStored then
     HasLoggedOn := ServerCheckLogon(UsrName, UsrPsw)
   else
   begin

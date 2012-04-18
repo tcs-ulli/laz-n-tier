@@ -69,7 +69,7 @@ type
     FOnDataProcCall: TOnUserDataProcCall;
     FOnConnectionChange: TOnConnectionChange;
     FServerName: AnsiNetProcString;
-    FOnLogonStyle: TDBSTOREDLOGON;
+    FOnLogonStyle: TDataFixStored;
     procedure SetAuthenticate(Value: Boolean);
     procedure SetDisplayLines(Value: TStrings);
     procedure SetZConnection(FServerConn: TZConnection);
@@ -114,7 +114,7 @@ type
     property OnDataProcCall: TOnUserDataProcCall read FOnDataProcCall
       write FOnDataProcCall;
     property ServerName: AnsiNetProcString read FServerName write SetServerName;
-    property OnLogonStyle: TDBSTOREDLOGON read FOnLogonStyle write FOnLogonStyle; 
+    property OnLogonStyle: TDataFixStored read FOnLogonStyle write FOnLogonStyle; 
   end;
 
 implementation
@@ -168,7 +168,7 @@ begin
     SrvConnBuffer.TempORGID1 := '';
     SrvConnBuffer.TempORGID2 := '';
     SrvConnBuffer.TempSubFuncs := '';
-    SrvConnBuffer.DBSTOREDLOGON := FOnLogonStyle;
+    SrvConnBuffer.DataFixStored := FOnLogonStyle;
   end
   else
   begin
