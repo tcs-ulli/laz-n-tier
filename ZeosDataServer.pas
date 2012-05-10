@@ -127,7 +127,7 @@ end;
 procedure TZeosDataServer.SSocketServerConnect(Sender: TObject;
   FSSock: TSSocketClient; Value: string);
 begin
-  Display(FSSock.GetRemoteSinIP + ' Connected');
+  Display(FormatDateTime('yyyy-MM-dd hh:mm:ss:zzz', Now) + ' ' + FSSock.GetRemoteSinIP + ' Connected');
 end;
 
 procedure TZeosDataServer.SSocketServerConnectionChange(Sender: TObject; TCount:

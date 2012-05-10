@@ -179,7 +179,7 @@ type
       FUser, SQLValue: AnsiNetProcString): byte;
     function ServerStoredProc(CustInstrucV, SQLVS: byte;
       FUser, SQLValue: AnsiNetProcString; ParamNum, InNum, RetNum: integer):
-        byte;
+      byte;
     function ServerScriptProc(CustInstrucV, SQLVS: byte;
       FUser, SQLValue: AnsiNetProcString): byte;
     function ServerCustBefore(CustInstrucV, SQLVS: byte;
@@ -384,7 +384,8 @@ begin
   else
     Exit;
 
-  if (DataOwner.MustAuthenticate) and (DataOwner.DataFixStored = IsDataFixStored) then
+  if (DataOwner.MustAuthenticate) and (DataOwner.DataFixStored = IsDataFixStored)
+    then
   begin
     if (Pos(TName, DataOwner.TempClientReadTables) = 0) and
       (DataOwner.TempClientReadTables <> 'ALL') then
@@ -555,7 +556,19 @@ procedure TServerConnBuffer.Log(const Msg: AnsiNetProcString);
 begin
 {$IFNDEF FPC}
   if ServerLog <> nil then
-    ServerLog.add(Msg);
+  begin
+    if Length(Msg) > 4 then
+    begin
+      if Copy(Msg, 1, 4) <> FormatDateTime('yyyy', Now) then
+        ServerLog[ServerLog.Count - 1] := ServerLog[ServerLog.Count - 1] + ' ' +
+          Msg
+      else
+        ServerLog.add(Msg)
+    end
+    else
+      ServerLog[ServerLog.Count - 1] := ServerLog[ServerLog.Count - 1] + ' ' +
+        Msg;
+  end;
 {$ENDIF}
   Writelog(Msg);
 end;
@@ -914,9 +927,9 @@ begin
   WriteByte(RetByte);
   ProcessSendData;
   if LogonStyle then
-    Log('Logon success')
+    Log('- Logon success')
   else
-    Log('Logon failed');
+    Log('- Logon failed');
 end;
 
 function TServerConnBuffer.DoStoredProc(FDataQuery: TServerSockQuery;
@@ -1173,7 +1186,7 @@ end;
 
 function TServerConnBuffer.DoInternalSpecialSQL(CustSubInstrucs: byte;
   FUser: AnsiNetProcString; ASQLStyle: SQLStyle; SQLText: AnsiNetProcString):
-    boolean;
+  boolean;
 begin
   Result := False;
   try
