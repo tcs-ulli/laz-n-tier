@@ -114,7 +114,8 @@ type
     property OnDataProcCall: TOnUserDataProcCall read FOnDataProcCall
       write FOnDataProcCall;
     property ServerName: AnsiNetProcString read FServerName write SetServerName;
-    property OnLogonStyle: TDataFixStored read FOnLogonStyle write FOnLogonStyle; 
+    property OnLogonStyle: TDataFixStored read FOnLogonStyle write
+      FOnLogonStyle;
   end;
 
 implementation
@@ -127,7 +128,8 @@ end;
 procedure TZeosDataServer.SSocketServerConnect(Sender: TObject;
   FSSock: TSSocketClient; Value: string);
 begin
-  Display(FormatDateTime('yyyy-MM-dd hh:mm:ss:zzz', Now) + ' ' + FSSock.GetRemoteSinIP + ' Connected');
+  Display(FormatDateTime('yyyy-MM-dd hh:mm:ss:zzz', Now) + ' ' +
+    FSSock.GetRemoteSinIP + ' Connected');
 end;
 
 procedure TZeosDataServer.SSocketServerConnectionChange(Sender: TObject; TCount:
@@ -215,7 +217,8 @@ end;
 procedure TZeosDataServer.SSocketServerSocketClose(Sender: TObject;
   FSSock: TSSocketClient; Value: string);
 begin
-  Display(FSSock.GetRemoteSinIP + ' DisConnected');
+  Display(FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now) + FSSock.GetRemoteSinIP
+    + ' DisConnected');
 end;
 
 constructor TZeosDataServer.Create(aOwner: TComponent);
