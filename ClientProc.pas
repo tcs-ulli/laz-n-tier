@@ -105,7 +105,8 @@ type
     Buffer: TClientConnBuffer;
     FUsrName, FPSW: AnsiNetProcString;
     FUTF8Code: TClientEncode;
-    FConnType: TNetConnectType;
+    NetActive: Boolean;
+    //FConnType: TNetConnectType;
     procedure Open; virtual; abstract;
     function Logon: Boolean; virtual; abstract;
     function Logon2: TLogonStyle; virtual; abstract;
@@ -116,7 +117,7 @@ type
     property UserName: AnsiNetProcString read FUsrName write FUsrName;
     property Password: AnsiNetProcString read FPSW write FPSW;
     property UTF8Code: TClientEncode read FUTF8Code write SetUTF8Code;
-    property ConnectionType: TNetConnectType read FConnType write FConnType;   
+    //property ConnectionType: TNetConnectType read FConnType write FConnType;   
   end;
 
 var

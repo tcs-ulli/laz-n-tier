@@ -99,6 +99,7 @@ end;
 procedure TOnlineConnection.Open;
 begin
   inherited Connect;
+  NetActive := Active;
 end;
 
 function TOnlineConnection.Logon: Boolean;

@@ -253,7 +253,7 @@ begin
     Exit;
 
   if Value then
-    if not FOnlineConnection.Active then
+    if not FOnlineConnection.NetActive then
       if not FOnlineConnection.Logon then
       begin
         FOnlineConnection.Buffer.ReturnStr := '';
@@ -264,7 +264,7 @@ begin
       end;
 
   if Value then
-    if not FOnlineConnection.Active then
+    if not FOnlineConnection.NetActive then
       Exit;
 
   inherited;

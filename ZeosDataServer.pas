@@ -99,7 +99,7 @@ type
       DataStoredProc: TServerSockQuery; User, SubFunctions: AnsiNetProcString
       ): AnsiNetProcString;
     function DoUserLogOnCall(User, Password: AnsiNetProcString): TLogonStyle;
-    function ServerDataProc(ReceiveData: string): string;
+    function ServerDataProc(UserID, ReceiveData: string): string;
     property DisplayLines: TStrings read FDisplayLines write SetDisplayLines;
     property Server: TSSocketServer read SSocketServer write SSocketServer;
   published
@@ -219,7 +219,7 @@ begin
     FOnDataProcCall(Sender, ClientThrd, FDSock, ReceiveData, Error);
 end;
 
-function TZeosDataServer.ServerDataProc(ReceiveData: string): string;
+function TZeosDataServer.ServerDataProc(UserID, ReceiveData: string): string;
 var
   TempInstruc: TInstruction;
 begin
@@ -229,6 +229,13 @@ begin
     SrvConnBuffer.AppServerName := FServerName;
 
   SrvConnBuffer.LogonStyle := True;
+  SrvConnBuffer.FUSR := UserID;
+  SrvConnBuffer.TempClientFunctions := 'ALL';
+  SrvConnBuffer.TempClientPermTables := 'ALL';
+  SrvConnBuffer.TempClientReadTables := 'ALL';
+  SrvConnBuffer.TempORGID1 := 'ALL';
+  SrvConnBuffer.TempORGID2 := 'ALL';
+  SrvConnBuffer.TempSubFuncs := 'ALL';
 
   if ReceiveData <> '' then
   begin

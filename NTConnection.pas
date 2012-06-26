@@ -62,6 +62,7 @@ type
     function Logon2: TLogonStyle; override;
     function GetServerName: string; override;
     function ProcessNetData(DataStr: ansistring): ansistring; override;
+    property Host;
   published
     property UserName;
     property Password;
@@ -77,7 +78,7 @@ implementation
 function TLocalConnection.ProcessNetData(DataStr: ansistring): ansistring;
 begin
   if Assigned(ZEOSDataServer) then
-    Result := ZEOSDataServer.ServerDataProc(DataStr)
+    Result := ZEOSDataServer.ServerDataProc(UserName, DataStr)
   else
     Result := '';
 end;
@@ -91,8 +92,6 @@ constructor TLocalConnection.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Buffer := TClientConnBuffer.Create(self);
-  Port := '8080';
-  Host := '127.0.0.1';
   Buffer.CustomConnection := Self;
   FUTF8Code := ccNone;
 end;
@@ -105,30 +104,29 @@ end;
 
 procedure TLocalConnection.Open;
 begin
-  inherited Connect;
+  if Assigned(ZEOSDataServer) then
+    NetActive := True
+  else
+    NetActive := False;
 end;
 
 function TLocalConnection.Logon: Boolean;
 begin
-  if not Active then
-    Open;
-  Result := False;
   if Assigned(ZEOSDataServer) then
   begin
-    if Assigned(ZEOSDataServer.ZeosDBConnection) then
-      Result := True;
+    //if Assigned(ZEOSDataServer.ZeosDBConnection) then
+    Result := True;
+    NetActive := True;
   end;
 end;
 
 function TLocalConnection.Logon2: TLogonStyle;
 begin
-  if not Active then
-    Open;
-  Result := PermDenied;
   if Assigned(ZEOSDataServer) then
   begin
-    if Assigned(ZEOSDataServer.ZeosDBConnection) then
-      Result := LogedOnServer;
+    //if Assigned(ZEOSDataServer.ZeosDBConnection) then
+    Result := LogedOnServer;
+    NetActive := True;
   end;
 end;
 
