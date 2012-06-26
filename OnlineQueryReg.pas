@@ -47,7 +47,7 @@ interface
 
 uses
   Classes, SynaSSockets, SynaCSockets, MemDataBase, NetConnection, OnLineQuery,
-  ServerProc, ZeosDataServer, ZeosProv; //, UIBProv, UIBDataServer;   //UniDaProv, UniDataServer,
+  ServerProc, ZeosDataServer, ZeosProv, NtConnection; //, UIBProv, UIBDataServer;   //UniDaProv, UniDataServer,
 
 procedure Register;
   
@@ -65,6 +65,7 @@ begin
   RegisterComponents('DBNet Advanced', [TClientDataset]);
   {$ENDIF}
   RegisterComponents('DBNet Advanced', [TOnlineConnection]);
+  RegisterComponents('DBNet Advanced', [TLocalConnection]);
   RegisterComponents('DBNet Base', [TMemDB]);
   RegisterComponents('DBNet Advanced', [TZeosDataServer]);
 //  RegisterComponents('DBNet Advanced', [TUniDataServer]);

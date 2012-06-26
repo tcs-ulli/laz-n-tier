@@ -46,8 +46,8 @@ unit OnLineQuery;
 interface
 
 uses
-  MemDataBase, Variants, NetConnection, DateUtils, Messages, SysUtils, Classes,
-  Graphics, Controls, DB, SynaCSockets, ClientProc, DataProcUtils;
+  MemDataBase, Variants, DateUtils, Messages, SysUtils, Classes, Graphics,
+  Controls, DB, SynaCSockets, ClientProc, DataProcUtils;
 
 type
   TOnNetProcListChange = procedure() of object;
@@ -68,7 +68,7 @@ type
 
   TOnlineQuery = class(TMemDB)
   private
-    FOnlineConnection: TOnlineConnection;
+    FOnlineConnection: TCustomOnlineConnection;
     FTableName, FPrimaryKey, FIndexFieldNames, FEditFields: AnsiNetProcString;
     FSync, FLoading: Boolean;
     FSQL, FSQLDataStr: TNetProcList;
@@ -137,7 +137,7 @@ type
     property ClientParam: AnsiNetProcString read FClientParam write
       FClientParam;
     property CachedUpdate: Boolean read FCachedUpdate write FCachedUpdate;
-    property OnlineConnection: TOnlineConnection
+    property OnlineConnection: TCustomOnlineConnection
       read FOnlineConnection write FOnlineConnection;
     property PrimaryKey: AnsiNetProcString read FPrimaryKey write SetPrimaryKey;
     property SQL: TNetProcList read GetSQL write SetSQL;

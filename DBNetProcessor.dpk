@@ -51,7 +51,6 @@ contains
   MD5 in 'MD5.pas',
   MemDataBase in 'MemDataBase.pas',
   MemDBUtils in 'MemDBUtils.pas',
-  NetConnection in 'NetConnection.pas',
   OnLineQuery in 'OnLineQuery.pas',
   SynaSockUtils in 'SynaSockUtils.pas',
   SynaSSockets in 'SynaSSockets.pas',
@@ -67,6 +66,8 @@ contains
   ZeosProv in 'ZeosProv.pas',
   OnlineQueryReg in 'OnlineQueryReg.pas',
   SynaCSockets in 'SynaCSockets.pas',
-  ServerProc in 'ServerProc.pas';
+  ServerProc in 'ServerProc.pas',
+  NTConnection in 'NTConnection.pas',
+  NetConnection in 'NetConnection.pas';
 
 end.

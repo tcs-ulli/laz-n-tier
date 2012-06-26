@@ -45,19 +45,22 @@ unit ClientProc;
 
 interface
 
-uses DataProcUtils, SynaCSockets, SysUtils, Classes, DB,
-{$IFNDEF FPC}WideStrUtils,
-{$ELSE}DynLibs, {$ENDIF}MD5;
+uses DataProcUtils, SynaCSockets, SysUtils, Classes, DB, 
+{$IFNDEF FPC}WideStrUtils, {$ELSE}DynLibs, {$ENDIF}MD5;
 
 type
   TClientEncode = (ccNone, ccUTF8Encode, ccUTF8Decode);
+  TNetConnectType = (ntTCPIP, ntLocal); 
+
+  TCustomOnlineConnection = class;
+
   TClientConnBuffer = class(TOnlineDataBuffer)
   protected
     FDataSet: TDataSet;
     procedure ProcessData; override;
     procedure ProcessError(const Msg: AnsiNetProcString);
   public
-    FSocket: TCSocket;
+    CustomConnection: TCustomOnlineConnection;
     ReturnStr: AnsiNetProcString;
     ClientEncode: TClientEncode;
     constructor Create(AOwner: TComponent); override;
@@ -96,12 +99,38 @@ type
     function GetServerName: AnsiNetProcString;
   end;
 
+  TCustomOnlineConnection = class(TCSocket)
+  public
+    ConnectError: integer;
+    Buffer: TClientConnBuffer;
+    FUsrName, FPSW: AnsiNetProcString;
+    FUTF8Code: TClientEncode;
+    FConnType: TNetConnectType;
+    procedure Open; virtual; abstract;
+    function Logon: Boolean; virtual; abstract;
+    function Logon2: TLogonStyle; virtual; abstract;
+    procedure SetUTF8Code(Value: TClientEnCode); 
+    function GetServerName: string; virtual; abstract;
+    function ProcessNetData(DataStr: ansistring): ansistring; virtual; abstract;
+  published
+    property UserName: AnsiNetProcString read FUsrName write FUsrName;
+    property Password: AnsiNetProcString read FPSW write FPSW;
+    property UTF8Code: TClientEncode read FUTF8Code write SetUTF8Code;
+    property ConnectionType: TNetConnectType read FConnType write FConnType;   
+  end;
+
 var
   ClientLog: TStrings = nil;
 
 implementation
 
 {$I MemDBRADv.inc}
+
+procedure TCustomOnlineConnection.SetUTF8Code(Value: TClientEnCode);
+begin
+  FUTF8Code := Value;
+  Buffer.ClientEncode := Value;
+end;
 
 function GetFileName(str: string): string;
 var
@@ -202,7 +231,7 @@ begin
   WriteByte(1);
   ProcessSendData;
   Log('ExecSQL Send:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   Log('ExecSQL Send:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
   Log('Received string length:' + IntToStr(Length(RecvBuffer)));
   Log('Received string:' + RecvBuffer);
@@ -219,7 +248,7 @@ begin
   WriteStr(UsrName);
   WriteStr(StrMD5(UsrName + UsrPsw + FormatDateTime('yyyyMMdd', Now)));
   ProcessSendData;
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   ProcessReadData;
   Result := ReadByte = Byte(Ord(LogedOnServer));
   //Log(UsrName);  Log(UsrPsw);
@@ -232,7 +261,7 @@ begin
   WriteStr(UsrName);
   WriteStr(StrMD5(UsrName + UsrPsw + FormatDateTime('yyyyMMdd', Now)));
   ProcessSendData;
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   ProcessReadData;
   Result := TLogonStyle(ReadByte);
 end;
@@ -241,7 +270,7 @@ function TClientConnBuffer.GetServerTime: AnsiNetProcString;
 begin
   SetInstruction(IstTime);
   ProcessSendData;
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   ProcessReadData;
   Result := ReadStr;
 end;
@@ -250,7 +279,7 @@ function TClientConnBuffer.GetServerName: AnsiNetProcString;
 begin
   SetInstruction(IstSysName);
   ProcessSendData;
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   ProcessReadData;
   Result := ReadStr;
 end;
@@ -262,7 +291,7 @@ begin
   WriteStr(StrMD5(OldPSW));
   WriteStr(StrMD5(NewPSW));
   ProcessSendData;
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   ProcessReadData;
   Result := ReadByte = 10;
 end;
@@ -307,7 +336,7 @@ begin
   Log('ExecSQL Send:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
   if SendBuffer <> '' then
   begin
-    RecvBuffer := FSocket.ProcessData(SendBuffer);
+    RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
     Log('ExecSQL Send:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
 
     Log('Received string length:' + IntToStr(Length(RecvBuffer)));
@@ -344,7 +373,7 @@ begin
   WriteByte(1);
   ProcessSendData;
   Log('Send:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   Log('Open:' + FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
   ProcessReadData;
   try
@@ -559,7 +588,7 @@ begin
     WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
-    RecvBuffer := FSocket.ProcessData(SendBuffer);
+    RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
     ProcessReadData;
     ReturnValue := ReadByte;
     Result := ReadInt;
@@ -581,7 +610,7 @@ begin
     WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
-    RecvBuffer := FSocket.ProcessData(SendBuffer);
+    RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
     ProcessReadData;
     ReturnValue := ReadByte;
     ReturnValue := ReadByte;
@@ -604,7 +633,7 @@ begin
     WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
-    RecvBuffer := FSocket.ProcessData(SendBuffer);
+    RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
     ProcessReadData;
     ReturnValue := ReadByte;
     Result := ReadByte;
@@ -630,7 +659,7 @@ begin
   WriteStr(CliParam);
   WriteByte(1);
   ProcessSendData;
-  RecvBuffer := FSocket.ProcessData(SendBuffer);
+  RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
   ProcessReadData;
   ReturnValue := ReadByte;
   Result := ReadByte;
@@ -699,7 +728,7 @@ begin
     WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
-    RecvBuffer := FSocket.ProcessData(SendBuffer);
+    RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
     ProcessReadData;
     ReturnValue := ReadByte;
     ReturnValue := ReadByte;
@@ -736,7 +765,7 @@ begin
     WriteStr(CliParam);
     WriteByte(1);
     ProcessSendData;
-    RecvBuffer := FSocket.ProcessData(SendBuffer);
+    RecvBuffer := CustomConnection.ProcessNetData(SendBuffer);
     ProcessReadData;
     ReturnValue := ReadByte;
     Result := ReadStr;

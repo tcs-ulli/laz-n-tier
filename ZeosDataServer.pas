@@ -51,6 +51,10 @@ uses
   ZAbstractConnection, ZStoredProcedure, ZeosProv;
 
 type
+  TOnUserDataProcCall = procedure(CSender, ClientThrd: TObject;
+    FDSock: TSSocketClient; ReceiveData: AnsiNetProcString; Error: Word
+    ) of object;
+
   TZeosDataServer = class(TComponent)
   private
     FLocalOnly: Boolean;
@@ -95,6 +99,7 @@ type
       DataStoredProc: TServerSockQuery; User, SubFunctions: AnsiNetProcString
       ): AnsiNetProcString;
     function DoUserLogOnCall(User, Password: AnsiNetProcString): TLogonStyle;
+    function ServerDataProc(ReceiveData: string): string;
     property DisplayLines: TStrings read FDisplayLines write SetDisplayLines;
     property Server: TSSocketServer read SSocketServer write SSocketServer;
   published
@@ -212,6 +217,35 @@ begin
   end;
   if Assigned(FOnDataProcCall) then
     FOnDataProcCall(Sender, ClientThrd, FDSock, ReceiveData, Error);
+end;
+
+function TZeosDataServer.ServerDataProc(ReceiveData: string): string;
+var
+  TempInstruc: TInstruction;
+begin
+  TempInstruc := SrvConnBuffer.GetInstruction(ReceiveData);
+
+  if TempInstruc = IstSysName then
+    SrvConnBuffer.AppServerName := FServerName;
+
+  SrvConnBuffer.LogonStyle := True;
+
+  if ReceiveData <> '' then
+  begin
+    Display(FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
+    SrvConnBuffer.RecvBuffer := ReceiveData;
+    try
+      SrvConnBuffer.ProcessReadData;
+    except
+    end;
+
+    if SrvConnBuffer.SendBuffer <> '' then
+      Result := SrvConnBuffer.SendBuffer;
+    Display(FormatDateTime('yyyy-mm-dd hh:mm:ss:zzz', Now));
+    Display('Data Length:' + IntToStr(Length(SrvConnBuffer.SendBuffer)));
+  end;
+  if Assigned(FOnDataProcCall) then
+    FOnDataProcCall(nil, nil, nil, ReceiveData, 0);
 end;
 
 procedure TZeosDataServer.SSocketServerSocketClose(Sender: TObject;

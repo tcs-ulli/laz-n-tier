@@ -51,28 +51,29 @@ uses
   SynaCSockets, ClientProc, DataProcUtils;
 
 type
-  TOnlineConnection = class(TCSocket)
+  TOnlineConnection = class(TCustomOnlineConnection)
   public
-    ConnectError: integer;
-    Buffer: TClientConnBuffer;
-    FUsrName, FPSW: AnsiNetProcString;
-    FUTF8Code: TClientEncode;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Open;
-    function Logon: Boolean;
-    function Logon2: TLogonStyle;
-    procedure SetUTF8Code(Value: TClientEnCode);
-    function GetServerName: string;
+    procedure Open; override;
+    function Logon: Boolean; override;
+    function Logon2: TLogonStyle; override;
+    function GetServerName: string; override;
+    function ProcessNetData(DataStr: ansistring): ansistring; override;
   published
-    property UserName: AnsiNetProcString read FUsrName write FUsrName;
-    property Password: AnsiNetProcString read FPSW write FPSW;
-    property UTF8Code: TClientEncode read FUTF8Code write SetUTF8Code;
+    property UserName;
+    property Password;
+    property UTF8Code;
   end;
 
 implementation
 
 { TOnlineConnection }
+
+function TOnlineConnection.ProcessNetData(DataStr: ansistring): ansistring;
+begin
+  Result := ProcessData(DataStr);
+end;
 
 function TOnlineConnection.GetServerName: string;
 begin
@@ -85,7 +86,7 @@ begin
   Buffer := TClientConnBuffer.Create(self);
   Port := '8080';
   Host := '127.0.0.1';
-  Buffer.FSocket := Self;
+  Buffer.CustomConnection := Self;
   FUTF8Code := ccNone;
 end;
 
@@ -93,12 +94,6 @@ destructor TOnlineConnection.Destroy;
 begin
   Buffer.Free;
   inherited Destroy;
-end;
-
-procedure TOnlineConnection.SetUTF8Code(Value: TClientEnCode);
-begin
-  FUTF8Code := Value;
-  Buffer.ClientEncode := Value;
 end;
 
 procedure TOnlineConnection.Open;

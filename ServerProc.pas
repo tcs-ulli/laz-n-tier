@@ -45,7 +45,7 @@ unit ServerProc;
 
 interface
 
-uses DataProcUtils, SynaSSockets, SysUtils, Classes, DB, SyncObjs, {$IFDEF FPC}
+uses DataProcUtils, SysUtils, Classes, DB, SyncObjs, {$IFDEF FPC}
   DynLibs, {$ELSE}Windows, {$ENDIF}MD5, StrUtils;
 
 type
@@ -123,10 +123,6 @@ type
   TOnUserLogonCall = function(UserName, Password: AnsiNetProcString): TLogonStyle
     of
     object;
-
-  TOnUserDataProcCall = procedure(CSender, ClientThrd: TObject;
-    FDSock: TSSocketClient; ReceiveData: AnsiNetProcString; Error: Word
-    ) of object;
 
   TDataFixStored = (NoDataFixStored, IsDataFixStored);
 
