@@ -46,9 +46,9 @@ unit NTConnection;
 interface
 
 uses
-  Variants, {$IFDEF LCL}LCLIntf, LCLType, LMessages, {$ELSE}Windows, {$ENDIF}
-  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, DB,
-  SynaCSockets, ClientProc, DataProcUtils, ZeosDataServer;
+  Variants, {$IFDEF LCL}LCLIntf, LCLType, LMessages, {$ELSE}Windows,
+{$ENDIF}Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  DB, SynaCSockets, ClientProc, DataProcUtils, ZeosDataServer;
 
 type
   TLocalConnection = class(TCustomOnlineConnection)

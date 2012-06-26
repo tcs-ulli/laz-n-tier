@@ -496,14 +496,14 @@ begin
 
     if OnLineConnection.UTF8Code = ccUTF8Encode then
     begin
-      FieldStr := UTF8Encode(FieldStr);
-      TmpStr := UTF8Encode(TmpStr);
+      FieldStr := UTF8Decode(FieldStr);
+      TmpStr := UTF8Decode(TmpStr);
     end;
 
     if OnLineConnection.UTF8Code = ccUTF8Decode then
     begin
-      FieldStr := UTF8Decode(FieldStr);
-      TmpStr := UTF8Decode(TmpStr);
+      FieldStr := UTF8Encode(FieldStr);
+      TmpStr := UTF8Encode(TmpStr);
     end;
 
     TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
@@ -523,9 +523,9 @@ begin
   FSQLDataStr.Text := _SQL;
 
   if OnLineConnection.UTF8Code = ccUTF8Encode then
-    FSQLDataStr.Text := UTF8Encode(_SQL);
-  if OnLineConnection.UTF8Code = ccUTF8Decode then
     FSQLDataStr.Text := UTF8Decode(_SQL);
+  if OnLineConnection.UTF8Code = ccUTF8Decode then
+    FSQLDataStr.Text := UTF8Encode(_SQL);
 end;
 
 function TOnlineQuery.GenerateUpdateData: Boolean;
@@ -570,14 +570,14 @@ begin
 
       if OnLineConnection.UTF8Code = ccUTF8Encode then
       begin
-        FieldStr := UTF8Encode(FieldStr);
-        TmpStr := UTF8Encode(TmpStr);
+        FieldStr := UTF8Decode(FieldStr);
+        TmpStr := UTF8Decode(TmpStr);
       end;
 
       if OnLineConnection.UTF8Code = ccUTF8Decode then
       begin
-        FieldStr := UTF8Decode(FieldStr);
-        TmpStr := UTF8Decode(TmpStr);
+        FieldStr := UTF8Encode(FieldStr);
+        TmpStr := UTF8Encode(TmpStr);
       end;
 
       TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
@@ -592,12 +592,12 @@ begin
 
   if OnLineConnection.UTF8Code = ccUTF8Decode then
     FSQLDataStr.Text :=
-      UTF8Decode('update ' + FTableName + ' set ' + _Values + ' ' +
+      UTF8Encode('update ' + FTableName + ' set ' + _Values + ' ' +
       'where ' + ComputePrimaryKeyForSQLData(True, False));
 
   if OnLineConnection.UTF8Code = ccUTF8Encode then
     FSQLDataStr.Text :=
-      UTF8Encode('update ' + FTableName + ' set ' + _Values + ' ' +
+      UTF8Decode('update ' + FTableName + ' set ' + _Values + ' ' +
       'where ' + ComputePrimaryKeyForSQLData(True, False));
 
   if ChangeCount > 0 then
@@ -612,9 +612,9 @@ var
 begin
   PrimKeySQL := ComputePrimaryKeyForSQLData(True, False);
   if OnLineConnection.UTF8Code = ccUTF8Decode then
-    PrimKeySQL := UTF8Decode(PrimKeySQL);
-  if OnLineConnection.UTF8Code = ccUTF8Encode then
     PrimKeySQL := UTF8Encode(PrimKeySQL);
+  if OnLineConnection.UTF8Code = ccUTF8Encode then
+    PrimKeySQL := UTF8Decode(PrimKeySQL);
   FSQLDataStr.Text := 'Delete from ' + FTableName + ' where ' + PrimKeySQL;
 end;
 
@@ -950,10 +950,10 @@ var
 begin
   TempSQL := FSQL.Text;
   if OnLineConnection.UTF8Code = ccUTF8Encode then
-    TempSQL := UTF8Encode(FSQL.Text);
+    TempSQL := UTF8Decode(FSQL.Text);
 
   if OnLineConnection.UTF8Code = ccUTF8Decode then
-    TempSQL := UTF8Decode(FSQL.Text);
+    TempSQL := UTF8Encode(FSQL.Text);
 
   FRowsAffected := FOnlineConnection.Buffer.ExecSQL(Self,
     TempSQL);
