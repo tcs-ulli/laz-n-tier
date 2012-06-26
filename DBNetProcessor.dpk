@@ -38,11 +38,7 @@ requires
   dclstd,
   vcldesigner,
   dcldb,
-  ZComponent,
-  ZParseSql,
-  ZCore,
-  ZDbc,
-  ZPlain;
+  ZComponent;
 
 contains
   ClientProc in 'ClientProc.pas',
