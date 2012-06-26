@@ -460,6 +460,10 @@ begin
       TmpStr := VarToStr(Field.OldValue);
       FieldStr := TmpStr;
       TmpStr := FieldToSQLString(Field, TmpStr, FieldStr);
+      if OnLineConnection.UTF8Code = ccUTF8Encode then
+        TmpStr := UTF8Decode(TmpStr);
+      if OnLineConnection.UTF8Code = ccUTF8Decode then
+        TmpStr := UTF8Encode(TmpStr);
       Result := Result + '=' + TmpStr;
     end;
   end;
@@ -522,10 +526,10 @@ begin
 
   FSQLDataStr.Text := _SQL;
 
-  if OnLineConnection.UTF8Code = ccUTF8Encode then
+  {if OnLineConnection.UTF8Code = ccUTF8Encode then
     FSQLDataStr.Text := UTF8Decode(_SQL);
   if OnLineConnection.UTF8Code = ccUTF8Decode then
-    FSQLDataStr.Text := UTF8Encode(_SQL);
+    FSQLDataStr.Text := UTF8Encode(_SQL);    }
 end;
 
 function TOnlineQuery.GenerateUpdateData: Boolean;
@@ -590,7 +594,7 @@ begin
     'update ' + FTableName + ' set ' + _Values + ' ' + 'where ' +
     ComputePrimaryKeyForSQLData(True, False);
 
-  if OnLineConnection.UTF8Code = ccUTF8Decode then
+  {if OnLineConnection.UTF8Code = ccUTF8Decode then
     FSQLDataStr.Text :=
       UTF8Encode('update ' + FTableName + ' set ' + _Values + ' ' +
       'where ' + ComputePrimaryKeyForSQLData(True, False));
@@ -598,7 +602,7 @@ begin
   if OnLineConnection.UTF8Code = ccUTF8Encode then
     FSQLDataStr.Text :=
       UTF8Decode('update ' + FTableName + ' set ' + _Values + ' ' +
-      'where ' + ComputePrimaryKeyForSQLData(True, False));
+      'where ' + ComputePrimaryKeyForSQLData(True, False));    }
 
   if ChangeCount > 0 then
     Result := True

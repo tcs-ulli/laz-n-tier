@@ -431,7 +431,7 @@ begin
                 if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
                 begin
                   if ClientEncode = ccUTF8Encode then
-                    FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
+                    FDataSet.Fields[I].AsString := UTF8Encode(TempStr);
                   if ClientEncode = ccUTF8Decode then
                     FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
                 end;
@@ -531,7 +531,7 @@ begin
               if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
               begin
                 if ClientEncode = ccUTF8Encode then
-                  FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
+                  FDataSet.Fields[I].AsString := UTF8Encode(TempStr);
                 if ClientEncode = ccUTF8Decode then
                   FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
               end;
@@ -694,7 +694,7 @@ begin
         if FDataSet.Fields[I].DataType in [ftString, ftFixedChar] then
         begin
           if ClientEncode = ccUTF8Encode then
-            FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
+            FDataSet.Fields[I].AsString := UTF8Encode(TempStr);
           if ClientEncode = ccUTF8Decode then
             FDataSet.Fields[I].AsString := UTF8Decode(TempStr);
         end;
@@ -738,13 +738,13 @@ begin
     ReturnStr := ReadStr;
     if ClientEncode = ccUTF8Encode then
     begin
-      Result := UTF8Encode(Result);
-      ReturnStr := UTF8Encode(ReturnStr);
+      Result := UTF8Decode(Result);
+      ReturnStr := UTF8Decode(ReturnStr);
     end;
     if ClientEncode = ccUTF8Decode then
     begin
-      Result := UTF8Decode(Result);
-      ReturnStr := UTF8Decode(ReturnStr);
+      Result := UTF8Encode(Result);
+      ReturnStr := UTF8Encode(ReturnStr);
     end;
   finally
     FDataSet := nil;
@@ -771,9 +771,9 @@ begin
     ReturnValue := ReadByte;
     Result := ReadStr;
     if ClientEncode = ccUTF8Encode then
-      Result := UTF8Encode(Result);
-    if ClientEncode = ccUTF8Decode then
       Result := UTF8Decode(Result);
+    if ClientEncode = ccUTF8Decode then
+      Result := UTF8Encode(Result);
     log(Result);
   finally
     FDataSet := nil;
