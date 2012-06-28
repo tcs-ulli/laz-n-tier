@@ -901,6 +901,10 @@ begin
       FEditFields := FEditFields + FieldDefs[I].Name;
     end;
   end;
+  {if not FLoading then
+    for i := 0 to Fields.Count - 1 do
+      if Fields[i].DataType = ftString then
+        Fields[i].DisplayWidth := Fields[i].Size;   }
 end;
 
 procedure TOnlineQuery.InternalClose;

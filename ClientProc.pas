@@ -45,12 +45,12 @@ unit ClientProc;
 
 interface
 
-uses DataProcUtils, SynaCSockets, SysUtils, Classes, DB, 
+uses DataProcUtils, SynaCSockets, SysUtils, Classes, DB,
 {$IFNDEF FPC}WideStrUtils, {$ELSE}DynLibs, {$ENDIF}MD5;
 
 type
   TClientEncode = (ccNone, ccUTF8Encode, ccUTF8Decode);
-  TNetConnectType = (ntTCPIP, ntLocal); 
+  TNetConnectType = (ntTCPIP, ntLocal);
 
   TCustomOnlineConnection = class;
 
@@ -110,14 +110,14 @@ type
     procedure Open; virtual; abstract;
     function Logon: Boolean; virtual; abstract;
     function Logon2: TLogonStyle; virtual; abstract;
-    procedure SetUTF8Code(Value: TClientEnCode); 
+    procedure SetUTF8Code(Value: TClientEnCode);
     function GetServerName: string; virtual; abstract;
     function ProcessNetData(DataStr: ansistring): ansistring; virtual; abstract;
   published
     property UserName: AnsiNetProcString read FUsrName write FUsrName;
     property Password: AnsiNetProcString read FPSW write FPSW;
     property UTF8Code: TClientEncode read FUTF8Code write SetUTF8Code;
-    //property ConnectionType: TNetConnectType read FConnType write FConnType;   
+    //property ConnectionType: TNetConnectType read FConnType write FConnType;
   end;
 
 var
@@ -404,6 +404,12 @@ begin
               Name := UTF8Decode(Name);
             Datatype := TFieldType(StrToInt(RetrieveStr(S, ';')));
             Size := StrToInt(RetrieveStr(S, ';'));
+{$IFNDEF FPC}
+            if ClientEncode = ccUTF8Encode then
+              Size := Size * 3 div 2;
+            if ClientEncode = ccUTF8Decode then
+              Size := Size * 2 div 3;
+{$ENDIF}
             Required := Boolean(StrToInt(RetrieveStr(S, ';')));
             FDataSet.FieldDefs.Add(Name, DataType, Size, Required);
           end;
@@ -511,6 +517,12 @@ begin
             Name := UTF8Decode(Name);
           Datatype := TFieldType(StrToInt(RetrieveStr(S, ';')));
           Size := StrToInt(RetrieveStr(S, ';'));
+{$IFNDEF FPC}
+          if ClientEncode = ccUTF8Encode then
+            Size := Size * 3 div 2;
+          if ClientEncode = ccUTF8Decode then
+            Size := Size * 2 div 3;
+{$ENDIF}
           Required := Boolean(StrToInt(RetrieveStr(S, ';')));
           FDataSet.FieldDefs.Add(Name, DataType, Size, Required);
         end;
@@ -680,6 +692,12 @@ begin
         Name := UTF8Decode(Name);
       Datatype := TFieldType(StrToInt(RetrieveStr(S, ';')));
       Size := StrToInt(RetrieveStr(S, ';'));
+{$IFNDEF FPC}
+      if ClientEncode = ccUTF8Encode then
+        Size := Size * 3 div 2;
+      if ClientEncode = ccUTF8Decode then
+        Size := Size * 2 div 3;
+{$ENDIF}
       Required := Boolean(StrToInt(RetrieveStr(S, ';')));
       FDataSet.FieldDefs.Add(Name, DataType, Size, Required);
     end;
