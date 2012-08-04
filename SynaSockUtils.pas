@@ -117,49 +117,7 @@ begin
   Result := LastError = 0;
 end;
 
-//It can work in hard enviroment but can not receive the other message sent.
-{function TCustomSocket.RecvOnlineData(FTimeOut: integer): AnsiString;
-var
-  t, s: AnsiString;
-  RPTTimeOut, FBias, i: integer;
-  ti: longword;
-begin
-  try
-    s := RecvPacket(FTimeOut);
-    RPTTimeOut := 36;
-    i := 0;
-    repeat
-      ti := GetTick;
-
-      t := RecvPacket(RPTTimeOut);
-
-      if RPTTimeOut < FTimeOut then
-        if LastError = WSAETIMEDOUT then
-        begin
-          i := i + 1;
-          FBias := 96;
-          if i = 2 then
-            FBias := 160;
-          if i = 3 then
-            FBias := 1600;
-          if i = 4 then
-          begin
-            FBias := 3600;
-            i := 0;
-          end;
-          RPTTimeOut := FBias + integer(TickDelta(ti, GetTick));
-          ResetLastError;
-        end;
-      if LastError <> 0 then
-        Break;
-      s := s + t;
-    until (t = '') or (LastError <> 0);
-    Result := s;
-  except
-    Result := '';
-  end;
-end;        }
-
+//It can work in hard enviroment and can receive the other message sent.
 function TCustomSocket.RecvOnlineData(FTimeOut: integer): AnsiString;
 var
   t, s: AnsiString;
@@ -184,7 +142,7 @@ begin
             FBias := 1600;
           if i = 4 then
           begin
-            FBias := 3600;
+            FBias := 16000;
             i := 0;
           end;
           RPTTimeOut := FBias + integer(TickDelta(ti, GetTick));

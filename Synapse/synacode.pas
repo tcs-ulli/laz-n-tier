@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 002.002.001 |
+| Project : Ararat Synapse                                       | 002.002.002 |
 |==============================================================================|
 | Content: Coding and decoding support                                         |
 |==============================================================================|
-| Copyright (c)1999-2010, Lukas Gebauer                                        |
+| Copyright (c)1999-2012, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c)2000-2010.                |
+| Portions created by Lukas Gebauer are Copyright (c)2000-2012.                |
 | All Rights Reserved.                                                         |
 |==============================================================================|
 | Contributor(s):                                                              |
@@ -49,6 +49,7 @@
 {$Q-}
 {$R-}
 {$H+}
+{$TYPEDADDRESS OFF}
 
 {$IFDEF UNICODE}
   {$WARN IMPLICIT_STRING_CAST OFF}
@@ -76,8 +77,7 @@ const
   URLFullSpecialChar: TSpecials =
   [';', '/', '?', ':', '@', '=', '&', '#', '+'];
   URLSpecialChar: TSpecials =
-  [#$00..#$20, '_', '<', '>', '"', '%', '{', '}', '|', '\', '^', '~', '[', ']',
-    '`', #$7F..#$FF];
+  [#$00..#$20, '<', '>', '"', '%', '{', '}', '|', '\', '^', '[', ']', '`', #$7F..#$FF];
   TableBase64 =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
   TableBase64mod =
