@@ -142,7 +142,7 @@ begin
             FBias := 1600;
           if i = 4 then
           begin
-            FBias := 16000;
+            FBias := 3600;
             i := 0;
           end;
           RPTTimeOut := FBias + integer(TickDelta(ti, GetTick));
