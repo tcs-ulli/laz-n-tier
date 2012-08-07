@@ -69,7 +69,8 @@ type
   TOnlineQuery = class(TMemDB)
   private
     FOnlineConnection: TCustomOnlineConnection;
-    FTableName, FPrimaryKey, FIndexFieldNames, FEditFields: AnsiNetProcString;
+    FTableName, FPrimaryKey, FIndexFieldNames, FCanEditFields:
+      AnsiNetProcString;
     FSync, FLoading: Boolean;
     FSQL, FSQLDataStr: TNetProcList;
     FReplaceFields: Boolean;
@@ -143,6 +144,8 @@ type
     property SQL: TNetProcList read GetSQL write SetSQL;
     property GetFields: Boolean read FReplaceFields write FReplaceFields;
     property Active: Boolean read GetActive write SetActive;
+    property CanEditFields: AnsiNetProcString read FCanEditFields write
+      FCanEditFields;
     property Filtered;
     property Filter;
     property BeforeOpen;
@@ -479,7 +482,7 @@ begin
   _Values := '';
   _SQL := '';
   Sep := False;
-  S := FEditFields;
+  S := FCanEditFields;
   while S <> '' do
   begin
     S1 := RetrieveStr(S, ';');
@@ -544,7 +547,7 @@ begin
   _From := '';
   _Values := '';
   Sep := False;
-  S := FEditFields;
+  S := FCanEditFields;
   ChangeCount := 0;
   while S <> '' do
   begin
@@ -840,7 +843,7 @@ begin
       inherited InternalOpen
     else
     begin
-      FEditFields := '';
+      //FCanEditFields := '';
       FLoading := True;
       try
         FSync := False;
@@ -893,13 +896,14 @@ begin
     end;
     if FPrimaryKey = '' then
       raise Exception.Create('PrimaryKey can''t be null');
-    FEditFields := '';
-    for i := 0 to FieldDefs.Count - 1 do
-    begin
-      if i > 0 then
-        FEditFields := FEditFields + ';';
-      FEditFields := FEditFields + FieldDefs[I].Name;
-    end;
+    //FCanEditFields := '';
+    if FCanEditFields = '' then
+      for i := 0 to FieldDefs.Count - 1 do
+      begin
+        if i > 0 then
+          FCanEditFields := FCanEditFields + ';';
+        FCanEditFields := FCanEditFields + FieldDefs[I].Name;
+      end;
   end;
   {if not FLoading then
     for i := 0 to Fields.Count - 1 do
