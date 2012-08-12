@@ -19,7 +19,9 @@ const
     (Instruction: istInternalCustProc; Name: 'INNER'),
     (Instruction: istInternalOpen; Name: 'INOPEN'),
     (Instruction: InternalSQLInstruciton; Name: 'INSQLExec'),
-    (Instruction: istSysName; Name: 'SysName')
+    (Instruction: istSysName; Name: 'SysName'),
+    (Instruction: istUpgradeInfo; Name: 'UpgradeInfo'),
+    (Instruction: istUpgradeFile; Name: 'UpgradeFile')
     );
 type
   TLogonStyle = (UserNameError, PassWordError, LogedOnServer, PermDenied,

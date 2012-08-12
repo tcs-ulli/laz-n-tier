@@ -154,6 +154,8 @@ type
     procedure ExecFuncLoadFile;
     procedure ExecFuncError(const Msg: AnsiNetProcString);
     procedure ExecFuncLogin;
+    procedure ExecUpgradeInfo;
+    procedure ExecUpgradeFile;
     function DoSQLScript(FDataQuery: TServerSockQuery;
       FUser, FSubFuncs: AnsiNetProcString): boolean;
     function DoStoredProc(FDataQuery: TServerSockQuery;
@@ -575,6 +577,10 @@ begin
   case Instruction of
     IstLogin:
       ExecFuncLogin;
+    istUpgradeInfo:
+      ExecUpgradeInfo;
+    istUpgradeFile:
+      ExecUpgradeFile;
     IstTime:
       begin
         WriteStr(FormatDateTime('yyyyMMdd hh:mm:ss', Now));
@@ -885,6 +891,20 @@ begin
   WriteStr(Msg);
   ProcessSendData;
   WriteLog(Msg);
+end;
+
+procedure TServerConnBuffer.ExecUpgradeInfo;
+begin
+  SetInstruction(IstUpgradeInfo);
+ // WriteStr(RetByte);
+  ProcessSendData;
+end;
+
+procedure TServerConnBuffer.ExecUpgradeFile;
+begin
+  SetInstruction(IstUpgradeFile);
+ // WriteStr(RetByte);
+  ProcessSendData;
 end;
 
 procedure TServerConnBuffer.ExecFuncLogin();

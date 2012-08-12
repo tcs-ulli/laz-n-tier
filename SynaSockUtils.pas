@@ -93,10 +93,8 @@ begin
     for i := 0 to BLen - 1 do
     begin
       if DisConnected then
-      begin
         Exit;
-      end;
-
+      Sleep(6);
       SetLength(TempData, 8102);
       move(DataStr[i * 8102 + 1], TempData[1], 8102);
       SendString(TempData);
@@ -111,7 +109,7 @@ begin
       SendString(TempData);
     end;
   end
-  else
+  else   
     SendString(DataStr);
 
   Result := LastError = 0;
@@ -130,6 +128,7 @@ begin
     i := 0;
     repeat
       ti := GetTick;
+      Sleep(1);
       t := RecvPacket(RPTTimeOut);
       if RPTTimeOut < FTimeOut then
         if LastError = WSAETIMEDOUT then
@@ -145,6 +144,7 @@ begin
             FBias := 3600;
             i := 0;
           end;
+          Sleep(6);
           RPTTimeOut := FBias + integer(TickDelta(ti, GetTick));
           ResetLastError;
         end;

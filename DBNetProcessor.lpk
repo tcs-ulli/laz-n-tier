@@ -6,7 +6,7 @@
     <AddToProjectUsesSection Value="True"/>
     <Author Value="Yang JiXian"/>
     <CompilerOptions>
-      <Version Value="10"/>
+      <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
         <IncludeFiles Value="Synapse"/>
@@ -15,7 +15,6 @@
       </SearchPaths>
       <Linking>
         <Debugging>
-          <GenerateDebugInfo Value="True"/>
           <DebugInfoType Value="dsStabs"/>
         </Debugging>
       </Linking>
@@ -28,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Net Data Processor Component"/>
     <License Value="LGPL"/>
-    <Version Build="6" Major="2" Minor="3" Release="2"/>
+    <Version Major="2" Minor="3" Release="2" Build="6"/>
     <Files Count="15">
       <Item1>
         <Filename Value="OnLineQuery.pas"/>
@@ -95,7 +94,7 @@
     <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="2">
       <Item1>
-        <PackageName Value="zcomponent"/>
+        <PackageName Value="zeoslcl"/>
       </Item1>
       <Item2>
         <PackageName Value="LCL"/>

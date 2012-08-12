@@ -58,7 +58,7 @@ type
   TInstruction = (istNone, istError, istLogin, istTime, istSQL, istLoadFile, istNoist,
     istSQLCacheExec, istChangePSW, istSpecialSQL, istSQLScript, istStoredProc,
     istDynamicCustProc, istInternalCustProc, istInternalOpen, InternalSQLInstruciton,
-    istSysName);
+    istSysName, istUpgradeInfo, istUpgradeFile);
   TSQLInstruction = (IstSQLExec, IstSQLOpen, IstSQLFieldDefs, IstSQLWithFields);
   AnsiNetProcString = AnsiString;
   PNetProcString = ^AnsiNetProcString;
