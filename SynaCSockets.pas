@@ -47,8 +47,8 @@ interface
 
 uses
   Classes, SyncObjs, SysUtils, Blcksock, Synsock, Synautil, SynaIP, SSL_OpenSSL,
-  {$IFDEF UNIX}{$IFDEF UseCThreads} cthreads, cmem, {$ENDIF}{$ENDIF} Types,
-  SynaSockUtils;
+{$IFDEF UNIX}{$IFDEF UseCThreads}cthreads, cmem, {$ENDIF}{$ENDIF}Types,
+{$IFNDEF FPC}Forms, {$ENDIF}SynaSockUtils;
 
 type
 
@@ -75,10 +75,11 @@ type
   public
     FJob: TJobs;
     FAOwner: TCSocket;
-    FReceiveData, FResponseData: ansistring;
-    OnlineRecvStr: ansistring;
-    FTOnValue: ansistring;
+    FReceiveData, FResponseData: AnsiString;
+    OnlineRecvStr: AnsiString;
+    FTOnValue: AnsiString;
     FTOnReason: THookSocketReason;
+    ReturnCount: integer;
     constructor Create(aOwner: TCSocket);
     destructor Destroy; override;
     procedure Execute; override;
@@ -86,6 +87,7 @@ type
     procedure DoClose;
     procedure SetOwnerStr;
     procedure ClearOwnerJob;
+    procedure SetWaitDataJob;
     procedure GetOwnerJob;
     procedure OwnerOpen;
     procedure OwnerClose;
@@ -105,12 +107,12 @@ type
     FJob: TJobs;
     OnlineContinue: boolean;
     IsRunning: boolean;
-    FWHost: ansistring;
-    FWPort: ansistring;
-    FHostIP: ansistring;
+    FWHost: AnsiString;
+    FWPort: AnsiString;
+    FHostIP: AnsiString;
     Active: boolean;
     FTimeOut: integer;
-    FRecvStr: ansistring;
+    FRecvStr: AnsiString;
     FSocket: TCSocketClient;
     FOnResolvingBegin: TOnSockStatus;
     FOnResolvingEnd: TOnSockStatus;
@@ -128,11 +130,12 @@ type
     FReason: THookSocketReason;
     FCS: SyncObjs.TCriticalSection;
     FMaxSendBandwidth, FMaxRecvBandwidth: integer;
+    NetCompleted: Boolean;
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
-    function ProcessData(DataStr: ansistring): ansistring;
-    function T_ProceData(DataStr: ansistring): ansistring;
-    function P_ProceData(DataStr: ansistring): ansistring;
+    function ProcessData(DataStr: AnsiString): AnsiString;
+    function T_ProceData(DataStr: AnsiString): AnsiString;
+    function P_ProceData(DataStr: AnsiString): AnsiString;
     procedure Connect;
     procedure T_Connect;
     procedure P_Connect;
@@ -140,16 +143,21 @@ type
   published
     property WithSSL: boolean read FWithSSL write FWithSSL;
     property TimeOut: integer read FTimeOut write FTimeout;
-    property Host: ansistring read FWHost write FWHost;
-    property Port: ansistring read FWPort write FWPort;
-    property MaxSendBandwidth: integer read FMaxSendBandwidth write FMaxSendBandwidth;
-    property MaxRecvBandwidth: integer read FMaxRecvBandwidth write FMaxRecvBandwidth;
+    property Host: AnsiString read FWHost write FWHost;
+    property Port: AnsiString read FWPort write FWPort;
+    property MaxSendBandwidth: integer read FMaxSendBandwidth write
+      FMaxSendBandwidth;
+    property MaxRecvBandwidth: integer read FMaxRecvBandwidth write
+      FMaxRecvBandwidth;
     property OnProgress: TOnProgress read FOnProgress write FOnProgress;
     property OnResolvingBegin: TOnSockStatus
       read FOnResolvingBegin write FOnResolvingBegin;
-    property OnResolvingEnd: TOnSockStatus read FOnResolvingEnd write FOnResolvingEnd;
-    property OnSocketCreate: TOnSockStatus read FOnSocketCreate write FOnSocketCreate;
-    property OnSocketClose: TOnSockStatus read FOnSocketClose write FOnSocketClose;
+    property OnResolvingEnd: TOnSockStatus read FOnResolvingEnd write
+      FOnResolvingEnd;
+    property OnSocketCreate: TOnSockStatus read FOnSocketCreate write
+      FOnSocketCreate;
+    property OnSocketClose: TOnSockStatus read FOnSocketClose write
+      FOnSocketClose;
     property OnBind: TOnSockStatus read FOnBind write FOnBind;
     property OnConnect: TOnSockStatus read FOnConnect write FOnConnect;
     property OnCanRead: TOnSockStatus read FOnCanRead write FOnCanRead;
@@ -164,7 +172,8 @@ type
 {$IFDEF FPC}
 {$IFDEF WINDOWS}
 {$IFDEF MSWindows}
-function GetTickCount: DWORD; stdcall; external 'kernel32.dll' Name 'GetTickCount';
+function GetTickCount: DWORD; stdcall; external 'kernel32.dll' Name
+  'GetTickCount';
 {$ELSE}
 function GetTickCount: DWORD; stdcall; external KernelDLL Name 'GetTickCount';
 {$ENDIF}
@@ -172,7 +181,8 @@ function GetTickCount: DWORD; stdcall; external KernelDLL Name 'GetTickCount';
 function GetTickCount: DWord;
 {$ENDIF}
 {$ELSE}
-function GetTickCount: DWORD; stdcall; external 'kernel32.dll' Name 'GetTickCount';
+function GetTickCount: DWORD; stdcall; external 'kernel32.dll' Name
+  'GetTickCount';
 {$ENDIF}
 
 implementation
@@ -192,13 +202,13 @@ end;
 
 procedure ProcessAppMessage;
 begin
-  (*{$IFDEF FPC}
-  WidGetSet.AppProcessMessages;
-  {$ELSE}
+{$IFDEF FPC}
+  //WidGetSet.AppProcessMessages;
+{$ELSE}
   Application.ProcessMessages;
-  {$ENDIF}    *)
+{$ENDIF}
   CheckSynchronize;
-  Sleep(6);
+  Sleep(1);
 end;
 
 procedure TCSocketClient.Init;
@@ -219,9 +229,29 @@ begin
   inherited Destroy;
 end;
 
+procedure Writelog(Value: string);
+var
+  f: textFile;
+  s: string;
+begin
+  s := Value;
+  s := ExtractFilePath(ParamStr(0)) + 'NetEvProc.log';
+  assignfile(f, s);
+  if fileexists(s) then
+    append(f)
+  else
+    rewrite(f);
+  try
+    writeln(f, Value);
+  finally
+    Closefile(f);
+  end;
+end;
+
 procedure TCSocketThread.SetOwnerStr;
 begin
   FAOwner.FRecvStr := OnlineRecvStr;
+  FAOwner.NetCompleted := True;
 end;
 
 procedure TCSocketThread.OwnerOpen;
@@ -240,6 +270,11 @@ begin
   FAOwner.FJob.Job := doNone;
 end;
 
+procedure TCSocketThread.SetWaitDataJob;
+begin
+  FAOwner.FJob.Job := doWaitData;
+end;
+
 procedure TCSocketThread.GetOwnerJob;
 begin
   FJob.Job := FAOwner.FJob.Job;
@@ -248,7 +283,7 @@ end;
 
 procedure TCSocketThread.Execute;
 var
-  s: ansistring;
+  s: AnsiString;
 begin
   Sock := TCSocketClient.Create;
   Sock.OnStatus := SockCallBack;
@@ -274,7 +309,20 @@ begin
           s := RecvOnlineData(FAOwner.TimeOut);
           if s <> '' then
           begin
-            FReceiveData := s;
+            if FJob.Job = doWaitData then
+            begin
+              OnlineRecvStr := OnlineRecvStr + s;
+              if Length(OnlineRecvStr) >= ReturnCount then
+              begin
+                SetLength(OnLineRecvStr, Returncount);
+                SynChronize(SetOwnerStr);
+                ReturnCount := 0;
+                SynChronize(ClearOwnerJob);
+              end;
+            end
+            else
+              FReceiveData := s;
+
             Synchronize(DoOnDataAvailable);
             if FResponseData <> '' then
               SendOnlineData(FResponseData);
@@ -322,21 +370,26 @@ begin
                 Break;
               SendString(FJob.Data);
               OnlineRecvStr := '';
-              SynChronize(SetOwnerStr);
-              if CanRead(FAOwner.TimeOut) then
+              ReturnCount := RecvInteger(FAOwner.TimeOut);
+              Sleep(36);
+     //Writelog(IntToStr(ReturnCount));
+            //  SynChronize(SetOwnerStr);
+              FJob.Job := doWaitData;
+              OnlineRecvStr := Sock.RecvPacket(FAOwner.TimeOut);
+              SynChronize(SetWaitDataJob);
+              {if CanRead(FAOwner.TimeOut) then
               begin
-
                 s := RecvOnlineData(FAOwner.TimeOut);
-
                 OnlineRecvStr := s;
                 SynChronize(SetOwnerStr);
-              end;
+              end;   }
             end;
           except
           end;
 
           Sleep(0);
-          SynChronize(ClearOwnerJob);
+          if FJob.Job <> doWaitData then
+            SynChronize(ClearOwnerJob);
         end;
       end;
     end;
@@ -383,26 +436,27 @@ begin
   FAOwner.FOnProgress(FAOwner, Sock, FTOnReason, StrToIntDef(FTOnValue, 0));
 end;
 
-procedure TCSocketThread.SockCallBack(Sender: TObject; Reason: THookSocketReason;
+procedure TCSocketThread.SockCallBack(Sender: TObject; Reason:
+  THookSocketReason;
   const Value: string);
 begin
   if not terminated then
-    try
-      FTOnReason := Reason;
-      FTOnVaLUE := Value;
-      if Assigned(FAOwner.FOnProgress) then
-        SynChronize(DoOnProgress);
-      case Reason of
-        HR_ResolvingBegin:
-          if Assigned(FAOwner.FOnResolvingBegin) then
-            FAOwner.FOnResolvingBegin(FAOwner, Sock, Value);
-        HR_ResolvingEnd:
-          if Assigned(FAOwner.FOnResolvingEnd) then
-            FAOwner.FOnResolvingEnd(FAOwner, Sock, Value);
-        HR_SocketCreate:
-          if Assigned(FAOwner.FOnSocketCreate) then
-            FAOwner.FOnSocketCreate(FAOwner, Sock, Value);
-        HR_SocketClose:
+  try
+    FTOnReason := Reason;
+    FTOnVaLUE := Value;
+    if Assigned(FAOwner.FOnProgress) then
+      SynChronize(DoOnProgress);
+    case Reason of
+      HR_ResolvingBegin:
+        if Assigned(FAOwner.FOnResolvingBegin) then
+          FAOwner.FOnResolvingBegin(FAOwner, Sock, Value);
+      HR_ResolvingEnd:
+        if Assigned(FAOwner.FOnResolvingEnd) then
+          FAOwner.FOnResolvingEnd(FAOwner, Sock, Value);
+      HR_SocketCreate:
+        if Assigned(FAOwner.FOnSocketCreate) then
+          FAOwner.FOnSocketCreate(FAOwner, Sock, Value);
+      HR_SocketClose:
         begin
           if Assigned(FAOwner.FOnSocketClose) then
             SynChronize(DoOnDisConnect);
@@ -412,33 +466,33 @@ begin
           SynChronize(ClearOwnerJob);
           Terminate;
         end;
-        HR_Bind:
-          if Assigned(FAOwner.FOnBind) then
-            FAOwner.FOnBind(FAOwner, Sock, Value);
-        HR_Connect:
+      HR_Bind:
+        if Assigned(FAOwner.FOnBind) then
+          FAOwner.FOnBind(FAOwner, Sock, Value);
+      HR_Connect:
         begin
           if Assigned(FAOwner.FOnConnect) then
             SynChronize(DoOnConnect);
           SynChronize(OwnerOpen);
         end;
-        HR_CanRead:
-          if Assigned(FAOwner.FOnCanRead) then
-            FAOwner.FOnCanRead(FAOwner, Sock, Value);
-        HR_CanWrite:
-          if Assigned(FAOwner.FOnCanWrite) then
-            FAOwner.FOnCanWrite(FAOwner, Sock, Value);
-        HR_Accept:
-          if Assigned(FAOwner.FOnAccept) then
-            FAOwner.FOnAccept(FAOwner, Sock, Value);
-        HR_Wait:
-          if Assigned(FAOwner.FOnWait) then
-            FAOwner.FOnWait(FAOwner, Sock, Value);
-        HR_Error:
-          if Assigned(FAOwner.FOnSockError) then
-            FAOwner.FOnSockError(FAOwner, Sock, Value);
-      end;
-    except
+      HR_CanRead:
+        if Assigned(FAOwner.FOnCanRead) then
+          FAOwner.FOnCanRead(FAOwner, Sock, Value);
+      HR_CanWrite:
+        if Assigned(FAOwner.FOnCanWrite) then
+          FAOwner.FOnCanWrite(FAOwner, Sock, Value);
+      HR_Accept:
+        if Assigned(FAOwner.FOnAccept) then
+          FAOwner.FOnAccept(FAOwner, Sock, Value);
+      HR_Wait:
+        if Assigned(FAOwner.FOnWait) then
+          FAOwner.FOnWait(FAOwner, Sock, Value);
+      HR_Error:
+        if Assigned(FAOwner.FOnSockError) then
+          FAOwner.FOnSockError(FAOwner, Sock, Value);
     end;
+  except
+  end;
 end;
 
 constructor TCSocket.Create(aOwner: TComponent);
@@ -473,29 +527,29 @@ begin
   inherited Destroy;
 end;
 
-function TCSocket.T_ProceData(DataStr: ansistring): ansistring;
+function TCSocket.T_ProceData(DataStr: AnsiString): AnsiString;
 begin
   Result := '';
   if not IsRunning then
-    try
-      IsRunning := True;
-      if Active and ThrdIsRunning then
-      begin
-        FJob.Job := doSend;
-        FJob.Data := DataStr;
-        while (FJob.Job <> doNone) and OnlineContinue do
-        begin
-          ProcessAppMessage;
-          Sleep(0);
-        end;
-        Result := FRecvStr;
-      end;
-    finally
-      IsRunning := False;
+  try
+    IsRunning := True;
+    FRecvStr := '';
+    NetCompleted := False;
+    if Active and ThrdIsRunning then
+    begin
+      FJob.Job := doSend;
+      FJob.Data := DataStr;
+      while (FJob.Job <> doNone) and OnlineContinue do
+      //while not NetCompleted and OnlineContinue and (FJob.Job = doWaitData) do
+        ProcessAppMessage;
+      Result := FRecvStr;
     end;
+  finally
+    IsRunning := False;
+  end;
 end;
 
-function TCSocket.ProcessData(DataStr: ansistring): ansistring;
+function TCSocket.ProcessData(DataStr: AnsiString): AnsiString;
 begin
   if (csDesigning in ComponentState) then
     Result := P_ProceData(DataStr)
@@ -503,9 +557,9 @@ begin
     Result := T_ProceData(DataStr);
 end;
 
-function TCSocket.P_ProceData(DataStr: ansistring): ansistring;
+function TCSocket.P_ProceData(DataStr: AnsiString): AnsiString;
 var
-  Buf: ansistring;
+  Buf: AnsiString;
 begin
   Result := '';
   FSocket.SendString(DataStr);

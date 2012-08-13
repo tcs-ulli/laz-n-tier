@@ -361,7 +361,10 @@ begin
           s := '';
           try
             if ResponseData <> '' then
+            begin
+              Sock.SendInteger(Length(ResponseData));
               Sock.SendOnlineData(ResponseData);
+            end;
           except
           end;
         end;

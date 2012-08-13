@@ -60,7 +60,7 @@ type
     function RecvOnlineData(FTimeOut: integer): AnsiString;
   end;
 
-  JobContent = (doNone, doConn, doDisconn, doSend, doRecv);
+  JobContent = (doNone, doConn, doDisconn, doSend, doRecv, doWaitData);
 
   TJobs = record
     Job: JobContent;
